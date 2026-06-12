@@ -1,5 +1,6 @@
 __pycache__/
 .pytest_cache/
+.agents/
 .DS_Store
 .venv/
 node_modules/

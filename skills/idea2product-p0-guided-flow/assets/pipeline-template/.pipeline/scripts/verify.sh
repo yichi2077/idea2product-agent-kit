@@ -13,7 +13,9 @@ else
   echo "verify.sh: no python3 or python interpreter found on PATH." >&2
   exit 1
 fi
+"$PY" .pipeline/scripts/link_skills.py
 "$PY" .pipeline/scripts/audit_skills.py
 "$PY" .pipeline/scripts/detect_trigger_conflicts.py
 "$PY" .pipeline/scripts/validate_recipes.py
+"$PY" .pipeline/scripts/validate_state.py
 "$PY" -m pytest .pipeline/tests -q

@@ -15,6 +15,7 @@ required_context:
   - ".pipeline/state/risk-register.yaml"
 outputs:
   - docs/20-product/prd.md
+  - docs/20-product/pm-critic-report.md
 completion_commands:
   - python .pipeline/scripts/pipeline.py stage complete P5
   - python .pipeline/scripts/pipeline.py gate request product

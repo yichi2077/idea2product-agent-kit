@@ -22,6 +22,7 @@ For existing projects, initialization is non-destructive by default: existing di
 - `python3 .pipeline/scripts/pipeline.py resume` on macOS/Linux; `python .pipeline/scripts/pipeline.py resume` on Windows
 - `python3 .pipeline/scripts/pipeline.py run P1` on macOS/Linux; `python .pipeline/scripts/pipeline.py run P1` on Windows
 - `python3 .pipeline/scripts/pipeline.py gate request strategy` on macOS/Linux; `python .pipeline/scripts/pipeline.py gate request strategy` on Windows
+- `python3 .pipeline/scripts/pipeline.py reopen P5 --reason "..."` on macOS/Linux; `python .pipeline/scripts/pipeline.py reopen P5 --reason "..."` on Windows
 - `python3 .pipeline/scripts/pipeline.py assumptions due` on macOS/Linux; `python .pipeline/scripts/pipeline.py assumptions due` on Windows
 
 ## Codex Skills
@@ -61,3 +62,11 @@ Agents can request a gate but cannot approve it. Approval requires a real termin
 `python3 .pipeline/scripts/pipeline_gate.py approve strategy` on macOS/Linux, or `python .pipeline/scripts/pipeline_gate.py approve strategy` on Windows.
 
 The command asks for the gate name and challenge. It refuses CI, pipes, redirects, and non-interactive shells.
+
+## Rework Loops
+
+Use `pipeline.py reopen Px --reason "..."` when downstream work proves an upstream phase is stale or wrong. Reopen moves the target phase back to `ready`, resets downstream phases to `waiting`, clears affected gates, records the reason in `.pipeline/state/decision-log.md`, and drops stale phase hashes from `.pipeline/state/phase-metadata.json`.
+
+`status` and `next` warn when a completed phase output changes after completion. Treat those warnings as a prompt to either confirm the change is harmless or reopen the affected phase before requesting the next gate.
+
+Product Gate requires a real PRD and a real PM critic report. Strategy Gate in standard/high-assurance mode requires a real decision memo and `.pipeline/reports/strategy-red-team.md`.

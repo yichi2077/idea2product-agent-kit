@@ -40,6 +40,17 @@ def write_state(text: str) -> None:
         fh.write(text)
 
 
+def mark_pilot_strategy_approved(text: str, gate: str) -> str:
+    if gate != "strategy":
+        return text
+    return re.sub(
+        r'pilot_validation: "P1_P3_AWAITING_STRATEGY_APPROVAL"',
+        'pilot_validation: "P1_P3_STRATEGY_GATE_APPROVED"',
+        text,
+        count=1,
+    )
+
+
 def deny_nonhuman() -> None:
     for marker in NONHUMAN_ENV_MARKERS:
         if os.environ.get(marker):
@@ -151,6 +162,7 @@ def approve(args: argparse.Namespace) -> int:
     if "tag:" in block:
         block = re.sub(r"tag: (null|\"[^\"]*\")", f'tag: "{tag or ""}"', block, count=1)
     text = text[: match.start(1)] + block + text[match.end(1):]
+    text = mark_pilot_strategy_approved(text, gate)
     write_state(text)
     log_decision(gate, "approved", stamp, approver, commit, tag, note)
     print(f"Approved {gate} gate at {stamp}.")

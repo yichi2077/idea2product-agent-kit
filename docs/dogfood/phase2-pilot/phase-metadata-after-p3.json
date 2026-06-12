@@ -1,0 +1,36 @@
+{
+  "phases": {
+    "P1": {
+      "completed_at": "2026-06-12T18:11:11Z",
+      "outputs": [
+        {
+          "path": "docs/00-idea/idea-brief.md",
+          "sha256": "e1e8cb1f2d87a0524b72752e7ecee31e4561d57fc770fba812a09b6397fa1687"
+        }
+      ]
+    },
+    "P2": {
+      "completed_at": "2026-06-12T18:11:11Z",
+      "outputs": [
+        {
+          "path": "docs/10-strategy/strategy-research-note.md",
+          "sha256": "93d4bb97bb8d8b95021d45a365aa3f0dee8baffafffb08672a84ffbaf52d70c3"
+        }
+      ]
+    },
+    "P3": {
+      "completed_at": "2026-06-12T18:11:11Z",
+      "outputs": [
+        {
+          "path": "docs/10-strategy/decision-memo.md",
+          "sha256": "7c14c1f392591a6070c6970a9d67e049e107fd4c3ae4eaff1dc17a75d4c75321"
+        },
+        {
+          "path": ".pipeline/reports/strategy-red-team.md",
+          "sha256": "486d2864aa34ff29aed2e3d172b8c5bce0beffa3fe694a2d13393d4cd56414a6"
+        }
+      ]
+    }
+  },
+  "reopens": []
+}

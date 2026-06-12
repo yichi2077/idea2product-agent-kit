@@ -4,7 +4,7 @@
 
 Recipes in `.pipeline/recipes` are closed lists. Each recipe names explicit `$skill` calls and required outputs. All active skills carry `agents/openai.yaml` with implicit invocation disabled.
 
-State lives under `.pipeline/state`. Do not directly modify gate approval fields.
+State lives under `.pipeline/state`. Do not directly modify gate approval fields. Phase completion hashes and reopen records live in `.pipeline/state/phase-metadata.json`; the state YAML remains the human-readable phase/gate surface.
 
 ## User-Level Entry Skills
 
@@ -29,3 +29,11 @@ The repository also ships `agent-adapters/` for non-Codex hosts. All adapters po
 - Generic: `AGENTS.md`
 
 Do not fork pipeline state logic into host adapters.
+
+## Closed-Loop State
+
+`pipeline stage complete Px` records hashes for that phase's declared recipe outputs. `pipeline status` and `pipeline next` compare those hashes against current files and warn when a completed output is stale.
+
+`pipeline reopen Px --reason "..."` is the supported rework path. It resets the target phase and downstream phases, clears affected gates, appends the reason to the decision log, and removes stale downstream phase metadata.
+
+Gate requests enforce minimum evidence preconditions. Product Gate requires both the PRD and PM critic report to be real artifacts. Strategy Gate requires the decision memo, plus the red-team report in standard/high-assurance mode.

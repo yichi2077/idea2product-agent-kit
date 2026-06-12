@@ -17,9 +17,9 @@ This map records the closed recipe behind each explicit `idea2product-Px-*` entr
 | --- | --- | --- | --- | --- |
 | P1 | `idea2product-p1-idea-expansion` | `$assumption-challenger` | None | Expands and stress-tests the raw idea before strategy work. |
 | P2 | `idea2product-p2-strategy-analysis` | `$market-research`, `$business-investment-advisor` | `$financial-analyst` only with real revenue/cost/cash-flow/budget/forecast data; `$assumption-challenger` as optional strategy review | Avoids forcing finance-analysis workflows onto early rough ideas. |
-| P3 | `idea2product-p3-strategy-decision` | `$ceo-advisor` | `$assumption-challenger` optional for final pre-mortem or cross-model red-team | Strategy Gate is requested with `pipeline gate request strategy`, not as a recipe skill. |
+| P3 | `idea2product-p3-strategy-decision` | `$ceo-advisor` | `$assumption-challenger` optional for final pre-mortem or cross-model red-team | Strategy Gate is requested with `pipeline gate request strategy`, not as a recipe skill. Standard/high-assurance gate request requires a real decision memo and `.pipeline/reports/strategy-red-team.md`. |
 | P4 | `idea2product-p4-product-discovery` | `$foundation-lean-canvas`, `$define-problem-statement`, `$define-jtbd-canvas`, `$define-opportunity-tree`, `$define-hypothesis`, `$define-prioritization-framework`, `$develop-solution-brief` | `$discover-interview-synthesis` with raw interviews; `$measure-experiment-design` when designing validation; `$measure-experiment-results` only after real data; `$iterate-pivot-decision` when evidence requires it | Uses Product on Purpose discovery order and keeps validation-result skills evidence-gated. |
-| P5 | `idea2product-p5-product-definition` | `$deliver-prd`, `$deliver-user-stories`, `$deliver-acceptance-criteria`, `$deliver-edge-cases`, `$measure-instrumentation-spec`, `$utility-pm-critic` | None | Product Gate is requested with `pipeline gate request product`. Run `$utility-pm-critic` in a fresh context against the completed PRD. |
+| P5 | `idea2product-p5-product-definition` | `$deliver-prd`, `$deliver-user-stories`, `$deliver-acceptance-criteria`, `$deliver-edge-cases`, `$measure-instrumentation-spec`, `$utility-pm-critic` | None | Product Gate is requested with `pipeline gate request product`. Run `$utility-pm-critic` in a fresh context against the completed PRD; gate request requires both PRD and critic report. |
 | P6 | `idea2product-p6-architecture-handoff` | `$prd-to-speckit-handoff`, `$develop-adr`, `$develop-design-rationale` | `$develop-spike-summary` only after a real technical spike; Context7 CLI as external tool | Architecture Gate is requested with `pipeline gate request architecture`; spike summaries are not generated before spike evidence exists. |
 | P7 | `idea2product-p7-feature-specification` | External Spec Kit command chain | `$prd-to-speckit-handoff` only when packets are missing/stale, PRD was re-approved, or traceability fails | Default path consumes the approved Specify Packet and runs `speckit.specify`, `speckit.clarify`, `speckit.checklist`, `speckit.plan`, `speckit.tasks`, `speckit.analyze`. |
 | P8 | `idea2product-p8-build-release` | `$executing-plans`, `$test-driven-development`, `$verification-before-completion`, `$requesting-code-review`, `$receiving-code-review`, `$deliver-launch-checklist`, `$finishing-a-development-branch` | `$systematic-debugging` only when tests fail, a bug appears, or behavior differs from expectation | Release Gate is requested with `pipeline gate request release`; debugging is not a mandatory happy-path skill. |
@@ -40,6 +40,8 @@ This keeps phase entry skills thin:
 2. Follow the phase recipe.
 3. Produce and verify artifacts.
 4. Run the listed `completion_commands`.
+
+If a downstream phase invalidates an upstream artifact, use `pipeline reopen Px --reason "..."` instead of editing state by hand. Reopen clears affected gates and forces the downstream recipe chain to run again from the reopened phase.
 
 ## Validation
 
