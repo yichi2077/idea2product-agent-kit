@@ -12,7 +12,7 @@ conditional_skills:
     when: "Use only when tests fail, a bug appears, or behavior differs from expectation."
 non_skill_process:
   - Run Playwright and CI verification before Release Gate.
-  - pipeline gate request release
+  - pipeline gate request release --confidence <high|medium|low> --rationale "<grounded in open assumptions and risks>"
 required_context:
   - ".pipeline/state/pipeline-state.yaml"
   - ".pipeline/state/assumption-register.yaml"

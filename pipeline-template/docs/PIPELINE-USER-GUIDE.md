@@ -64,6 +64,14 @@ Agents can request a gate but cannot approve it. Approval requires a real termin
 
 The command asks for the gate name and challenge. It refuses CI, pipes, redirects, and non-interactive shells.
 
+### Confidence signal
+
+When an agent requests a gate it should state how confident it is in the decision context it prepared:
+
+`pipeline.py gate request strategy --confidence high|medium|low --rationale "what drives that confidence"`
+
+The level and rationale are recorded in `.pipeline/state/phase-metadata.json` and shown to you at approval time, so you can vary your scrutiny accordingly. A `low` or unstated confidence prints a caution before the challenge prompt. Confidence is advisory only — it never auto-approves or auto-rejects, because a self-rated score is not a reliable gate. Ground the rationale in the open assumptions and risks (`pipeline.py handoff`).
+
 ## Handoff Brief
 
 When you return after a break, or a fresh agent session (or a different model) picks up the work, run `pipeline.py handoff` before doing anything else. It is a read-only renderer that consolidates the five things needed to continue without re-litigating settled work: current phase and mode, the next step, gate states, the decisions already recorded, the open assumptions (flagged `OVERDUE` past their review date) and open risks, and any stale completed outputs. It reads only the registers the pipeline already maintains and never changes state. `resume` points to it.

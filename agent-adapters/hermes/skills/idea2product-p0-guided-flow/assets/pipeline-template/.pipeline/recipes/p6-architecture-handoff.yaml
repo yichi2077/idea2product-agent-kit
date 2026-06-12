@@ -11,7 +11,7 @@ external_tools:
 non_skill_process:
   - Generate Feature Map and Specify Packets before ADR/design rationale.
   - Run real technical spikes before $develop-spike-summary.
-  - pipeline gate request architecture
+  - pipeline gate request architecture --confidence <high|medium|low> --rationale "<grounded in open assumptions and risks>"
 required_context:
   - ".pipeline/state/pipeline-state.yaml"
   - ".pipeline/state/assumption-register.yaml"

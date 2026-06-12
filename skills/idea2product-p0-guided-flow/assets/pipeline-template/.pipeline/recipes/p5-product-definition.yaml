@@ -8,7 +8,7 @@ required_skills:
   - $utility-pm-critic
 non_skill_process:
   - Run $utility-pm-critic in a fresh context against the completed PRD artifact.
-  - pipeline gate request product
+  - pipeline gate request product --confidence <high|medium|low> --rationale "<grounded in open assumptions and risks>"
 required_context:
   - ".pipeline/state/pipeline-state.yaml"
   - ".pipeline/state/assumption-register.yaml"

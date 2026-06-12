@@ -22,6 +22,7 @@ PHASES = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"]
 MODES = {"light", "standard", "high-assurance"}
 GATES = {"strategy", "product", "architecture", "release"}
 GATE_PHASES = {"strategy": "P3", "product": "P5", "architecture": "P6", "release": "P8"}
+CONFIDENCE_LEVELS = ("high", "medium", "low")
 PYTHON_CMD = "python" if sys.platform.startswith("win") else "python3"
 # A scaffolded placeholder idea-brief carries this marker. The real-idea guard
 # treats any brief that still contains it as "not a real idea yet".
@@ -307,6 +308,19 @@ def reset_gate_fields(block: str) -> str:
         block = re.sub(rf'{key}: (null|"[^"]*")', f"{key}: null", block, count=1)
     return block
 
+def record_gate_confidence(gate: str, level: str | None, rationale: str | None) -> None:
+    """Persist the agent's self-rated confidence in the prepared decision
+    context to the metadata sidecar. It informs the human approver's scrutiny;
+    it never auto-approves or auto-rejects (self-rated confidence is not a
+    reliable gate)."""
+    metadata = load_metadata()
+    metadata.setdefault("gate_confidence", {})[gate] = {
+        "level": level or "unstated",
+        "rationale": (rationale or "").strip(),
+        "recorded_at": now(),
+    }
+    save_metadata(metadata)
+
 def gate_request(args: argparse.Namespace) -> int:
     gate = args.gate.lower()
     if gate not in GATES:
@@ -340,8 +354,13 @@ def gate_request(args: argparse.Namespace) -> int:
     block = reset_gate_fields(block)
     text = text[: match.start(1)] + block + text[match.end(1):]
     write(STATE, text)
+    record_gate_confidence(gate, args.confidence, args.rationale)
     print(f"Gate requested: {gate}")
     print(f"Manual approval challenge: {challenge}")
+    level = args.confidence or "unstated"
+    print(f"Recorded agent confidence: {level}")
+    if level in {"low", "unstated"}:
+        print("Confidence is low/unstated; the human approver will be prompted to apply extra scrutiny.")
     print("Approval must be performed by a human in a real interactive terminal using pipeline_gate.py.")
     return 0
 
@@ -457,6 +476,11 @@ def reopen(args: argparse.Namespace) -> int:
         print("Reopen requires a non-empty --reason.")
         return 2
     text = read(STATE)
+    current_status = phase_status(text, phase)
+    if current_status != "complete":
+        print(f"Cannot reopen {phase}: only a completed phase can be reopened "
+              f"(current status: {current_status}).")
+        return 2
     affected = PHASES[PHASES.index(phase):]
     text = replace_phase_status(text, phase, "ready")
     for downstream in affected[1:]:
@@ -464,6 +488,13 @@ def reopen(args: argparse.Namespace) -> int:
     text = replace_current_phase(text, phase)
     stamp = now()
     text = re.sub(r'last_updated: "[^"]+"', f'last_updated: "{stamp}"', text, count=1)
+    if "P3" in affected:
+        # Reopening any of P1-P3 unsettles the strategy decision; revoke an
+        # awaiting/approved pilot claim instead of leaving it overstated. Re-running
+        # stage complete P3 restores P1_P3_AWAITING_STRATEGY_APPROVAL.
+        text = re.sub(
+            r'pilot_validation: "(P1_P3_AWAITING_STRATEGY_APPROVAL|P1_P3_STRATEGY_GATE_APPROVED)"',
+            'pilot_validation: "PENDING_REAL_IDEA"', text, count=1)
     for gate, gate_phase in GATE_PHASES.items():
         if gate_phase in affected:
             text = reset_gate(text, gate)
@@ -471,6 +502,9 @@ def reopen(args: argparse.Namespace) -> int:
     metadata = load_metadata()
     for downstream in affected:
         metadata.get("phases", {}).pop(downstream, None)
+    for gate, gate_phase in GATE_PHASES.items():
+        if gate_phase in affected:
+            metadata.get("gate_confidence", {}).pop(gate, None)
     metadata.setdefault("reopens", []).append({"phase": phase, "reopened_at": stamp, "reason": reason})
     save_metadata(metadata)
     log = PIPE / "state" / "decision-log.md"
@@ -507,6 +541,9 @@ def main() -> int:
     gate_sub = gate.add_subparsers(dest="gate_cmd", required=True)
     req = gate_sub.add_parser("request")
     req.add_argument("gate")
+    req.add_argument("--confidence", choices=CONFIDENCE_LEVELS,
+                     help="agent self-rated confidence in the prepared decision context")
+    req.add_argument("--rationale", help="what drives that confidence (ground it in open assumptions/risks)")
     req.set_defaults(func=gate_request)
     reopen_p = sub.add_parser("reopen")
     reopen_p.add_argument("phase")

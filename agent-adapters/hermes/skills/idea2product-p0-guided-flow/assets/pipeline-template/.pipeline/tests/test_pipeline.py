@@ -290,6 +290,83 @@ def test_reopen_requires_reason_and_preserves_state(tmp_path):
     finally:
         restore_state(state, log, metadata, sb, lb, mb)
 
+def test_reopen_refuses_incomplete_phase(tmp_path):
+    # Only a completed phase has work to roll back; reopening a waiting phase is
+    # a no-op that should be refused rather than silently rearranging state.
+    state, log, metadata, sb, lb, mb = backup_state(tmp_path)
+    try:
+        before = state.read_text(encoding="utf-8")
+        result = run(".pipeline/scripts/pipeline.py", "reopen", "P5", "--reason", "premature")
+        assert result.returncode == 2
+        assert "only a completed phase" in result.stdout
+        assert state.read_text(encoding="utf-8") == before
+    finally:
+        restore_state(state, log, metadata, sb, lb, mb)
+
+def test_gate_request_records_confidence_in_metadata(tmp_path):
+    state, log, metadata, sb, lb, mb = backup_state(tmp_path)
+    backups = backup_paths(tmp_path, "docs/10-strategy/decision-memo.md", ".pipeline/reports/strategy-red-team.md")
+    try:
+        write_real_strategy_artifacts()
+        run(".pipeline/scripts/pipeline.py", "stage", "complete", "P3")
+        result = run(".pipeline/scripts/pipeline.py", "gate", "request", "strategy",
+                     "--confidence", "low", "--rationale", "two open risks remain")
+        assert result.returncode == 0
+        assert "Recorded agent confidence: low" in result.stdout
+        data = json.loads(metadata.read_text(encoding="utf-8"))
+        entry = data["gate_confidence"]["strategy"]
+        assert entry["level"] == "low"
+        assert entry["rationale"] == "two open risks remain"
+    finally:
+        restore_paths(backups)
+        restore_state(state, log, metadata, sb, lb, mb)
+
+def test_gate_approval_surfaces_recorded_confidence(tmp_path, capsys):
+    state, log, metadata, sb, lb, mb = backup_state(tmp_path)
+    backups = backup_paths(tmp_path, "docs/00-idea/idea-brief.md", "docs/10-strategy/decision-memo.md", ".pipeline/reports/strategy-red-team.md")
+    try:
+        write_file("docs/00-idea/idea-brief.md", "# Idea\n\nReal idea body long enough to satisfy the guard for the confidence approval test path here.\n")
+        write_real_strategy_artifacts()
+        run(".pipeline/scripts/pipeline.py", "stage", "complete", "P3")
+        run(".pipeline/scripts/pipeline.py", "gate", "request", "strategy",
+            "--confidence", "low", "--rationale", "two open risks remain")
+        block = gate_block(state.read_text(encoding="utf-8"), "strategy")
+        challenge = block.split('challenge: "', 1)[1].split('"', 1)[0]
+        pg = load_module(".pipeline/scripts/pipeline_gate.py", "pg_conf")
+        pg.deny_nonhuman = lambda: None
+        pg.create_tag = lambda *a, **k: None
+        answers = iter(["strategy", challenge, "approved for test"])
+        pg.input = lambda *a, **k: next(answers)
+        rc = pg.approve(types.SimpleNamespace(gate="strategy"))
+        out = capsys.readouterr().out
+        assert rc == 0
+        assert "confidence" in out.lower()
+        assert "LOW" in out
+        assert "two open risks remain" in out
+    finally:
+        restore_paths(backups)
+        restore_state(state, log, metadata, sb, lb, mb)
+
+def test_reopen_reverts_pilot_and_drops_gate_confidence(tmp_path):
+    state, log, metadata, sb, lb, mb = backup_state(tmp_path)
+    backups = backup_paths(tmp_path, "docs/00-idea/idea-brief.md", "docs/10-strategy/decision-memo.md", ".pipeline/reports/strategy-red-team.md")
+    try:
+        write_file("docs/00-idea/idea-brief.md", "# Idea\n\nReal idea body long enough to pass the real-idea guard for the pilot revert test path here.\n")
+        write_real_strategy_artifacts()
+        assert run(".pipeline/scripts/pipeline.py", "stage", "complete", "P3").returncode == 0
+        assert run(".pipeline/scripts/pipeline.py", "gate", "request", "strategy",
+                   "--confidence", "high", "--rationale", "evidence is solid").returncode == 0
+        assert 'pilot_validation: "P1_P3_AWAITING_STRATEGY_APPROVAL"' in state.read_text(encoding="utf-8")
+        assert json.loads(metadata.read_text(encoding="utf-8"))["gate_confidence"]["strategy"]["level"] == "high"
+        assert run(".pipeline/scripts/pipeline.py", "reopen", "P3", "--reason", "strategy assumption invalidated").returncode == 0
+        text = state.read_text(encoding="utf-8")
+        assert "  P3: ready" in text
+        assert 'pilot_validation: "PENDING_REAL_IDEA"' in text
+        assert "strategy" not in json.loads(metadata.read_text(encoding="utf-8")).get("gate_confidence", {})
+    finally:
+        restore_paths(backups)
+        restore_state(state, log, metadata, sb, lb, mb)
+
 def test_status_warns_when_completed_artifact_is_stale(tmp_path):
     state, log, metadata, sb, lb, mb = backup_state(tmp_path)
     backups = backup_paths(tmp_path, "docs/00-idea/idea-brief.md")

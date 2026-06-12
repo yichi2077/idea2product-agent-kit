@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import getpass
+import json
 import os
 import re
 import subprocess
@@ -11,6 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 STATE = ROOT / ".pipeline/state/pipeline-state.yaml"
+METADATA = ROOT / ".pipeline/state/phase-metadata.json"
 GATES = {"strategy", "product", "architecture", "release"}
 
 # Environment markers that indicate a non-interactive automation host. The TTY
@@ -75,6 +77,34 @@ def field(block: str, key: str) -> str | None:
     if not match or match.group(1) == "null":
         return None
     return match.group(2)
+
+
+def load_gate_confidence(gate: str) -> dict:
+    if not METADATA.exists():
+        return {}
+    try:
+        data = json.loads(METADATA.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+    entry = data.get("gate_confidence", {}).get(gate)
+    return entry if isinstance(entry, dict) else {}
+
+
+def print_confidence_banner(gate: str) -> None:
+    """Surface the agent's self-rated confidence so the approver can vary
+    scrutiny. Absence is treated as a caution, not a pass."""
+    entry = load_gate_confidence(gate)
+    level = entry.get("level", "unstated")
+    rationale = entry.get("rationale", "")
+    print(f"Agent-stated confidence in this gate's decision context: {level.upper()}")
+    if rationale:
+        print(f"Confidence rationale: {rationale}")
+    if level in {"low", "unstated"}:
+        print(
+            f"CAUTION: confidence is {level.upper()} -- review the prepared artifacts "
+            "and the open assumptions/risks (pipeline.py handoff) with extra scrutiny "
+            "before approving."
+        )
 
 
 def head_commit() -> str | None:
@@ -147,6 +177,7 @@ def approve(args: argparse.Namespace) -> int:
     if 'status: "awaiting_approval"' not in block:
         print("Gate is not awaiting approval. Request the gate first.")
         return 2
+    print_confidence_banner(gate)
     stored_challenge = field(block, "challenge")
     ok, note = prompt_human(gate, stored_challenge)
     if not ok:
@@ -181,6 +212,7 @@ def reject(args: argparse.Namespace) -> int:
     if 'status: "awaiting_approval"' not in block:
         print("Gate is not awaiting approval. Nothing to reject.")
         return 2
+    print_confidence_banner(gate)
     stored_challenge = field(block, "challenge")
     ok, note = prompt_human(gate, stored_challenge)
     if not ok:

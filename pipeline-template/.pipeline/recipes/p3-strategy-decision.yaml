@@ -5,7 +5,7 @@ optional_skills:
   - name: $assumption-challenger
     when: "Use for a final pre-mortem or cross-model red-team before requesting the Strategy Gate."
 non_skill_process:
-  - pipeline gate request strategy
+  - pipeline gate request strategy --confidence <high|medium|low> --rationale "<grounded in open assumptions and risks>"
 required_context:
   - ".pipeline/state/pipeline-state.yaml"
   - ".pipeline/state/assumption-register.yaml"
