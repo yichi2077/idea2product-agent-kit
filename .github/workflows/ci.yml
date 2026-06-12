@@ -1,0 +1,34 @@
+name: kit-ci
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "23 4 * * 1"
+jobs:
+  # Gate on mirror drift first: pipeline-template/ and skills/ are canonical and
+  # are mirrored into the guided-flow skill assets and the Hermes/OpenClaw
+  # adapters. A hand edit that updates one copy but not the others must fail CI.
+  mirror-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python scripts/sync_bundles.py --check
+  # Run the canonical pipeline-template test suite (recipe + state validation and
+  # the pytest suite) on every supported Python.
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install -r pipeline-template/.pipeline/requirements-dev.txt
+      - working-directory: pipeline-template
+        run: sh .pipeline/scripts/verify.sh
