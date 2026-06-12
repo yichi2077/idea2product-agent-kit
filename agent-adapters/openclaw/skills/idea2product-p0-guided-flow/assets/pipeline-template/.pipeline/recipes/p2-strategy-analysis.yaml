@@ -1,0 +1,21 @@
+phase: "P2"
+required_skills:
+  - $market-research
+  - $business-investment-advisor
+conditional_skills:
+  - name: $financial-analyst
+    when: "Use only when real revenue, cost, cash-flow, budget, or forecast data exists."
+optional_skills:
+  - name: $assumption-challenger
+    when: "Use for an additional strategy assumption review or pre-mortem."
+required_context:
+  - ".pipeline/state/pipeline-state.yaml"
+  - ".pipeline/state/assumption-register.yaml"
+  - ".pipeline/state/risk-register.yaml"
+outputs:
+  - docs/10-strategy/strategy-research-note.md
+completion_commands:
+  - python .pipeline/scripts/pipeline.py stage complete P2
+post_skill_verification:
+  required: true
+  fallback: "Read the vendored SKILL.md directly if explicit skill invocation did not load."

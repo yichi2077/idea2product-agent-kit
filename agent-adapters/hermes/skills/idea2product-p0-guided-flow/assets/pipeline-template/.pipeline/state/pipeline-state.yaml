@@ -1,0 +1,49 @@
+pipeline:
+  version: "3.1"
+  mode: "standard"
+  current_phase: "P1"
+  last_updated: "2026-06-12T11:06:22Z"
+  pilot_validation: "PENDING_REAL_IDEA"
+gates:
+  strategy:
+    status: "not_requested"
+    requested_at: null
+    approved_at: null
+    approver: null
+    challenge: null
+    commit: null
+    tag: null
+  product:
+    status: "not_requested"
+    requested_at: null
+    approved_at: null
+    approver: null
+    challenge: null
+    commit: null
+    tag: null
+  architecture:
+    status: "not_requested"
+    requested_at: null
+    approved_at: null
+    approver: null
+    challenge: null
+    commit: null
+    tag: null
+  release:
+    status: "not_requested"
+    requested_at: null
+    approved_at: null
+    approver: null
+    challenge: null
+    commit: null
+    tag: null
+phases:
+  P1: ready
+  P2: blocked_until_real_idea
+  P3: blocked_until_real_idea
+  P4: waiting
+  P5: waiting
+  P6: waiting
+  P7: waiting
+  P8: waiting
+  P9: waiting

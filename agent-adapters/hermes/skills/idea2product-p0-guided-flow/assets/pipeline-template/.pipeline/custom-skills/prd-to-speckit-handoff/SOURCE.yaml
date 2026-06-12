@@ -1,0 +1,6 @@
+source_repository: "local"
+source_path: ".pipeline/custom-skills/prd-to-speckit-handoff"
+source_commit: "LOCAL"
+source_license: "Proprietary local workflow"
+vendored_at: "2026-06-12T11:06:22Z"
+local_modifications: []

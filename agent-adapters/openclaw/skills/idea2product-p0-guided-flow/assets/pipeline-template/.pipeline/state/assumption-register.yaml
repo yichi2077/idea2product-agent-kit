@@ -1,0 +1,7 @@
+assumptions:
+  - id: A-0001
+    statement: "First real idea is not supplied yet; pilot P1-P3 remains pending."
+    owner: "user"
+    evidence: []
+    status: "open"
+    review_by: "2026-06-19"

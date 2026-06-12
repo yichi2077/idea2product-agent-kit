@@ -1,0 +1,21 @@
+phase: "P3"
+required_skills:
+  - $ceo-advisor
+optional_skills:
+  - name: $assumption-challenger
+    when: "Use for a final pre-mortem or cross-model red-team before requesting the Strategy Gate."
+non_skill_process:
+  - pipeline gate request strategy
+required_context:
+  - ".pipeline/state/pipeline-state.yaml"
+  - ".pipeline/state/assumption-register.yaml"
+  - ".pipeline/state/risk-register.yaml"
+outputs:
+  - docs/10-strategy/decision-memo.md
+  - .pipeline/reports/strategy-red-team.md
+completion_commands:
+  - python .pipeline/scripts/pipeline.py stage complete P3
+  - python .pipeline/scripts/pipeline.py gate request strategy
+post_skill_verification:
+  required: true
+  fallback: "Read the vendored SKILL.md directly if explicit skill invocation did not load."

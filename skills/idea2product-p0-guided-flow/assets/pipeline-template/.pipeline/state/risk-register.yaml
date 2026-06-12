@@ -1,0 +1,6 @@
+risks:
+  - id: R-0001
+    statement: "Without a real idea, strategic validation can only be prepared, not completed."
+    severity: "medium"
+    mitigation: "Run pipeline run P1 after adding docs/00-idea/idea-brief.md."
+    status: "open"

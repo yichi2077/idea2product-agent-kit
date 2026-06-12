@@ -1,0 +1,7 @@
+source_repository: "superpowers"
+source_path: "skills/verification-before-completion"
+source_commit: "6fd4507659784c351abbd2bc264c7162cfd386dc"
+source_license: "See vendored LICENSE copy"
+vendored_at: "2026-06-12T11:06:22Z"
+local_modifications:
+  - "Added Codex openai.yaml policy to disable implicit invocation."

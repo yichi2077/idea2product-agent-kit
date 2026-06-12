@@ -1,0 +1,29 @@
+phase: "P4"
+required_skills:
+  - $foundation-lean-canvas
+  - $define-problem-statement
+  - $define-jtbd-canvas
+  - $define-opportunity-tree
+  - $define-hypothesis
+  - $define-prioritization-framework
+  - $develop-solution-brief
+conditional_skills:
+  - name: $discover-interview-synthesis
+    when: "Use only when raw interview, customer call, or usability session material exists."
+  - name: $measure-experiment-design
+    when: "Use when the phase needs a real product validation experiment design."
+  - name: $measure-experiment-results
+    when: "Use only after real experiment data exists."
+  - name: $iterate-pivot-decision
+    when: "Use only after validation evidence indicates a pivot/persevere decision is needed."
+required_context:
+  - ".pipeline/state/pipeline-state.yaml"
+  - ".pipeline/state/assumption-register.yaml"
+  - ".pipeline/state/risk-register.yaml"
+outputs:
+  - docs/20-product/product-thesis.md
+completion_commands:
+  - python .pipeline/scripts/pipeline.py stage complete P4
+post_skill_verification:
+  required: true
+  fallback: "Read the vendored SKILL.md directly if explicit skill invocation did not load."

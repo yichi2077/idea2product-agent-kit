@@ -1,0 +1,10 @@
+---
+description: Use idea2product for staged Idea to Strategy to Product to Architecture to Delivery work; applies when the user asks for pipeline status, resume, P1-P9 execution, gates, PRD, strategy, architecture handoff, release, or outcome review.
+alwaysApply: true
+---
+
+# idea2product Cursor Rule
+
+Follow `agent-adapters/common/IDEA2PRODUCT_AGENT_GUIDE.md` when the user asks for idea2product, product strategy, PRD-to-architecture handoff, staged delivery, gates, resume, or status.
+
+Do not approve gates. Ask the user to run the manual approval command in a real terminal.

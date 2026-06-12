@@ -1,0 +1,7 @@
+source_repository: "claude-skills"
+source_path: "finance/skills/financial-analyst"
+source_commit: "4a3c05b69e64f4925f7fc65c88890f614f79caf0"
+source_license: "See vendored LICENSE copy"
+vendored_at: "2026-06-12T11:06:22Z"
+local_modifications:
+  - "Added Codex openai.yaml policy to disable implicit invocation."

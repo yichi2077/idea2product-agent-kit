@@ -1,0 +1,23 @@
+phase: "P5"
+required_skills:
+  - $deliver-prd
+  - $deliver-user-stories
+  - $deliver-acceptance-criteria
+  - $deliver-edge-cases
+  - $measure-instrumentation-spec
+  - $utility-pm-critic
+non_skill_process:
+  - Run $utility-pm-critic in a fresh context against the completed PRD artifact.
+  - pipeline gate request product
+required_context:
+  - ".pipeline/state/pipeline-state.yaml"
+  - ".pipeline/state/assumption-register.yaml"
+  - ".pipeline/state/risk-register.yaml"
+outputs:
+  - docs/20-product/prd.md
+completion_commands:
+  - python .pipeline/scripts/pipeline.py stage complete P5
+  - python .pipeline/scripts/pipeline.py gate request product
+post_skill_verification:
+  required: true
+  fallback: "Read the vendored SKILL.md directly if explicit skill invocation did not load."

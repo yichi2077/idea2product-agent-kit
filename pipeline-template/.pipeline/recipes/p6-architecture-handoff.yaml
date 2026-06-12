@@ -1,0 +1,27 @@
+phase: "P6"
+required_skills:
+  - $prd-to-speckit-handoff
+  - $develop-adr
+  - $develop-design-rationale
+conditional_skills:
+  - name: $develop-spike-summary
+    when: "Use only after a real technical spike has been executed and has results to summarize."
+external_tools:
+  - Context7 CLI
+non_skill_process:
+  - Generate Feature Map and Specify Packets before ADR/design rationale.
+  - Run real technical spikes before $develop-spike-summary.
+  - pipeline gate request architecture
+required_context:
+  - ".pipeline/state/pipeline-state.yaml"
+  - ".pipeline/state/assumption-register.yaml"
+  - ".pipeline/state/risk-register.yaml"
+outputs:
+  - docs/30-architecture/feature-map.yaml
+  - docs/30-architecture/traceability-matrix.yaml
+completion_commands:
+  - python .pipeline/scripts/pipeline.py stage complete P6
+  - python .pipeline/scripts/pipeline.py gate request architecture
+post_skill_verification:
+  required: true
+  fallback: "Read the vendored SKILL.md directly if explicit skill invocation did not load."

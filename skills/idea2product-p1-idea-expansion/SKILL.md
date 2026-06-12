@@ -1,0 +1,34 @@
+---
+name: idea2product-p1-idea-expansion
+description: "Capture a real product or business idea, clarify the user, problem, urgency, do-nothing cost, time budget, risks, and stop conditions, then initialize assumptions and risks for downstream strategy work. Use when the user explicitly asks for idea2product-P1-idea-expansion, P1, phase 1, or this step of the idea-to-product pipeline."
+---
+
+# idea2product-P1-idea-expansion
+
+Capture a real product or business idea, clarify the user, problem, urgency, do-nothing cost, time budget, risks, and stop conditions, then initialize assumptions and risks for downstream strategy work.
+
+## Required Workspace
+
+Work from the target project root when possible. If `.pipeline/scripts/pipeline.py` is missing, initialize the workspace first by invoking `idea2product-p0-guided-flow`, then run P1.
+
+## Run
+
+From the workspace root, run:
+
+```powershell
+python .pipeline/scripts/pipeline.py run P1
+```
+
+
+Then follow the printed recipe exactly. The recipe separates required skills, conditional skills, optional skills, external tools, non-skill process steps, outputs, and completion commands for this phase.
+
+## Main Output
+
+`docs/00-idea/idea-brief.md`
+
+## Rules
+
+- Do not skip earlier gates or approved dependencies.
+- Do not invent a fake business idea for P1-P3 validation.
+- If the command reports a blocker, report the blocker and the concrete missing input.
+- After editing pipeline state, re-run `python .pipeline/scripts/pipeline.py status` to confirm the workspace is consistent.

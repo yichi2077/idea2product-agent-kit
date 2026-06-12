@@ -1,0 +1,6 @@
+# Developer / CI dependencies for the idea2product pipeline.
+# The runtime pipeline commands (status, run, gate, stage, mode) use only the
+# Python standard library and need NOTHING from this file.
+# These are required only to run verify (recipe validation + the test suite):
+pyyaml>=6.0
+pytest>=7.0

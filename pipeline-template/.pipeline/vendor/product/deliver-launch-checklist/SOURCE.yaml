@@ -1,0 +1,7 @@
+source_repository: "pm-skills"
+source_path: "skills/deliver-launch-checklist"
+source_commit: "f82e5d23bc528f2771608e80479532eaae2324e7"
+source_license: "See vendored LICENSE copy"
+vendored_at: "2026-06-12T11:06:22Z"
+local_modifications:
+  - "Added Codex openai.yaml policy to disable implicit invocation."
