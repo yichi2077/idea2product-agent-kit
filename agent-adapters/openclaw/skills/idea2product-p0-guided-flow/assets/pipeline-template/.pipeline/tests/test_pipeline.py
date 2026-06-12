@@ -57,7 +57,7 @@ def test_resume_command_reports_next_action():
     result = run(".pipeline/scripts/pipeline.py", "resume")
     assert result.returncode == 0
     assert "Resume recommendation:" in result.stdout
-    assert "Command: python .pipeline/scripts/pipeline.py run P1" in result.stdout
+    assert f"Command: {'python' if sys.platform.startswith('win') else 'python3'} .pipeline/scripts/pipeline.py run P1" in result.stdout
 
 def test_gate_request_updates_target_gate_only(tmp_path):
     state, log, sb, lb = backup_state(tmp_path)
@@ -77,14 +77,16 @@ def test_gate_request_updates_target_gate_only(tmp_path):
 def test_stage_complete_updates_phase_without_approving_gate(tmp_path):
     state, log, sb, lb = backup_state(tmp_path)
     try:
+        before_product_block = state.read_text(encoding="utf-8").split("  product:", 1)[1].split("  architecture:", 1)[0]
         result = run(".pipeline/scripts/pipeline.py", "stage", "complete", "P5")
         assert result.returncode == 0
         text = state.read_text(encoding="utf-8")
         assert "  P5: complete" in text
         assert "  P6: blocked_until_product_gate" in text
         product_block = text.split("  product:", 1)[1].split("  architecture:", 1)[0]
-        assert 'status: "not_requested"' in product_block
-        assert "Required next gate command: python .pipeline/scripts/pipeline.py gate request product" in result.stdout
+        assert product_block == before_product_block
+        expected_python = "python" if sys.platform.startswith("win") else "python3"
+        assert f"Required next gate command: {expected_python} .pipeline/scripts/pipeline.py gate request product" in result.stdout
     finally:
         restore_state(state, log, sb, lb)
 

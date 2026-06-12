@@ -15,6 +15,7 @@ IDEA_BRIEF = ROOT / "docs/00-idea/idea-brief.md"
 PHASES = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"]
 MODES = {"light", "standard", "high-assurance"}
 GATES = {"strategy", "product", "architecture", "release"}
+PYTHON_CMD = "python" if sys.platform.startswith("win") else "python3"
 # A scaffolded placeholder idea-brief carries this marker. The real-idea guard
 # treats any brief that still contains it as "not a real idea yet".
 SCAFFOLD_MARKER = "idea2product:scaffold-placeholder"
@@ -26,7 +27,8 @@ def read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 def write(path: Path, text: str) -> None:
-    path.write_text(text, encoding="utf-8", newline="\n")
+    with path.open("w", encoding="utf-8", newline="\n") as fh:
+        fh.write(text)
 
 def has_real_idea() -> bool:
     """True only when a real idea-brief exists: present, past the scaffold
@@ -55,7 +57,7 @@ def next_cmd(_: argparse.Namespace) -> int:
         marker = f"  {phase}: ready"
         if marker in state:
             print(f"Next: run {phase}")
-            print(f"Command: python .pipeline/scripts/pipeline.py run {phase}")
+            print(f"Command: {PYTHON_CMD} .pipeline/scripts/pipeline.py run {phase}")
             return 0
     if "blocked_until_real_idea" in state:
         print("Blocked: capture a real idea in docs/00-idea/idea-brief.md, then "
@@ -173,7 +175,7 @@ def stage_complete(args: argparse.Namespace) -> int:
             print("P2 is blocked until docs/00-idea/idea-brief.md holds a real idea.")
     if phase in {"P3", "P5", "P6", "P8"}:
         gate = {"P3": "strategy", "P5": "product", "P6": "architecture", "P8": "release"}[phase]
-        print(f"Required next gate command: python .pipeline/scripts/pipeline.py gate request {gate}")
+        print(f"Required next gate command: {PYTHON_CMD} .pipeline/scripts/pipeline.py gate request {gate}")
     return 0
 
 def assumptions_due(_: argparse.Namespace) -> int:

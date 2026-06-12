@@ -97,7 +97,8 @@ engineering discipline skills (TDD, systematic debugging, code review).
   PowerShell, no Node, no pip install for everyday use. Works on Windows, macOS, Linux.
 - **Git** — for history and to tag gate approvals.
 - **PyYAML + pytest** — only for `verify` (the maintainer/CI test suite). Install with
-  `python -m pip install -r .pipeline/requirements-dev.txt`.
+  `python3 -m pip install -r .pipeline/requirements-dev.txt` on macOS/Linux, or
+  `python -m pip install -r .pipeline/requirements-dev.txt` on Windows.
 
 ---
 
@@ -108,7 +109,7 @@ The installer is `scripts/install.py` and runs the same on every platform.
 ### Claude Code
 
 ```bash
-python scripts/install.py skills --target claude-code
+python3 scripts/install.py skills --target claude-code
 ```
 
 This copies the 12 skills into `~/.claude/skills`, where Claude Code discovers them by
@@ -117,7 +118,7 @@ name. Open a new thread if they don't appear immediately.
 ### Codex
 
 ```bash
-python scripts/install.py skills --target codex
+python3 scripts/install.py skills --target codex
 ```
 
 Installs into `~/.agents/skills`. Invoke skills explicitly with `$skill-name`.
@@ -125,7 +126,7 @@ Installs into `~/.agents/skills`. Invoke skills explicitly with `$skill-name`.
 ### Both at once
 
 ```bash
-python scripts/install.py skills
+python3 scripts/install.py skills
 ```
 
 > Windows users may also use the `.ps1` wrappers in `scripts/` (e.g.
@@ -137,8 +138,10 @@ python scripts/install.py skills
 
 1. Open any project folder (empty is fine).
 2. Ask the agent to start the guided flow — e.g. *"Use idea2product-p0-guided-flow to begin."*
-   On first use it auto-creates `.pipeline/` and `docs/` from the bundled template
-   (no test runner required).
+   On first use it auto-creates `.pipeline/` and `docs/` only in an empty directory
+   (or a `.git`-only empty repo). In a non-empty repo, initialize explicitly with
+   `python3 scripts/install.py scaffold /path/to/repo` or the guided-flow `init .`
+   command so the wrong repository is not dirtied.
 3. Run **P1** and write your real idea into `docs/00-idea/idea-brief.md`.
    (Until you do, P2/P3 stay blocked.)
 4. Continue phase by phase. The guided flow always tells you the next correct step:
@@ -155,6 +158,12 @@ The agent prepares and *requests* gates:
 
 ```powershell
 python .pipeline/scripts/pipeline.py gate request strategy
+```
+
+On macOS/Linux, use `python3` for direct pipeline commands:
+
+```bash
+python3 .pipeline/scripts/pipeline.py gate request strategy
 ```
 
 You approve or reject in a **plain OS terminal** (PowerShell/cmd/bash opened directly —
@@ -178,15 +187,15 @@ Install host adapters into a target repository (and, for Claude Code, repo-scope
 skills under `.claude/skills` that travel with the project):
 
 ```bash
-python scripts/install.py adapters /path/to/repo --agent claude-code
-python scripts/install.py adapters /path/to/repo --agent cursor
-python scripts/install.py adapters /path/to/repo --agent all
+python3 scripts/install.py adapters /path/to/repo --agent claude-code
+python3 scripts/install.py adapters /path/to/repo --agent cursor
+python3 scripts/install.py adapters /path/to/repo --agent all
 ```
 
 To pre-create the `.pipeline` engine in a repo without going through a skill:
 
 ```bash
-python scripts/install.py scaffold /path/to/repo
+python3 scripts/install.py scaffold /path/to/repo
 ```
 
 ---
@@ -201,8 +210,8 @@ There are two canonical sources, each mirrored elsewhere for self-contained inst
 After editing **either** canonical source, re-mirror and gate on drift:
 
 ```bash
-python scripts/sync_bundles.py          # propagate canonical -> mirrors
-python scripts/sync_bundles.py --check  # non-zero if any mirror drifts (run in CI)
+python3 scripts/sync_bundles.py          # propagate canonical -> mirrors
+python3 scripts/sync_bundles.py --check  # non-zero if any mirror drifts (run in CI)
 ```
 
 Run the full test suite from a scaffolded workspace (`verify.sh` on macOS/Linux,

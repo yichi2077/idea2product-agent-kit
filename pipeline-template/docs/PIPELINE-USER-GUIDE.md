@@ -3,11 +3,11 @@
 ## Start
 
 1. Put a real idea in `docs/00-idea/idea-brief.md`.
-2. Run `python .pipeline/scripts/pipeline.py status`.
-3. Run `python .pipeline/scripts/pipeline.py run P1`.
+2. Run `python3 .pipeline/scripts/pipeline.py status` on macOS/Linux, or `python .pipeline/scripts/pipeline.py status` on Windows.
+3. Run `python3 .pipeline/scripts/pipeline.py run P1` on macOS/Linux, or `python .pipeline/scripts/pipeline.py run P1` on Windows.
 4. Follow the printed recipe and produce the listed outputs.
 
-If the target project does not have `.pipeline/scripts/pipeline.py`, the `idea2product-p0-guided-flow` entry script initializes it automatically before running status, resume, or any P1-P9 phase command. Manual initialization is still available:
+If the target project does not have `.pipeline/scripts/pipeline.py`, the `idea2product-p0-guided-flow` entry script auto-initializes only an empty directory or a `.git`-only empty repo. In a non-empty project, initialize explicitly after confirming the target:
 
 ```powershell
 python $env:USERPROFILE\.agents\skills\idea2product-p0-guided-flow\scripts\pipeline_entry.py init .
@@ -17,12 +17,12 @@ For existing projects, initialization is non-destructive by default: existing di
 
 ## Daily Commands
 
-- `python .pipeline/scripts/pipeline.py status`
-- `python .pipeline/scripts/pipeline.py next`
-- `python .pipeline/scripts/pipeline.py resume`
-- `python .pipeline/scripts/pipeline.py run P1`
-- `python .pipeline/scripts/pipeline.py gate request strategy`
-- `python .pipeline/scripts/pipeline.py assumptions due`
+- `python3 .pipeline/scripts/pipeline.py status` on macOS/Linux; `python .pipeline/scripts/pipeline.py status` on Windows
+- `python3 .pipeline/scripts/pipeline.py next` on macOS/Linux; `python .pipeline/scripts/pipeline.py next` on Windows
+- `python3 .pipeline/scripts/pipeline.py resume` on macOS/Linux; `python .pipeline/scripts/pipeline.py resume` on Windows
+- `python3 .pipeline/scripts/pipeline.py run P1` on macOS/Linux; `python .pipeline/scripts/pipeline.py run P1` on Windows
+- `python3 .pipeline/scripts/pipeline.py gate request strategy` on macOS/Linux; `python .pipeline/scripts/pipeline.py gate request strategy` on Windows
+- `python3 .pipeline/scripts/pipeline.py assumptions due` on macOS/Linux; `python .pipeline/scripts/pipeline.py assumptions due` on Windows
 
 ## Codex Skills
 
@@ -42,7 +42,7 @@ Use explicit phase skills when you already know the phase:
 
 Use `$idea2product-p0-status` to report current state and `$idea2product-p0-resume` to continue from the current state.
 
-All entry skills are now self-bootstrapping through `$idea2product-p0-guided-flow`: if the project lacks `.pipeline`, the entry command initializes it before running the requested phase.
+All entry skills are self-bootstrapping through `$idea2product-p0-guided-flow`: if the project lacks `.pipeline`, the entry command initializes empty targets automatically and requires explicit `init .` or `--auto-init` for non-empty targets.
 
 ## Other Agents
 
@@ -58,6 +58,6 @@ See `docs/AGENT-ADAPTERS.md`.
 
 Agents can request a gate but cannot approve it. Approval requires a real terminal:
 
-`python .pipeline/scripts/pipeline_gate.py approve strategy`
+`python3 .pipeline/scripts/pipeline_gate.py approve strategy` on macOS/Linux, or `python .pipeline/scripts/pipeline_gate.py approve strategy` on Windows.
 
 The command asks for the gate name and challenge. It refuses CI, pipes, redirects, and non-interactive shells.

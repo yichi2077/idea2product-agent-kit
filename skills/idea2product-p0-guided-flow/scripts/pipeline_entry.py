@@ -8,6 +8,7 @@ from pathlib import Path
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = SKILL_ROOT / "assets" / "pipeline-template"
+AUTO_INIT_ALLOWED_EXISTING = {".DS_Store", ".git"}
 
 
 def find_root(start: Path) -> Path | None:
@@ -18,15 +19,31 @@ def find_root(start: Path) -> Path | None:
     return None
 
 
+def safe_for_auto_init(target: Path) -> bool:
+    """Allow implicit scaffolding only where it cannot silently dirty a repo."""
+    if not target.exists():
+        return True
+    entries = {child.name for child in target.iterdir()}
+    return entries.issubset(AUTO_INIT_ALLOWED_EXISTING)
+
+
 def run_pipeline(args: list[str]) -> int:
     no_auto_init = "--no-auto-init" in args
-    args = [arg for arg in args if arg != "--no-auto-init"]
+    force_auto_init = "--auto-init" in args
+    args = [arg for arg in args if arg not in {"--no-auto-init", "--auto-init"}]
     root = find_root(Path.cwd())
     if root is None:
         if no_auto_init:
             print("No .pipeline/scripts/pipeline.py found from the current directory upward.", file=sys.stderr)
             print("Initialize this workspace with:", file=sys.stderr)
             print(f"  {sys.executable} {Path(__file__).resolve()} init .", file=sys.stderr)
+            return 2
+        if not force_auto_init and not safe_for_auto_init(Path.cwd()):
+            print("No .pipeline/scripts/pipeline.py found, and the current directory is not empty.", file=sys.stderr)
+            print("Refusing implicit initialization to avoid dirtying the wrong repository.", file=sys.stderr)
+            print("Initialize explicitly when this is the intended project:", file=sys.stderr)
+            print(f"  {sys.executable} {Path(__file__).resolve()} init .", file=sys.stderr)
+            print("Or pass --auto-init to opt in to automatic scaffolding.", file=sys.stderr)
             return 2
         print("No .pipeline/scripts/pipeline.py found; initializing idea2product in the current workspace.", file=sys.stderr)
         init_code = init_workspace(Path.cwd(), force=False, verify=False)

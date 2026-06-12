@@ -4,12 +4,12 @@ The system entrypoint is the `pipeline` command implemented by `.pipeline/script
 
 Daily commands:
 
-- `python .pipeline/scripts/pipeline.py status`
-- `python .pipeline/scripts/pipeline.py next`
-- `python .pipeline/scripts/pipeline.py resume`
-- `python .pipeline/scripts/pipeline.py run P1`
-- `python .pipeline/scripts/pipeline.py gate request strategy`
-- `python .pipeline/scripts/pipeline.py assumptions due`
+- `python3 .pipeline/scripts/pipeline.py status` on macOS/Linux; `python .pipeline/scripts/pipeline.py status` on Windows
+- `python3 .pipeline/scripts/pipeline.py next` on macOS/Linux; `python .pipeline/scripts/pipeline.py next` on Windows
+- `python3 .pipeline/scripts/pipeline.py resume` on macOS/Linux; `python .pipeline/scripts/pipeline.py resume` on Windows
+- `python3 .pipeline/scripts/pipeline.py run P1` on macOS/Linux; `python .pipeline/scripts/pipeline.py run P1` on Windows
+- `python3 .pipeline/scripts/pipeline.py gate request strategy` on macOS/Linux; `python .pipeline/scripts/pipeline.py gate request strategy` on Windows
+- `python3 .pipeline/scripts/pipeline.py assumptions due` on macOS/Linux; `python .pipeline/scripts/pipeline.py assumptions due` on Windows
 
 Rules for agents:
 

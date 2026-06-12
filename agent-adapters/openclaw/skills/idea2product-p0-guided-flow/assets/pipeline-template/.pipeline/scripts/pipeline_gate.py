@@ -35,6 +35,11 @@ def now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def write_state(text: str) -> None:
+    with STATE.open("w", encoding="utf-8", newline="\n") as fh:
+        fh.write(text)
+
+
 def deny_nonhuman() -> None:
     for marker in NONHUMAN_ENV_MARKERS:
         if os.environ.get(marker):
@@ -146,7 +151,7 @@ def approve(args: argparse.Namespace) -> int:
     if "tag:" in block:
         block = re.sub(r"tag: (null|\"[^\"]*\")", f'tag: "{tag or ""}"', block, count=1)
     text = text[: match.start(1)] + block + text[match.end(1):]
-    STATE.write_text(text, encoding="utf-8", newline="\n")
+    write_state(text)
     log_decision(gate, "approved", stamp, approver, commit, tag, note)
     print(f"Approved {gate} gate at {stamp}.")
     if tag:
@@ -175,7 +180,7 @@ def reject(args: argparse.Namespace) -> int:
     block = re.sub(r"approved_at: (null|\"[^\"]*\")", f'approved_at: "{stamp}"', block, count=1)
     block = re.sub(r"approver: (null|\"[^\"]*\")", f'approver: "{approver}"', block, count=1)
     text = text[: match.start(1)] + block + text[match.end(1):]
-    STATE.write_text(text, encoding="utf-8", newline="\n")
+    write_state(text)
     log_decision(gate, "rejected", stamp, approver, commit, None, note)
     print(f"Rejected {gate} gate at {stamp}.")
     print("Address the recorded reason, then request the gate again to re-open it.")

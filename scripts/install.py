@@ -10,10 +10,11 @@ Subcommands:
   adapters <repo>     Install host adapter files into a target repository.
 
 Examples:
-  python scripts/install.py skills --target claude-code
-  python scripts/install.py skills                       # both claude-code and codex
-  python scripts/install.py scaffold /path/to/repo
-  python scripts/install.py adapters /path/to/repo --agent all
+  python3 scripts/install.py skills --target claude-code  # macOS/Linux
+  python scripts/install.py skills --target claude-code   # Windows
+  python3 scripts/install.py skills                       # both claude-code and codex
+  python3 scripts/install.py scaffold /path/to/repo
+  python3 scripts/install.py adapters /path/to/repo --agent all
 """
 from __future__ import annotations
 
@@ -39,8 +40,7 @@ def copy_skill_dirs(source: Path, dest: Path) -> int:
         if not child.is_dir():
             continue
         target = dest / child.name
-        if target.exists():
-            shutil.rmtree(target)
+        backup_if_exists(target)
         shutil.copytree(child, target, ignore=IGNORE)
         count += 1
     return count
@@ -50,6 +50,10 @@ def backup_if_exists(path: Path) -> None:
     if path.exists():
         stamp = datetime.now().strftime("%Y%m%d%H%M%S")
         backup = path.with_name(f"{path.name}.bak-{stamp}")
+        suffix = 1
+        while backup.exists():
+            backup = path.with_name(f"{path.name}.bak-{stamp}-{suffix}")
+            suffix += 1
         path.rename(backup)
         print(f"Backed up {path.name} -> {backup.name}")
 

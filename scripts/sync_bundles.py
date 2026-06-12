@@ -35,7 +35,7 @@ MIRRORS: list[tuple[Path, Path]] = [
     (KIT_ROOT / "skills", KIT_ROOT / "agent-adapters/hermes/skills"),
     (KIT_ROOT / "skills", KIT_ROOT / "agent-adapters/openclaw/skills"),
 ]
-PRUNE_NAMES = {"__pycache__", ".pytest_cache", ".git", ".venv"}
+PRUNE_NAMES = {"__pycache__", ".pytest_cache", ".git", ".venv", ".DS_Store"}
 
 
 def iter_files(base: Path) -> set[Path]:

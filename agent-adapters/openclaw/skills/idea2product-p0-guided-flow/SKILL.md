@@ -12,26 +12,29 @@ Use this as the top-level guided entrypoint for the local `.pipeline` system in 
 1. Walk upward from the current directory until `.pipeline/scripts/pipeline.py` exists.
 2. If `.pipeline` already exists, drive everything through the repo-local script:
 
-```powershell
-python .pipeline/scripts/pipeline.py status
-python .pipeline/scripts/pipeline.py resume
+```bash
+python3 .pipeline/scripts/pipeline.py status
+python3 .pipeline/scripts/pipeline.py resume
 ```
 
 3. If `.pipeline` does NOT exist, initialize this workspace once using the entry
    script bundled with this skill, then use the repo-local script from then on.
    Use the path that matches where this skill is installed:
 
-```powershell
+```bash
 # Claude Code (personal skills)
-python "$HOME/.claude/skills/idea2product-p0-guided-flow/scripts/pipeline_entry.py" init .
+python3 "$HOME/.claude/skills/idea2product-p0-guided-flow/scripts/pipeline_entry.py" init .
 
 # Codex / AgentSkills
-python "$HOME/.agents/skills/idea2product-p0-guided-flow/scripts/pipeline_entry.py" init .
+python3 "$HOME/.agents/skills/idea2product-p0-guided-flow/scripts/pipeline_entry.py" init .
 ```
 
    Add `--force` only when the user explicitly wants to overwrite an existing scaffold.
    Initialization does not run the test suite; it only creates `.pipeline`, `docs`,
    and the host wiring, and links the vendored skills.
+   The bare guided-flow command only auto-initializes empty directories or `.git`-only
+   empty repos. In a non-empty directory, run `init .` explicitly or pass `--auto-init`
+   after confirming this is the intended target.
 
 ## Explicit Skills
 
@@ -54,7 +57,7 @@ Continuation skills:
 
 ## Guided Flow
 
-1. Run `python .pipeline/scripts/pipeline.py resume`.
+1. Run `python3 .pipeline/scripts/pipeline.py resume` on macOS/Linux, or `python .pipeline/scripts/pipeline.py resume` on Windows.
 2. If resume prints a ready phase, use the corresponding numbered `idea2product-Px-*` skill.
 3. If a real idea is missing, ask the user for the real idea instead of inventing one.
 4. If a gate is awaiting approval, prepare the decision context and tell the user the manual approval command.
@@ -63,8 +66,8 @@ Continuation skills:
 
 Agents may request gates but must not approve gates:
 
-```powershell
-python .pipeline/scripts/pipeline.py gate request strategy
+```bash
+python3 .pipeline/scripts/pipeline.py gate request strategy
 ```
 
 Approval must be done by the user in a real interactive terminal:
@@ -79,9 +82,10 @@ Do not bypass with `--yes`, `--force`, CI, pipes, redirects, environment variabl
 
 After updating state, confirm the workspace is consistent:
 
-```powershell
-python .pipeline/scripts/pipeline.py status
+```bash
+python3 .pipeline/scripts/pipeline.py status
 ```
 
-`.pipeline/scripts/verify.ps1` runs the full developer test suite (requires
-`pytest` and `pyyaml`); use it for maintaining the kit, not for everyday runs.
+`.pipeline/scripts/verify.sh` on macOS/Linux and `.pipeline/scripts/verify.ps1`
+on Windows run the full developer test suite (requires `pytest` and `pyyaml`);
+use them for maintaining the kit, not for everyday runs.

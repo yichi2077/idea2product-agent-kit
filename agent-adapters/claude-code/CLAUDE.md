@@ -5,8 +5,8 @@ Use `agent-adapters/common/IDEA2PRODUCT_AGENT_GUIDE.md` as the operating guide f
 Start with:
 
 ```bash
-python .pipeline/scripts/pipeline.py status
-python .pipeline/scripts/pipeline.py resume
+python3 .pipeline/scripts/pipeline.py status
+python3 .pipeline/scripts/pipeline.py resume
 ```
 
 When the user asks for a stage, run the matching `P1` through `P9` command. Do not approve gates; only request them and tell the user the manual approval command.

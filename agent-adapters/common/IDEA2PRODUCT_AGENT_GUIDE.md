@@ -6,6 +6,13 @@ idea2product is an Idea -> Strategy -> Product -> Architecture -> Delivery pipel
 
 From the repository root:
 
+```bash
+python3 .pipeline/scripts/pipeline.py status
+python3 .pipeline/scripts/pipeline.py resume
+```
+
+On Windows:
+
 ```powershell
 python .pipeline/scripts/pipeline.py status
 python .pipeline/scripts/pipeline.py resume
@@ -30,20 +37,20 @@ If `.pipeline/scripts/pipeline.py` does not exist, the pipeline is not installed
 
 ## Commands
 
-```powershell
-python .pipeline/scripts/pipeline.py status
-python .pipeline/scripts/pipeline.py resume
-python .pipeline/scripts/pipeline.py run P1
-python .pipeline/scripts/pipeline.py run P2
-python .pipeline/scripts/pipeline.py run P3
-python .pipeline/scripts/pipeline.py run P4
-python .pipeline/scripts/pipeline.py run P5
-python .pipeline/scripts/pipeline.py run P6
-python .pipeline/scripts/pipeline.py run P7
-python .pipeline/scripts/pipeline.py run P8
-python .pipeline/scripts/pipeline.py run P9
-python .pipeline/scripts/pipeline.py gate request strategy
-python .pipeline/scripts/pipeline.py assumptions due
+```bash
+python3 .pipeline/scripts/pipeline.py status
+python3 .pipeline/scripts/pipeline.py resume
+python3 .pipeline/scripts/pipeline.py run P1
+python3 .pipeline/scripts/pipeline.py run P2
+python3 .pipeline/scripts/pipeline.py run P3
+python3 .pipeline/scripts/pipeline.py run P4
+python3 .pipeline/scripts/pipeline.py run P5
+python3 .pipeline/scripts/pipeline.py run P6
+python3 .pipeline/scripts/pipeline.py run P7
+python3 .pipeline/scripts/pipeline.py run P8
+python3 .pipeline/scripts/pipeline.py run P9
+python3 .pipeline/scripts/pipeline.py gate request strategy
+python3 .pipeline/scripts/pipeline.py assumptions due
 ```
 
 ## Gate Rules
@@ -59,6 +66,8 @@ python .pipeline/scripts/pipeline_gate.py approve strategy
 python .pipeline/scripts/pipeline_gate.py reject strategy
 ```
 
+On macOS/Linux, use `python3` for the same gate commands.
+
 A rejected gate can be re-opened by requesting it again. Do not bypass with direct
 state edits, `--yes`, `--force`, CI, pipes, redirects, or environment variables.
 
@@ -69,6 +78,12 @@ Do not invent a fake business idea for P1-P3 validation. If `docs/00-idea/idea-b
 ## Verification
 
 After changing pipeline files:
+
+```bash
+sh .pipeline/scripts/verify.sh
+```
+
+On Windows:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .pipeline/scripts/verify.ps1
