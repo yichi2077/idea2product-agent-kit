@@ -263,6 +263,12 @@ def gate_precondition_errors(gate: str) -> list[str]:
     text = read(STATE)
     mode = state_mode(text)
     errors = []
+    gate_phase = GATE_PHASES[gate]
+    if phase_status(text, gate_phase) != "complete":
+        errors.append(
+            f"{gate_phase} must be complete before requesting the {gate} gate; "
+            f"run stage complete {gate_phase} (or reopen {gate_phase} if it was rolled back)."
+        )
     if gate == "strategy":
         decision_memo = ROOT / "docs/10-strategy/decision-memo.md"
         if is_scaffold_artifact(decision_memo):

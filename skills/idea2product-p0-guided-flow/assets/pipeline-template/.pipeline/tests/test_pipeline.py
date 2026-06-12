@@ -102,6 +102,9 @@ def test_resume_command_reports_next_action():
 def test_gate_request_updates_target_gate_only(tmp_path):
     state, log, metadata, sb, lb, mb = backup_state(tmp_path)
     try:
+        # A gate can only be requested once its phase is complete, so finish P8
+        # before exercising the release-gate request.
+        assert run(".pipeline/scripts/pipeline.py", "stage", "complete", "P8").returncode == 0
         result = run(".pipeline/scripts/pipeline.py", "gate", "request", "release")
         assert result.returncode == 0
         text = state.read_text(encoding="utf-8")
@@ -299,6 +302,21 @@ def test_strategy_gate_requires_red_team_in_standard_mode(tmp_path):
         assert "strategy-red-team.md" in result.stdout
     finally:
         restore_paths(backups)
+        restore_state(state, log, metadata, sb, lb, mb)
+
+def test_gate_request_refused_until_phase_complete_keeps_state_valid(tmp_path):
+    # Requesting a gate before its phase is complete must be refused rather than
+    # producing a state that validate_state.py rejects. architecture has no
+    # artifact preconditions, so it isolates the phase-completion guard.
+    state, log, metadata, sb, lb, mb = backup_state(tmp_path)
+    try:
+        result = run(".pipeline/scripts/pipeline.py", "gate", "request", "architecture")
+        assert result.returncode == 3
+        assert "P6 must be complete" in result.stdout
+        assert 'status: "not_requested"' in gate_block(state.read_text(encoding="utf-8"), "architecture")
+        valid = run(".pipeline/scripts/validate_state.py")
+        assert valid.returncode == 0, valid.stdout
+    finally:
         restore_state(state, log, metadata, sb, lb, mb)
 
 def test_validate_state_catches_gate_without_completed_phase(tmp_path):
