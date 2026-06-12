@@ -15,6 +15,9 @@ PIPE = ROOT / ".pipeline"
 STATE = PIPE / "state" / "pipeline-state.yaml"
 METADATA = PIPE / "state" / "phase-metadata.json"
 IDEA_BRIEF = ROOT / "docs/00-idea/idea-brief.md"
+ASSUMPTIONS = PIPE / "state" / "assumption-register.yaml"
+RISKS = PIPE / "state" / "risk-register.yaml"
+DECISION_LOG = PIPE / "state" / "decision-log.md"
 PHASES = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"]
 MODES = {"light", "standard", "high-assurance"}
 GATES = {"strategy", "product", "architecture", "release"}
@@ -180,9 +183,7 @@ def status(_: argparse.Namespace) -> int:
     print_stale_warnings()
     return 0
 
-def next_cmd(_: argparse.Namespace) -> int:
-    state = read(STATE)
-    print_stale_warnings()
+def print_next_action(state: str) -> int:
     for phase in PHASES:
         marker = f"  {phase}: ready"
         if marker in state:
@@ -196,11 +197,96 @@ def next_cmd(_: argparse.Namespace) -> int:
     print("No phase is ready. Check gates or pending real idea.")
     return 1
 
+def next_cmd(_: argparse.Namespace) -> int:
+    state = read(STATE)
+    print_stale_warnings()
+    return print_next_action(state)
+
 def resume(_: argparse.Namespace) -> int:
     print("Pipeline status:")
     print(read(STATE))
     print("\nResume recommendation:")
-    return next_cmd(argparse.Namespace())
+    rc = next_cmd(argparse.Namespace())
+    print("\nFor a full handoff brief (decisions, open assumptions, risks, staleness):")
+    print(f"  {PYTHON_CMD} .pipeline/scripts/pipeline.py handoff")
+    return rc
+
+def read_optional(path: Path) -> str:
+    return path.read_text(encoding="utf-8") if path.exists() else ""
+
+REGISTER_KEYS = {"statement", "status", "review_by", "severity", "owner", "mitigation"}
+
+def parse_register(path: Path) -> list[dict]:
+    """Parse the kit's lightweight ``- id:`` field registers without PyYAML.
+    Only the known scalar field keys are captured; nested/list values are
+    ignored so this stays a read-only summarizer, never a second source."""
+    items: list[dict] = []
+    current: dict = {}
+    for line in read_optional(path).splitlines():
+        stripped = line.strip()
+        if stripped.startswith("- id:"):
+            if current:
+                items.append(current)
+            current = {"id": stripped.split(":", 1)[1].strip().strip('"')}
+        elif current and ":" in stripped:
+            key, _, value = stripped.partition(":")
+            key = key.strip().lstrip("-").strip()
+            if key in REGISTER_KEYS:
+                current[key] = value.strip().strip('"')
+    if current:
+        items.append(current)
+    return items
+
+def decision_headers() -> list[str]:
+    return [line[3:].strip() for line in read_optional(DECISION_LOG).splitlines() if line.startswith("## ")]
+
+def handoff(_: argparse.Namespace) -> int:
+    """Read-only handoff brief: the five things a returning operator or a fresh
+    agent session needs to avoid re-litigating settled work -- position, next
+    step, gate state, decisions already made, open questions, and stale evidence.
+    It only reads the registers the pipeline already maintains."""
+    text = read(STATE)
+    today = now()[:10]
+    print("# idea2product handoff brief")
+    print(f"\nMode: {state_mode(text)}")
+    current = re.search(r'current_phase: "([^"]+)"', text)
+    if current:
+        print(f"Current phase: {current.group(1)}")
+    pilot = re.search(r'pilot_validation: "([^"]+)"', text)
+    if pilot:
+        print(f"Pilot validation: {pilot.group(1)}")
+    print("\n## Next step")
+    print_next_action(text)
+    print("\n## Gates")
+    for gate in ("strategy", "product", "architecture", "release"):
+        match = gate_block_pattern(gate).search(text)
+        gate_status = field(match.group(1), "status") if match else "unknown"
+        print(f"- {gate}: {gate_status}")
+    print("\n## Recent decisions (oldest to newest)")
+    decisions = decision_headers()
+    if decisions:
+        for head in decisions[-5:]:
+            print(f"- {head}")
+    else:
+        print("- none recorded")
+    print("\n## Open assumptions")
+    open_assumptions = [a for a in parse_register(ASSUMPTIONS) if a.get("status") == "open"]
+    if open_assumptions:
+        for assumption in open_assumptions:
+            review_by = assumption.get("review_by", "?")
+            overdue = " OVERDUE" if review_by != "?" and review_by <= today else ""
+            print(f"- {assumption.get('id')} (review by {review_by}{overdue}): {assumption.get('statement', '')}")
+    else:
+        print("- none open")
+    print("\n## Open risks")
+    open_risks = [r for r in parse_register(RISKS) if r.get("status") == "open"]
+    if open_risks:
+        for risk in open_risks:
+            print(f"- {risk.get('id')} [{risk.get('severity', '?')}]: {risk.get('statement', '')}")
+    else:
+        print("- none open")
+    print_stale_warnings()
+    return 0
 
 def run_phase(args: argparse.Namespace) -> int:
     phase = args.phase.upper()
@@ -403,6 +489,7 @@ def main() -> int:
     sub.add_parser("status").set_defaults(func=status)
     sub.add_parser("next").set_defaults(func=next_cmd)
     sub.add_parser("resume").set_defaults(func=resume)
+    sub.add_parser("handoff").set_defaults(func=handoff)
     run = sub.add_parser("run")
     run.add_argument("phase")
     run.set_defaults(func=run_phase)

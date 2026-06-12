@@ -20,6 +20,7 @@ For existing projects, initialization is non-destructive by default: existing di
 - `python3 .pipeline/scripts/pipeline.py status` on macOS/Linux; `python .pipeline/scripts/pipeline.py status` on Windows
 - `python3 .pipeline/scripts/pipeline.py next` on macOS/Linux; `python .pipeline/scripts/pipeline.py next` on Windows
 - `python3 .pipeline/scripts/pipeline.py resume` on macOS/Linux; `python .pipeline/scripts/pipeline.py resume` on Windows
+- `python3 .pipeline/scripts/pipeline.py handoff` on macOS/Linux; `python .pipeline/scripts/pipeline.py handoff` on Windows
 - `python3 .pipeline/scripts/pipeline.py run P1` on macOS/Linux; `python .pipeline/scripts/pipeline.py run P1` on Windows
 - `python3 .pipeline/scripts/pipeline.py gate request strategy` on macOS/Linux; `python .pipeline/scripts/pipeline.py gate request strategy` on Windows
 - `python3 .pipeline/scripts/pipeline.py reopen P5 --reason "..."` on macOS/Linux; `python .pipeline/scripts/pipeline.py reopen P5 --reason "..."` on Windows
@@ -62,6 +63,10 @@ Agents can request a gate but cannot approve it. Approval requires a real termin
 `python3 .pipeline/scripts/pipeline_gate.py approve strategy` on macOS/Linux, or `python .pipeline/scripts/pipeline_gate.py approve strategy` on Windows.
 
 The command asks for the gate name and challenge. It refuses CI, pipes, redirects, and non-interactive shells.
+
+## Handoff Brief
+
+When you return after a break, or a fresh agent session (or a different model) picks up the work, run `pipeline.py handoff` before doing anything else. It is a read-only renderer that consolidates the five things needed to continue without re-litigating settled work: current phase and mode, the next step, gate states, the decisions already recorded, the open assumptions (flagged `OVERDUE` past their review date) and open risks, and any stale completed outputs. It reads only the registers the pipeline already maintains and never changes state. `resume` points to it.
 
 ## Rework Loops
 

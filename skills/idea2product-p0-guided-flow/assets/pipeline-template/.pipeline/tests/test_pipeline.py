@@ -99,6 +99,29 @@ def test_resume_command_reports_next_action():
     assert "Resume recommendation:" in result.stdout
     assert f"Command: {'python' if sys.platform.startswith('win') else 'python3'} .pipeline/scripts/pipeline.py run P1" in result.stdout
 
+def test_handoff_brief_is_readonly_and_surfaces_decisions_assumptions_risks(tmp_path):
+    state, log, metadata, sb, lb, mb = backup_state(tmp_path)
+    try:
+        before = state.read_text(encoding="utf-8")
+        result = run(".pipeline/scripts/pipeline.py", "handoff")
+        assert result.returncode == 0
+        out = result.stdout
+        assert "handoff brief" in out
+        assert "## Next step" in out
+        assert "## Gates" in out
+        assert "## Recent decisions" in out
+        assert "## Open assumptions" in out and "A-0001" in out
+        assert "## Open risks" in out and "R-0001" in out
+        # The brief is a read-only renderer; it must never mutate state.
+        assert state.read_text(encoding="utf-8") == before
+    finally:
+        restore_state(state, log, metadata, sb, lb, mb)
+
+def test_resume_points_to_handoff_brief():
+    result = run(".pipeline/scripts/pipeline.py", "resume")
+    assert result.returncode == 0
+    assert "pipeline.py handoff" in result.stdout
+
 def test_gate_request_updates_target_gate_only(tmp_path):
     state, log, metadata, sb, lb, mb = backup_state(tmp_path)
     try:
