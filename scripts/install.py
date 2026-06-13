@@ -5,7 +5,7 @@ Works the same on Windows, macOS, and Linux. Python is the only requirement
 (the same Python the pipeline already needs) -- no PowerShell, no bash.
 
 Subcommands:
-  skills              Install the 12 entry skills into the user's agent skill dir(s).
+  skills              Install the 13 entry skills into the user's agent skill dir(s).
   scaffold <repo>     Create the .pipeline engine + docs inside a target repository.
   adapters <repo>     Install host adapter files into a target repository.
 

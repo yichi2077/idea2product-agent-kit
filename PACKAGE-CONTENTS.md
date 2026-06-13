@@ -1,6 +1,6 @@
 # Package Contents
 
-- `skills/` — 12 installable entry skills (guided flow, P1–P9, status, resume).
+- `skills/` — 13 installable entry skills (guided flow, P1–P9, status, resume, rollback).
 - `pipeline-template/` — the repo-local `.pipeline` engine, `docs/` tree, recipes,
   templates, vendored domain skills, state registers, and user-facing pipeline
   guides. Excludes internal dogfood/audit artifacts, `.pipeline/upstream`, `.git`,

@@ -72,10 +72,10 @@ do-nothing, and Standard+ runs a cross-model red-team review of the recommendati
 
 ## What's in the box
 
-- **`skills/`** — 12 installable entry skills:
+- **`skills/`** — 13 installable entry skills:
   - `idea2product-p0-guided-flow` — the one-call orchestrator that reads state and tells you the next step.
   - `idea2product-p1-…` through `…-p9-outcome-review` — one skill per phase.
-  - `idea2product-p0-status` / `idea2product-p0-resume` — report / continue.
+  - `idea2product-p0-status` / `idea2product-p0-resume` / `idea2product-p0-rollback` — report / continue / roll back.
 - **`pipeline-template/`** — the repo-local `.pipeline` engine that gets scaffolded into
   your project: deterministic Python CLI, 9 phase recipes, state registers
   (assumptions, risks, decisions), vendored domain skills, and user-facing docs.
@@ -109,7 +109,7 @@ The installer is `scripts/install.py` and runs the same on every platform.
 python3 scripts/install.py skills --target claude-code
 ```
 
-This copies the 12 skills into `~/.claude/skills`, where Claude Code discovers them by
+This copies the 13 skills into `~/.claude/skills`, where Claude Code discovers them by
 name. Open a new thread if they don't appear immediately.
 
 ### Codex
@@ -151,14 +151,17 @@ one deliberate exception: gate approval (below).
 idea2product-p0-guided-flow   one call: orient, then run the next step
 idea2product-p0-status        report where you are (+ stale-output warnings)
 idea2product-p0-resume        re-orient (handoff brief) and continue
+idea2product-p0-rollback      roll a completed phase back (guided reopen)
 idea2product-p1-idea-expansion … idea2product-p9-outcome-review
 ```
 
 To pick up after a break or in a fresh session, just ask the agent to resume: it
 runs the read-only **handoff brief** — decisions already made, open questions,
 what's gone stale, and the next step — and summarizes it. If downstream work
-invalidates an upstream phase, ask the agent to **reopen** that phase; it reworks
-the state cleanly instead of hand-editing it.
+invalidates an upstream phase, ask the agent to **roll it back** — the
+`idea2product-p0-rollback` skill drives **reopen** after confirming the target
+phase, the affected reports, and the reason, reworking the state cleanly instead
+of hand-editing it.
 
 ### Gates are yours to approve
 

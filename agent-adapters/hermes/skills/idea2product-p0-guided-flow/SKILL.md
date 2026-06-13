@@ -61,6 +61,7 @@ Continuation skills:
 
 - `$idea2product-p0-status`: report current state only.
 - `$idea2product-p0-resume`: continue from current state.
+- `$idea2product-p0-rollback`: roll a completed phase (and its downstream) back.
 
 ## Guided Flow
 
@@ -79,6 +80,8 @@ python3 .pipeline/scripts/pipeline.py reopen P5 --reason "technical infeasibilit
 ```
 
 Reopen rolls the target and downstream phases back, clears affected gates, and logs the reason. Only a completed phase can be reopened.
+
+For a guided, confirmation-checked rollback, invoke `$idea2product-p0-rollback` instead of running `reopen` by hand — it collects the target phase, affected reports, and reason from the user before reopening.
 
 ## Gate Rules
 
