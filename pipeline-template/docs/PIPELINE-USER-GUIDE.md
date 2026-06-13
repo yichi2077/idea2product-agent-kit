@@ -1,11 +1,15 @@
 # Pipeline User Guide
 
+The primary interface is skills: tell your agent *"Use idea2product-p0-guided-flow"* (or `$idea2product-p0-guided-flow` in Codex) and it operates the pipeline for you. The `pipeline.py` commands in this guide are what the **agent** runs on your behalf — the deterministic engine behind the skills. You can run the read-only ones (`status`, `handoff`) yourself to look under the hood, but the only command you run directly in normal use is **gate approval**, in a real terminal.
+
 ## Start
 
-1. Put a real idea in `docs/00-idea/idea-brief.md`.
-2. Run `python3 .pipeline/scripts/pipeline.py status` on macOS/Linux, or `python .pipeline/scripts/pipeline.py status` on Windows.
-3. Run `python3 .pipeline/scripts/pipeline.py run P1` on macOS/Linux, or `python .pipeline/scripts/pipeline.py run P1` on Windows.
-4. Follow the printed recipe and produce the listed outputs.
+What the agent does when you invoke the guided flow:
+
+1. Captures your real idea in `docs/00-idea/idea-brief.md` (P1).
+2. Runs `pipeline.py handoff` to orient, and summarizes it for you.
+3. Runs the next phase via the matching `idea2product-Px-*` skill.
+4. Follows the printed recipe and produces the listed outputs.
 
 If the target project does not have `.pipeline/scripts/pipeline.py`, the `idea2product-p0-guided-flow` entry script auto-initializes only an empty directory or a `.git`-only empty repo. In a non-empty project, initialize explicitly after confirming the target:
 
@@ -15,16 +19,19 @@ python $env:USERPROFILE\.agents\skills\idea2product-p0-guided-flow\scripts\pipel
 
 For existing projects, initialization is non-destructive by default: existing directories are merged, existing files are preserved, and an existing `AGENTS.md` is not overwritten.
 
-## Daily Commands
+## Commands the agent runs
 
-- `python3 .pipeline/scripts/pipeline.py status` on macOS/Linux; `python .pipeline/scripts/pipeline.py status` on Windows
-- `python3 .pipeline/scripts/pipeline.py next` on macOS/Linux; `python .pipeline/scripts/pipeline.py next` on Windows
-- `python3 .pipeline/scripts/pipeline.py resume` on macOS/Linux; `python .pipeline/scripts/pipeline.py resume` on Windows
-- `python3 .pipeline/scripts/pipeline.py handoff` on macOS/Linux; `python .pipeline/scripts/pipeline.py handoff` on Windows
-- `python3 .pipeline/scripts/pipeline.py run P1` on macOS/Linux; `python .pipeline/scripts/pipeline.py run P1` on Windows
-- `python3 .pipeline/scripts/pipeline.py gate request strategy` on macOS/Linux; `python .pipeline/scripts/pipeline.py gate request strategy` on Windows
-- `python3 .pipeline/scripts/pipeline.py reopen P5 --reason "..."` on macOS/Linux; `python .pipeline/scripts/pipeline.py reopen P5 --reason "..."` on Windows
-- `python3 .pipeline/scripts/pipeline.py assumptions due` on macOS/Linux; `python .pipeline/scripts/pipeline.py assumptions due` on Windows
+These back the skills; the agent runs them for you (use `python3` on macOS/Linux, `python` on Windows). The read-only ones you can run yourself to look under the hood; the last one is the only command **you** run directly.
+
+| Command | Purpose |
+| --- | --- |
+| `pipeline.py handoff` | read-only brief: phase, next step, gates, decisions, open assumptions/risks, stale outputs |
+| `pipeline.py status` / `next` / `resume` | current state (+ stale warnings) / next correct step / re-orient and continue |
+| `pipeline.py run P1` … `run P9` | print and execute a phase recipe |
+| `pipeline.py gate request <gate> --confidence high\|medium\|low --rationale "…"` | request a gate with stated confidence (agent only) |
+| `pipeline.py reopen P5 --reason "…"` | rework a completed upstream phase and reset downstream |
+| `pipeline.py assumptions due` | assumptions past their review date |
+| `pipeline_gate.py approve <gate>` | **you**, in a real OS terminal — approve a requested gate |
 
 ## Codex Skills
 

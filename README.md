@@ -136,38 +136,39 @@ python3 scripts/install.py skills
 
 ## Quick start
 
+You drive this kit by **talking to your coding agent and invoking skills** — the
+agent runs the pipeline for you. You don't type pipeline commands yourself, with
+one deliberate exception: gate approval (below).
+
 1. Open any project folder (empty is fine).
 2. Ask the agent to start the guided flow — e.g. *"Use idea2product-p0-guided-flow to begin."*
    On first use it auto-creates `.pipeline/` and `docs/` only in an empty directory
-   (or a `.git`-only empty repo). In a non-empty repo, initialize explicitly with
-   `python3 scripts/install.py scaffold /path/to/repo` or the guided-flow `init .`
-   command so the wrong repository is not dirtied.
-3. Run **P1** and write your real idea into `docs/00-idea/idea-brief.md`.
-   (Until you do, P2/P3 stay blocked.)
-4. Continue phase by phase. The guided flow always tells you the next correct step:
+   (or a `.git`-only empty repo). In a non-empty repo, tell the agent to run
+   guided-flow `init .` (or scaffold explicitly) so the wrong repository is not dirtied.
+3. Give the agent your real idea; it captures it in `docs/00-idea/idea-brief.md`
+   during P1. (Until a real idea exists, P2/P3 stay blocked.)
+4. Keep going by asking the agent to proceed — it always tells you the next correct
+   step and runs it. The skills you invoke by name:
 
 ```text
-idea2product-p0-status     report where you are
-idea2product-p0-resume     continue from saved state
+idea2product-p0-guided-flow   one call: orient, then run the next step
+idea2product-p0-status        report where you are (+ stale-output warnings)
+idea2product-p0-resume        re-orient (handoff brief) and continue
 idea2product-p1-idea-expansion … idea2product-p9-outcome-review
 ```
 
+To pick up after a break or in a fresh session, just ask the agent to resume: it
+runs the read-only **handoff brief** — decisions already made, open questions,
+what's gone stale, and the next step — and summarizes it. If downstream work
+invalidates an upstream phase, ask the agent to **reopen** that phase; it reworks
+the state cleanly instead of hand-editing it.
+
 ### Gates are yours to approve
 
-The agent prepares and *requests* gates:
-
-```powershell
-python .pipeline/scripts/pipeline.py gate request strategy
-```
-
-On macOS/Linux, use `python3` for direct pipeline commands:
-
-```bash
-python3 .pipeline/scripts/pipeline.py gate request strategy
-```
-
-You approve or reject in a **plain OS terminal** (PowerShell/cmd/bash opened directly —
-**not** the agent's integrated terminal, which the command refuses on purpose):
+Gates are the one place you act directly. The agent *prepares and requests* a gate
+(stating its confidence in the decision context it assembled); **you** approve or
+reject in a **plain OS terminal** (PowerShell/cmd/bash opened directly — **not** the
+agent's integrated terminal, which the command refuses on purpose):
 
 ```powershell
 python .pipeline/scripts/pipeline_gate.py approve strategy
@@ -175,7 +176,8 @@ python .pipeline/scripts/pipeline_gate.py reject strategy
 ```
 
 Approval requires the gate name, the random challenge printed at request time, and a
-note. A successful approval records the approver, time, and commit, and creates an
+note. The agent's stated confidence is shown to you first, so you can vary your
+scrutiny. A successful approval records the approver, time, and commit, and creates an
 annotated `i2p-gate-<gate>-<timestamp>` git tag. A rejected gate can be re-opened by
 requesting it again.
 
