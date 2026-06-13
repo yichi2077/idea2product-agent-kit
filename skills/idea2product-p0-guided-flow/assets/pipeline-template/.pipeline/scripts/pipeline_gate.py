@@ -14,6 +14,12 @@ ROOT = Path(__file__).resolve().parents[2]
 STATE = ROOT / ".pipeline/state/pipeline-state.yaml"
 METADATA = ROOT / ".pipeline/state/phase-metadata.json"
 GATES = {"strategy", "product", "architecture", "release"}
+GATE_NEXT_PHASES = {
+    "strategy": "P4",
+    "product": "P6",
+    "architecture": "P7",
+    "release": "P9",
+}
 
 # Environment markers that indicate a non-interactive automation host. The TTY
 # check below is the primary defense; these provide defense in depth so the
@@ -51,6 +57,18 @@ def mark_pilot_strategy_approved(text: str, gate: str) -> str:
         text,
         count=1,
     )
+
+
+def unblock_next_phase(text: str, gate: str) -> str:
+    """Move the phase guarded by an approved gate back into the runnable lane.
+
+    ``stage complete`` deliberately parks the next phase behind a gate. Approval
+    is the only human action that should release that block, and it should only
+    touch the exact blocked state for that gate.
+    """
+    next_phase = GATE_NEXT_PHASES[gate]
+    blocked = f"blocked_until_{gate}_gate"
+    return re.sub(rf"(  {next_phase}: ){blocked}\b", r"\1ready", text, count=1)
 
 
 def deny_nonhuman() -> None:
@@ -194,6 +212,7 @@ def approve(args: argparse.Namespace) -> int:
         block = re.sub(r"tag: (null|\"[^\"]*\")", f'tag: "{tag or ""}"', block, count=1)
     text = text[: match.start(1)] + block + text[match.end(1):]
     text = mark_pilot_strategy_approved(text, gate)
+    text = unblock_next_phase(text, gate)
     write_state(text)
     log_decision(gate, "approved", stamp, approver, commit, tag, note)
     print(f"Approved {gate} gate at {stamp}.")

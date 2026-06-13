@@ -414,6 +414,32 @@ def replace_last_updated(text: str) -> str:
 def replace_pilot_validation(text: str, status_value: str) -> str:
     return re.sub(r'pilot_validation: "[^"]+"', f'pilot_validation: "{status_value}"', text, count=1)
 
+def replace_register_status(text: str, item_id: str, status_value: str) -> str:
+    return re.sub(
+        rf'(- id: {re.escape(item_id)}\n(?:    .+\n)*?    status: )"[^"]+"',
+        rf'\1"{status_value}"',
+        text,
+        count=1,
+    )
+
+def close_real_idea_seed_registers() -> None:
+    """Retire the scaffold's initial no-real-idea assumption/risk.
+
+    These seed records are useful before P1, but once a real idea has passed the
+    guard they become misleading handoff noise if the agent forgets to update
+    the registers manually.
+    """
+    if ASSUMPTIONS.exists():
+        text = read(ASSUMPTIONS)
+        updated = replace_register_status(text, "A-0001", "closed")
+        if updated != text:
+            write(ASSUMPTIONS, updated)
+    if RISKS.exists():
+        text = read(RISKS)
+        updated = replace_register_status(text, "R-0001", "closed")
+        if updated != text:
+            write(RISKS, updated)
+
 def mode_set(args: argparse.Namespace) -> int:
     mode = args.mode.lower()
     if mode not in MODES:
@@ -455,6 +481,8 @@ def stage_complete(args: argparse.Namespace) -> int:
         text = replace_pilot_validation(text, "P1_P3_AWAITING_STRATEGY_APPROVAL")
     text = re.sub(r'last_updated: "[^"]+"', f'last_updated: "{stamp}"', text, count=1)
     write(STATE, text)
+    if phase == "P1" and has_real_idea():
+        close_real_idea_seed_registers()
     record_phase_completion(phase, stamp)
     print(f"Stage completed: {phase}")
     if next_phase:

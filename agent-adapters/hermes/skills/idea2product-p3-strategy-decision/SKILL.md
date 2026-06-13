@@ -15,6 +15,12 @@ Work from the target project root when possible. If `.pipeline/scripts/pipeline.
 
 From the workspace root, run:
 
+```bash
+python3 .pipeline/scripts/pipeline.py run P3
+```
+
+On Windows, use:
+
 ```powershell
 python .pipeline/scripts/pipeline.py run P3
 ```
@@ -31,4 +37,4 @@ Then follow the printed recipe exactly. The recipe separates required skills, co
 - Do not skip earlier gates or approved dependencies.
 - Do not invent a fake business idea for P1-P3 validation.
 - If the command reports a blocker, report the blocker and the concrete missing input.
-- After editing pipeline state, re-run `python .pipeline/scripts/pipeline.py status` to confirm the workspace is consistent.
+- After editing pipeline state, re-run `python3 .pipeline/scripts/pipeline.py status` (or `python` on Windows) to confirm the workspace is consistent.

@@ -31,6 +31,9 @@ python3 "$HOME/.claude/skills/idea2product-p0-guided-flow/scripts/pipeline_entry
 
 # Codex / AgentSkills
 python3 "$HOME/.agents/skills/idea2product-p0-guided-flow/scripts/pipeline_entry.py" init .
+
+# Hermes
+python3 "$HOME/.hermes/skills/idea2product-p0-guided-flow/scripts/pipeline_entry.py" init .
 ```
 
    Add `--force` only when the user explicitly wants to overwrite an existing scaffold.

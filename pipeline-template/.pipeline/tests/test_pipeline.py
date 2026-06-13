@@ -21,14 +21,22 @@ def backup_state(tmp_path):
     state = ROOT / ".pipeline/state/pipeline-state.yaml"
     log = ROOT / ".pipeline/state/decision-log.md"
     metadata = ROOT / ".pipeline/state/phase-metadata.json"
+    assumptions = ROOT / ".pipeline/state/assumption-register.yaml"
+    risks = ROOT / ".pipeline/state/risk-register.yaml"
     state_bak = tmp_path / "state.yaml"
     log_bak = tmp_path / "log.md"
     metadata_bak = tmp_path / "metadata.json"
+    assumptions_bak = tmp_path / "assumptions.yaml"
+    risks_bak = tmp_path / "risks.yaml"
     shutil.copy2(state, state_bak)
     if log.exists():
         shutil.copy2(log, log_bak)
     if metadata.exists():
         shutil.copy2(metadata, metadata_bak)
+    if assumptions.exists():
+        shutil.copy2(assumptions, assumptions_bak)
+    if risks.exists():
+        shutil.copy2(risks, risks_bak)
     return state, log, metadata, state_bak, log_bak, metadata_bak
 
 def restore_state(state, log, metadata, state_bak, log_bak, metadata_bak):
@@ -39,6 +47,14 @@ def restore_state(state, log, metadata, state_bak, log_bak, metadata_bak):
         shutil.copy2(metadata_bak, metadata)
     elif metadata.exists():
         metadata.unlink()
+    assumptions = ROOT / ".pipeline/state/assumption-register.yaml"
+    risks = ROOT / ".pipeline/state/risk-register.yaml"
+    assumptions_bak = state_bak.parent / "assumptions.yaml"
+    risks_bak = state_bak.parent / "risks.yaml"
+    if assumptions_bak.exists():
+        shutil.copy2(assumptions_bak, assumptions)
+    if risks_bak.exists():
+        shutil.copy2(risks_bak, risks)
 
 def backup_paths(tmp_path, *paths):
     backups = []
@@ -70,6 +86,16 @@ def write_real_strategy_artifacts():
 def write_real_product_artifacts():
     write_file("docs/20-product/prd.md", "# PRD\n\nReal PRD evidence for test.\n")
     write_file("docs/20-product/pm-critic-report.md", "# PM Critic Report\n\nReal fresh-context critic review for test.\n")
+
+def approve_gate_in_process(gate, state, module_name, note="approved for test"):
+    block = gate_block(state.read_text(encoding="utf-8"), gate)
+    challenge = block.split('challenge: "', 1)[1].split('"', 1)[0]
+    pg = load_module(".pipeline/scripts/pipeline_gate.py", module_name)
+    pg.deny_nonhuman = lambda: None
+    pg.create_tag = lambda *a, **k: None
+    answers = iter([gate, challenge, note])
+    pg.input = lambda *a, **k: next(answers)
+    return pg.approve(types.SimpleNamespace(gate=gate))
 
 def gate_block(text, gate):
     after = text.split(f"  {gate}:", 1)[1]
@@ -196,19 +222,50 @@ def test_correct_challenge_approves(tmp_path):
         write_real_strategy_artifacts()
         run(".pipeline/scripts/pipeline.py", "stage", "complete", "P3")
         run(".pipeline/scripts/pipeline.py", "gate", "request", "strategy")
-        block = gate_block(state.read_text(encoding="utf-8"), "strategy")
-        challenge = block.split('challenge: "', 1)[1].split('"', 1)[0]
-        pg = load_module(".pipeline/scripts/pipeline_gate.py", "pg_ok")
-        pg.deny_nonhuman = lambda: None
-        pg.create_tag = lambda *a, **k: None  # isolate test from git tag side effects
-        answers = iter(["strategy", challenge, "approved for test"])
-        pg.input = lambda *a, **k: next(answers)
-        rc = pg.approve(types.SimpleNamespace(gate="strategy"))
+        rc = approve_gate_in_process("strategy", state, "pg_ok")
         assert rc == 0
         text = state.read_text(encoding="utf-8")
         block = gate_block(text, "strategy")
         assert 'status: "approved"' in block
         assert 'pilot_validation: "P1_P3_STRATEGY_GATE_APPROVED"' in text
+        assert "  P4: ready" in text
+    finally:
+        restore_paths(backups)
+        restore_state(state, log, metadata, sb, lb, mb)
+
+def test_gate_approval_unblocks_each_guarded_phase(tmp_path):
+    state, log, metadata, sb, lb, mb = backup_state(tmp_path)
+    backups = backup_paths(
+        tmp_path,
+        "docs/00-idea/idea-brief.md",
+        "docs/10-strategy/decision-memo.md",
+        ".pipeline/reports/strategy-red-team.md",
+        "docs/20-product/prd.md",
+        "docs/20-product/pm-critic-report.md",
+    )
+    try:
+        write_file("docs/00-idea/idea-brief.md", "# Idea\n\nReal idea body long enough to satisfy the approval unblocking test path here.\n")
+        write_real_strategy_artifacts()
+        assert run(".pipeline/scripts/pipeline.py", "stage", "complete", "P3").returncode == 0
+        assert run(".pipeline/scripts/pipeline.py", "gate", "request", "strategy").returncode == 0
+        assert approve_gate_in_process("strategy", state, "pg_unblock_strategy") == 0
+        assert "  P4: ready" in state.read_text(encoding="utf-8")
+
+        write_real_product_artifacts()
+        assert run(".pipeline/scripts/pipeline.py", "stage", "complete", "P5").returncode == 0
+        assert run(".pipeline/scripts/pipeline.py", "gate", "request", "product").returncode == 0
+        assert approve_gate_in_process("product", state, "pg_unblock_product") == 0
+        assert "  P6: ready" in state.read_text(encoding="utf-8")
+
+        assert run(".pipeline/scripts/pipeline.py", "stage", "complete", "P6").returncode == 0
+        assert run(".pipeline/scripts/pipeline.py", "gate", "request", "architecture").returncode == 0
+        assert approve_gate_in_process("architecture", state, "pg_unblock_architecture") == 0
+        assert "  P7: ready" in state.read_text(encoding="utf-8")
+
+        assert run(".pipeline/scripts/pipeline.py", "stage", "complete", "P8").returncode == 0
+        assert run(".pipeline/scripts/pipeline.py", "gate", "request", "release").returncode == 0
+        assert approve_gate_in_process("release", state, "pg_unblock_release") == 0
+        assert "  P9: ready" in state.read_text(encoding="utf-8")
     finally:
         restore_paths(backups)
         restore_state(state, log, metadata, sb, lb, mb)
@@ -247,6 +304,31 @@ def test_stage_complete_p1_blocks_until_real_idea(tmp_path):
         assert result.returncode == 0
         assert "  P2: blocked_until_real_idea" in state.read_text(encoding="utf-8")
     finally:
+        restore_state(state, log, metadata, sb, lb, mb)
+
+def test_stage_complete_p1_with_real_idea_closes_seed_registers(tmp_path):
+    state, log, metadata, sb, lb, mb = backup_state(tmp_path)
+    backups = backup_paths(tmp_path, "docs/00-idea/idea-brief.md")
+    assumption_path = ROOT / ".pipeline/state/assumption-register.yaml"
+    risk_path = ROOT / ".pipeline/state/risk-register.yaml"
+    assumption_before = assumption_path.read_text(encoding="utf-8")
+    risk_before = risk_path.read_text(encoding="utf-8")
+    try:
+        write_file("docs/00-idea/idea-brief.md", "# Idea\n\nThis is a real idea body long enough to close the scaffold assumption and risk records during P1 completion.\n")
+        result = run(".pipeline/scripts/pipeline.py", "stage", "complete", "P1")
+        assert result.returncode == 0
+        assert "  P2: ready" in state.read_text(encoding="utf-8")
+        assumptions = (ROOT / ".pipeline/state/assumption-register.yaml").read_text(encoding="utf-8")
+        risks = (ROOT / ".pipeline/state/risk-register.yaml").read_text(encoding="utf-8")
+        assert 'id: A-0001' in assumptions and 'status: "closed"' in assumptions
+        assert 'id: R-0001' in risks and 'status: "closed"' in risks
+        handoff = run(".pipeline/scripts/pipeline.py", "handoff")
+        assert "First real idea is not supplied yet" not in handoff.stdout
+        assert "Without a real idea" not in handoff.stdout
+    finally:
+        assumption_path.write_text(assumption_before, encoding="utf-8")
+        risk_path.write_text(risk_before, encoding="utf-8")
+        restore_paths(backups)
         restore_state(state, log, metadata, sb, lb, mb)
 
 def test_mode_set_updates_state(tmp_path):
