@@ -92,7 +92,7 @@ def cmd_skills(args: argparse.Namespace) -> int:
 def cmd_scaffold(args: argparse.Namespace) -> int:
     target = Path(args.repo).resolve()
     target.mkdir(parents=True, exist_ok=True)
-    for name in (".pipeline", "docs", ".github", "AGENTS.md"):
+    for name in (".pipeline", "docs", "AGENTS.md"):
         src = TEMPLATE / name
         if not src.exists():
             continue
@@ -108,23 +108,8 @@ def cmd_scaffold(args: argparse.Namespace) -> int:
     link = target / ".pipeline" / "scripts" / "link_skills.py"
     if link.exists():
         subprocess.check_call([sys.executable, str(link)], cwd=target)
-    if args.verify:
-        run_verify(target)
     print(f"Scaffolded idea2product pipeline into {target}")
     return 0
-
-
-def run_verify(target: Path) -> None:
-    """Run the dev test suite using the platform-appropriate entry script."""
-    scripts = target / ".pipeline" / "scripts"
-    if sys.platform.startswith("win"):
-        script = scripts / "verify.ps1"
-        cmd = ["powershell", "-ExecutionPolicy", "Bypass", "-File", str(script)]
-    else:
-        script = scripts / "verify.sh"
-        cmd = ["sh", str(script)]
-    if script.exists():
-        subprocess.check_call(cmd, cwd=target)
 
 
 # ---------------------------------------------------------------- adapters
@@ -189,7 +174,6 @@ def main() -> int:
 
     sc = sub.add_parser("scaffold", help="create .pipeline + docs in a repository")
     sc.add_argument("repo")
-    sc.add_argument("--verify", action="store_true", help="run the dev test suite after scaffolding")
     sc.set_defaults(func=cmd_scaffold)
 
     a = sub.add_parser("adapters", help="install host adapter files into a repository")

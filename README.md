@@ -78,10 +78,10 @@ do-nothing, and Standard+ runs a cross-model red-team review of the recommendati
   - `idea2product-p0-status` / `idea2product-p0-resume` — report / continue.
 - **`pipeline-template/`** — the repo-local `.pipeline` engine that gets scaffolded into
   your project: deterministic Python CLI, 9 phase recipes, state registers
-  (assumptions, risks, decisions), vendored domain skills, and CI.
+  (assumptions, risks, decisions), vendored domain skills, and user-facing docs.
 - **`agent-adapters/`** — host wiring for Claude Code, Codex, Cursor, OpenCode, Hermes,
   OpenClaw, and generic AGENTS.md agents.
-- **`scripts/`** — install, scaffold, and bundle-sync helpers.
+- **`scripts/`** — install, scaffold, and adapter helpers.
 
 The pipeline's domain expertise comes from **vendored, license-tracked skills** pinned
 to fixed commits: strategy skills (market research, financial analysis, CEO advisor,
@@ -96,9 +96,6 @@ engineering discipline skills (TDD, systematic debugging, code review).
   (`status`, `run`, `gate`, `stage`, `mode`) use only the Python standard library. No
   PowerShell, no Node, no pip install for everyday use. Works on Windows, macOS, Linux.
 - **Git** — for history and to tag gate approvals.
-- **PyYAML + pytest** — only for `verify` (the maintainer/CI test suite). Install with
-  `python3 -m pip install -r .pipeline/requirements-dev.txt` on macOS/Linux, or
-  `python -m pip install -r .pipeline/requirements-dev.txt` on Windows.
 
 ---
 
@@ -198,28 +195,4 @@ To pre-create the `.pipeline` engine in a repo without going through a skill:
 
 ```bash
 python3 scripts/install.py scaffold /path/to/repo
-```
-
----
-
-## Maintainers: keep mirrors in sync
-
-There are two canonical sources, each mirrored elsewhere for self-contained install:
-
-- `pipeline-template/` → embedded in the guided-flow skill as `assets/pipeline-template`.
-- `skills/` → embedded in the Hermes and OpenClaw adapters as `agent-adapters/<host>/skills`.
-
-After editing **either** canonical source, re-mirror and gate on drift:
-
-```bash
-python3 scripts/sync_bundles.py          # propagate canonical -> mirrors
-python3 scripts/sync_bundles.py --check  # non-zero if any mirror drifts (run in CI)
-```
-
-Run the full test suite from a scaffolded workspace (`verify.sh` on macOS/Linux,
-`verify.ps1` on Windows):
-
-```bash
-sh .pipeline/scripts/verify.sh           # macOS / Linux
-powershell -File .pipeline/scripts/verify.ps1   # Windows
 ```

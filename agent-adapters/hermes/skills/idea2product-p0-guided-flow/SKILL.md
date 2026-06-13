@@ -103,7 +103,3 @@ After updating state, confirm the workspace is consistent:
 ```bash
 python3 .pipeline/scripts/pipeline.py status
 ```
-
-`.pipeline/scripts/verify.sh` on macOS/Linux and `.pipeline/scripts/verify.ps1`
-on Windows run the full developer test suite (requires `pytest` and `pyyaml`);
-use them for maintaining the kit, not for everyday runs.

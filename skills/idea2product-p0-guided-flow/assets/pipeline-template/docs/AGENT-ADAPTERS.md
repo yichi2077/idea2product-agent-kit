@@ -11,7 +11,7 @@ Every host should:
 3. Run exactly one phase command at a time: `run P1` through `run P9`.
 4. Never approve gates from the agent runtime.
 5. Ask the user for a real idea when P1-P3 validation lacks `docs/00-idea/idea-brief.md`.
-6. Run `sh .pipeline/scripts/verify.sh` on macOS/Linux, or `.pipeline/scripts/verify.ps1` on Windows, after changing pipeline files.
+6. Run `pipeline.py status` and `pipeline.py handoff` after changing pipeline state or artifacts.
 
 If `.pipeline/scripts/pipeline.py` is missing, the installed idea2product guided skill auto-initializes only empty directories or `.git`-only empty repos. For non-empty projects, initialize explicitly after confirming the target:
 

@@ -77,14 +77,16 @@ Do not invent a fake business idea for P1-P3 validation. If `docs/00-idea/idea-b
 
 ## Verification
 
-After changing pipeline files:
+After changing pipeline state or artifacts, confirm the workspace is still in a coherent state:
 
 ```bash
-sh .pipeline/scripts/verify.sh
+python3 .pipeline/scripts/pipeline.py status
+python3 .pipeline/scripts/pipeline.py handoff
 ```
 
 On Windows:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .pipeline/scripts/verify.ps1
+python .pipeline/scripts/pipeline.py status
+python .pipeline/scripts/pipeline.py handoff
 ```

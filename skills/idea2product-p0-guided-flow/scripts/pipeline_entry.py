@@ -46,7 +46,7 @@ def run_pipeline(args: list[str]) -> int:
             print("Or pass --auto-init to opt in to automatic scaffolding.", file=sys.stderr)
             return 2
         print("No .pipeline/scripts/pipeline.py found; initializing idea2product in the current workspace.", file=sys.stderr)
-        init_code = init_workspace(Path.cwd(), force=False, verify=False)
+        init_code = init_workspace(Path.cwd(), force=False)
         if init_code != 0:
             return init_code
         root = find_root(Path.cwd())
@@ -85,29 +85,17 @@ def copy_path(src: Path, dst: Path, force: bool) -> None:
         shutil.copytree(src, dst, ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".pytest_cache"))
 
 
-def init_workspace(target: Path, force: bool, verify: bool) -> int:
+def init_workspace(target: Path, force: bool) -> int:
     if not TEMPLATE.exists():
         print(f"Bundled pipeline template not found: {TEMPLATE}", file=sys.stderr)
         return 2
     target = target.resolve()
     target.mkdir(parents=True, exist_ok=True)
-    for name in [".pipeline", "docs", ".github", "AGENTS.md"]:
+    for name in [".pipeline", "docs", "AGENTS.md"]:
         copy_path(TEMPLATE / name, target / name, force)
     link = target / ".pipeline" / "scripts" / "link_skills.py"
     if link.exists():
         subprocess.check_call([sys.executable, str(link)], cwd=target)
-    if verify:
-        # Opt-in developer check; requires pytest + PyYAML. Not run on the
-        # end-user auto-init path so first use never depends on a test runner.
-        scripts = target / ".pipeline" / "scripts"
-        if sys.platform.startswith("win"):
-            verify_script = scripts / "verify.ps1"
-            cmd = ["powershell", "-ExecutionPolicy", "Bypass", "-File", str(verify_script)]
-        else:
-            verify_script = scripts / "verify.sh"
-            cmd = ["sh", str(verify_script)]
-        if verify_script.exists():
-            subprocess.check_call(cmd, cwd=target)
     print(f"Initialized idea2product pipeline in {target}")
     return 0
 
@@ -121,8 +109,7 @@ def main() -> int:
     if parsed.args[0] in {"init", "scaffold"}:
         target = Path(parsed.args[1]) if len(parsed.args) > 1 and not parsed.args[1].startswith("-") else Path.cwd()
         force = "--force" in parsed.args
-        verify = "--verify" in parsed.args  # opt-in; off by default for end users
-        return init_workspace(target, force=force, verify=verify)
+        return init_workspace(target, force=force)
     return run_pipeline(parsed.args)
 
 
