@@ -49,11 +49,24 @@ A 2026-06 review of proposed alternatives found none that cleared the bar:
 
 | Candidate source | License | Decision | Reason |
 |------------------|---------|----------|--------|
-| deanpeters/Product-Manager-Skills | CC BY-NC-SA | rejected | NonCommercial — incompatible with MIT redistribution |
-| me2resh/agent-decision-record | CC BY 4.0 | rejected | Attribution-required; marginal gain over Apache `develop-adr`; mixes a third license |
-| phuryn/pm-skills | MIT | rejected | Prompt-only; overlaps `assumption-challenger` / `define-prioritization-framework` / `utility-pm-critic`, which already ship scoring scripts |
-| Mathews-Tom/armory | MIT | rejected | No evidence of exceeding our script-backed skills; cross-set swap breaks coherence |
-| awesome-skills/code-review-skill | MIT | rejected | Different kind (language linting), complements rather than replaces the superpowers review workflow |
+| Candidate (target skill) | License (verified) | Decision | Evidence |
+|--------------------------|--------------------|----------|----------|
+| deanpeters/Product-Manager-Skills | **CC BY-NC-SA 4.0** | rejected | NonCommercial + ShareAlike — would force the kit under BY-NC-SA |
+| slgoodrich/agents — market-sizing (→ market-research) | **PolyForm Noncommercial 1.0** | rejected | NonCommercial; prompt-only; `market-research` already has TAM/SAM/SOM scripts |
+| Mathews-Tom/armory — market-analyzer (→ market-research) | MIT | rejected | Prompt-only, "less rigorous computationally" than our 6-script `market-research`; `idea-validator` overlaps the pipeline's own orchestration |
+| alirezarezvani/claude-cto-team — assumption-challenger | MIT | rejected | Prompt-only, "less comprehensive"; execution-framing (timeline/resource) fits the idea→strategy nodes worse than our DVF mapping + `assumption_mapper.py` |
+| phuryn/pm-skills — lessons-learned (→ iterate-lessons-log) | MIT | rejected | No lessons-log exists — only sprint `retro` (no decay/classification); discovery/red-team overlap skills that already ship scripts |
+| me2resh/agent-decision-record (→ develop-adr) | CC BY 4.0 | rejected (swap) | Novel agent/model/trigger idea, but it is a CC-BY command + git-hooks bundle, not a SKILL.md; mixes a third license and breaks pm-skills coherence (idea may be added in-house later) |
+| wondelai/skills — mom-test (→ discover-interview-synthesis) | book fair-use | rejected | Interview *technique* (input layer) — complement, not a substitute for interview *synthesis* |
+| awesome-skills/code-review-skill (→ requesting/receiving-code-review) | MIT | rejected (swap) | Language-specific review ruleset (16k lines, 20+ langs) — complements, does not replace, the superpowers review *workflow*; swap breaks the request/receive pairing |
+| coreyhaines31/marketingskills — ab-testing (→ measure-experiment-*) | MIT | rejected | Unified marketing-growth skill, different domain framing; not superior to the product-experiment `measure-*` set; breaks pm-skills coherence |
+| poteto/noodle — adversarial-review (→ utility-pm-critic) | n/a | rejected | Skill does not exist (misattribution); `utility-pm-critic` already returns P0–P3 findings |
+| alirezarezvani/claude-skills — cs-ceo-advisor (→ ceo-advisor) | MIT | rejected | "cs-ceo-advisor" does not exist; HEAD `ceo-advisor` (v2.0.0, 2026-03-05) is not newer than our snapshot and ships the same 2 scripts |
+
+Freshness was verified, not assumed: pm-skills CHANGELOG shows no skill file changed after the
+2026-06-12 vendor snapshot (latest release 2.26.0 / 2026-06-10; catalog frozen at 65 — the "v2.9.x"
+figure is the separate `pm-skills-mcp` server's version, not the file repo); `obra/superpowers` HEAD
+matches the vendored engineering copies; `claude-skills` HEAD `ceo-advisor` is not newer than ours.
 
 Re-vendoring **newer versions from the existing sources** is always welcome when upstream
 materially improves a skill (record the new commit in its `SOURCE.yaml`).
