@@ -119,6 +119,9 @@ def print_stale_warnings() -> None:
     for phase, rel, status_value in stale:
         print(f"- {phase} output {rel} is {status_value}; reopen affected downstream phases if this changes approved decisions.")
 
+def all_phases_complete(text: str) -> bool:
+    return all(phase_status(text, phase) == "complete" for phase in PHASES)
+
 def phase_status(text: str, phase: str) -> str | None:
     match = re.search(rf"  {phase}: (\S+)", text)
     return match.group(1) if match else None
@@ -155,6 +158,13 @@ def validate_state_invariants(text: str) -> list[str]:
         gate_status = field(match.group(1), "status")
         if gate_status in {"awaiting_approval", "approved"} and phase_status(text, phase) != "complete":
             errors.append(f"{gate} gate is {gate_status} but {phase} is not complete")
+    seen_incomplete = False
+    for phase in PHASES:
+        status_value = phase_status(text, phase)
+        if status_value != "complete":
+            seen_incomplete = True
+        elif seen_incomplete:
+            errors.append(f"{phase} is complete but an earlier phase is not complete")
     return errors
 
 def has_real_idea() -> bool:
@@ -180,6 +190,9 @@ def status(_: argparse.Namespace) -> int:
     return 0
 
 def print_next_action(state: str) -> int:
+    if all_phases_complete(state):
+        print("Pipeline complete. Review outcomes, reopen a phase for rework, or retire/archive the project.")
+        return 0
     for phase in PHASES:
         marker = f"  {phase}: ready"
         if marker in state:
@@ -203,9 +216,12 @@ def next_cmd(_: argparse.Namespace) -> int:
 
 def resume(_: argparse.Namespace) -> int:
     print("Pipeline status:")
-    print(read(STATE))
+    state = read(STATE)
+    print(state)
     print("\nResume recommendation:")
     rc = next_cmd(argparse.Namespace())
+    if all_phases_complete(state):
+        print("Outcome review is complete. Use handoff to inspect decisions, or reopen a completed phase if outcome evidence requires rework.")
     print("\nFor a full handoff brief (decisions, open assumptions, risks, staleness):")
     print(f"  {PYTHON_CMD} .pipeline/scripts/pipeline.py handoff")
     return rc
@@ -399,6 +415,28 @@ def gate_precondition_errors(gate: str) -> list[str]:
             errors.append("docs/20-product/pm-critic-report.md changed after P5 completion; rerun P5 or reopen before requesting Product Gate.")
     return errors
 
+def output_candidates(rel: str) -> list[Path]:
+    if "<feature>" in rel:
+        return sorted(ROOT.glob(rel.replace("<feature>", "*")))
+    return [ROOT / rel]
+
+def phase_output_errors(phase: str) -> list[str]:
+    errors = []
+    if phase == "P1" and not has_real_idea():
+        errors.append("docs/00-idea/idea-brief.md must hold a real idea before P1 can be completed.")
+    for rel in phase_outputs(phase):
+        candidates = output_candidates(rel)
+        if not candidates or all(not candidate.exists() for candidate in candidates):
+            errors.append(f"{rel} is required before {phase} can be completed.")
+            continue
+        files = [candidate for candidate in candidates if candidate.exists() and candidate.is_file()]
+        if not files:
+            errors.append(f"{rel} must resolve to at least one file before {phase} can be completed.")
+            continue
+        if all(is_scaffold_artifact(candidate) for candidate in files):
+            errors.append(f"{rel} is still scaffolded; replace it with real phase evidence before completing {phase}.")
+    return errors
+
 def replace_phase_status(text: str, phase: str, status_value: str) -> str:
     pattern = re.compile(rf"(  {phase}: )\S+")
     if not pattern.search(text):
@@ -442,6 +480,19 @@ def stage_complete(args: argparse.Namespace) -> int:
     if phase not in PHASES:
         print(f"Unknown phase: {phase}")
         return 2
+    text = read(STATE)
+    current_status = phase_status(text, phase)
+    if current_status != "ready":
+        print(f"Stage completion blocked for {phase}:")
+        print(f"- {phase} is {current_status}; only the current ready phase can be completed.")
+        print_next_action(text)
+        return 3
+    output_errors = phase_output_errors(phase)
+    if output_errors:
+        print(f"Stage completion blocked for {phase}:")
+        for error in output_errors:
+            print(f"- {error}")
+        return 3
     next_phase = PHASES[PHASES.index(phase) + 1] if phase != PHASES[-1] else None
     blocked_next = {
         "P3": "blocked_until_strategy_gate",
@@ -450,13 +501,9 @@ def stage_complete(args: argparse.Namespace) -> int:
         "P8": "blocked_until_release_gate",
     }
     stamp = now()
-    text = read(STATE)
     text = replace_phase_status(text, phase, "complete")
     if next_phase:
-        if phase == "P1" and not has_real_idea():
-            next_status = "blocked_until_real_idea"
-        else:
-            next_status = blocked_next.get(phase, "ready")
+        next_status = blocked_next.get(phase, "ready")
         text = replace_phase_status(text, next_phase, next_status)
         text = replace_current_phase(text, next_phase)
     if phase == "P3" and has_real_idea():
@@ -469,8 +516,6 @@ def stage_complete(args: argparse.Namespace) -> int:
     print(f"Stage completed: {phase}")
     if next_phase:
         print(f"Next phase: {next_phase}")
-        if phase == "P1" and not has_real_idea():
-            print("P2 is blocked until docs/00-idea/idea-brief.md holds a real idea.")
     if phase in {"P3", "P5", "P6", "P8"}:
         gate = {"P3": "strategy", "P5": "product", "P6": "architecture", "P8": "release"}[phase]
         print(f"Required next gate command: {PYTHON_CMD} .pipeline/scripts/pipeline.py gate request {gate}")
@@ -548,6 +593,9 @@ def doctor(_: argparse.Namespace) -> int:
     if STATE.exists():
         text = read(STATE)
         issues.extend(validate_state_invariants(text))
+        for phase in PHASES:
+            if phase_status(text, phase) == "complete":
+                issues.extend(phase_output_errors(phase))
         if not has_real_idea():
             for phase in ("P2", "P3"):
                 status_value = phase_status(text, phase)

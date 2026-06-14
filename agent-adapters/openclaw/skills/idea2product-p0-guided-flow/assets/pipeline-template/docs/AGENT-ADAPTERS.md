@@ -11,7 +11,9 @@ Every host should:
 3. Run exactly one phase command at a time: `run P1` through `run P9`.
 4. Never approve gates from the agent runtime.
 5. Ask the user for a real idea when P1-P3 validation lacks `docs/00-idea/idea-brief.md`.
-6. Run `pipeline.py status` and `pipeline.py handoff` after changing pipeline state or artifacts.
+6. Use `pipeline.py doctor` for read-only health checks when state or artifacts look inconsistent.
+7. Use `pipeline.py retire --reason "..."` only after explicit confirmation and a user-provided reason.
+8. Run `pipeline.py status` and `pipeline.py handoff` after changing pipeline state or artifacts.
 
 If `.pipeline/scripts/pipeline.py` is missing, the installed idea2product guided skill auto-initializes only empty directories or `.git`-only empty repos. For non-empty projects, initialize explicitly after confirming the target:
 
@@ -25,7 +27,7 @@ Package-based installs may alternatively run `scripts/scaffold_into_repo.ps1`. I
 
 | Host | Adapter | Notes |
 | --- | --- | --- |
-| Codex | `$HOME/.agents/skills` plus repo `.agents/skills` | Uses `idea2product-p0-guided-flow`, P1-P9 skills, status, and resume. |
+| Codex | `$HOME/.agents/skills` plus repo `.agents/skills` | Uses `idea2product-p0-guided-flow`, P1-P9 skills, status, resume, rollback, doctor, and retire. |
 | Cursor | `.cursor/rules/idea2product.mdc` | Project rule points Cursor at the shared guide. |
 | Claude Code | `CLAUDE.md` | Project memory points Claude Code at the shared guide and pipeline commands. |
 | OpenCode | `AGENTS.md` and `.opencode/agents/idea2product.md` | OpenCode supports project instructions and markdown-defined agents. |

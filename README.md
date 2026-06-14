@@ -66,10 +66,10 @@ do-nothing, and every strategy gate requires a cross-model red-team review of th
 
 ## What's in the box
 
-- **`skills/`** — 13 installable entry skills:
+- **`skills/`** — 15 installable entry skills:
   - `idea2product-p0-guided-flow` — the one-call orchestrator that reads state and tells you the next step.
   - `idea2product-p1-…` through `…-p9-outcome-review` — one skill per phase.
-  - `idea2product-p0-status` / `idea2product-p0-resume` / `idea2product-p0-rollback` — report / continue / roll back.
+  - `idea2product-p0-status` / `idea2product-p0-resume` / `idea2product-p0-rollback` / `idea2product-p0-doctor` / `idea2product-p0-retire` — report / continue / roll back / health-check / retire.
 - **`pipeline-template/`** — the repo-local `.pipeline` engine that gets scaffolded into
   your project: deterministic Python CLI, 9 phase recipes, state registers
   (assumptions, risks, decisions), vendored domain skills, and user-facing docs.
@@ -87,7 +87,7 @@ engineering discipline skills (TDD, systematic debugging, code review).
 ## Requirements
 
 - **Python 3.10+** — the only thing you need. The installer and all pipeline commands
-  (`status`, `run`, `gate`, `stage`, `mode`) use only the Python standard library. No
+  (`status`, `run`, `gate`, `stage`, `doctor`, `retire`) use only the Python standard library. No
   PowerShell, no Node, no pip install for everyday use. Works on Windows, macOS, Linux.
 - **Git** — for history and to tag gate approvals.
 
@@ -103,7 +103,7 @@ The installer is `scripts/install.py` and runs the same on every platform.
 python3 scripts/install.py skills --target claude-code
 ```
 
-This copies the 13 skills into `~/.claude/skills`, where Claude Code discovers them by
+This copies the 15 skills into `~/.claude/skills`, where Claude Code discovers them by
 name. Open a new thread if they don't appear immediately.
 
 ### Codex
@@ -146,6 +146,8 @@ idea2product-p0-guided-flow   one call: orient, then run the next step
 idea2product-p0-status        report where you are (+ stale-output warnings)
 idea2product-p0-resume        re-orient (handoff brief) and continue
 idea2product-p0-rollback      roll a completed phase back (guided reopen)
+idea2product-p0-doctor        health-check pipeline state and artifacts
+idea2product-p0-retire        retire/abandon the project with confirmation
 idea2product-p1-idea-expansion … idea2product-p9-outcome-review
 ```
 
@@ -156,6 +158,12 @@ invalidates an upstream phase, ask the agent to **roll it back** — the
 `idea2product-p0-rollback` skill drives **reopen** after confirming the target
 phase, the affected reports, and the reason, reworking the state cleanly instead
 of hand-editing it.
+
+When something looks inconsistent, ask the agent to use `idea2product-p0-doctor`.
+It runs the read-only health check and reports missing outputs, scaffold placeholders,
+stale completed artifacts, and gate/state invariant issues. When you want to abandon
+or archive the project, use `idea2product-p0-retire`; it requires explicit confirmation
+and a reason before marking unfinished phases retired.
 
 ### Gates are yours to approve
 

@@ -45,6 +45,8 @@ python3 "$HOME/.hermes/skills/idea2product-p0-guided-flow/scripts/pipeline_entry
    The bare guided-flow command only auto-initializes empty directories or `.git`-only
    empty repos. In a non-empty directory, run `init .` explicitly or pass `--auto-init`
    after confirming this is the intended target.
+   This low-level auto-init behavior is for direct CLI/tool use only; when operating as
+   this skill, always complete the onboarding dialogue first.
 
 ## First-run onboarding
 
@@ -52,8 +54,9 @@ When `.pipeline` is absent, or the user asks what the kit is or how to start, or
 
 1. Explain that idea2product turns a raw idea into a shipped product for a solo operator. The user talks; you run the engine commands. The only normal command the user runs directly is gate approval, because a human must be the approval anchor.
 2. Walk the path in one line each: P1 idea, P2 strategy analysis, P3 strategy decision `[Strategy Gate]`, P4 product discovery, P5 PRD `[Product Gate]`, P6 architecture/ADR `[Architecture Gate]`, P7 feature spec, P8 build/release `[Release Gate]`, P9 outcome review.
-3. Mention continuation and operations: status, resume, rollback, health check, and retire.
+3. Mention continuation and operations: status, resume, rollback, doctor health check, and retire.
 4. Ask exactly: "What's your idea?" Wait for the user's answer. Only then scaffold/init and start P1 from that idea.
+5. Do not run the entry script before the answer, even if the target directory is empty and the entry script would auto-initialize safely.
 
 ## Explicit Skills
 
@@ -74,11 +77,8 @@ Continuation skills:
 - `$idea2product-p0-status`: report current state only.
 - `$idea2product-p0-resume`: continue from current state.
 - `$idea2product-p0-rollback`: roll a completed phase (and its downstream) back.
-
-Engine options surfaced through this guided flow:
-
-- Health check: run `python3 .pipeline/scripts/pipeline.py doctor` when the user asks if the workspace is OK, something looks inconsistent, or local state/files disagree.
-- Retire: run `python3 .pipeline/scripts/pipeline.py retire --reason "..."` only after the confirmation flow below.
+- `$idea2product-p0-doctor`: run the read-only workspace health check.
+- `$idea2product-p0-retire`: retire the project after explicit confirmation and a reason.
 
 ## Guided Flow
 
@@ -87,6 +87,7 @@ Engine options surfaced through this guided flow:
 3. If a real idea is missing, ask the user for the real idea instead of inventing one.
 4. If a gate is awaiting approval, prepare the decision context and tell the user the manual approval command.
 5. If the handoff reports a **stale** output (a completed phase's file changed after completion), confirm with the user whether the change is harmless or whether the affected phase must be reworked.
+6. Do not run `stage complete Px` until that phase is the current `ready` phase and its recipe outputs exist and no longer contain scaffold placeholders. The engine rejects skipped phases and placeholder outputs.
 
 ## Your options now
 
@@ -96,8 +97,8 @@ After each handoff or resume summary, present a short state-aware menu in prose.
 - Check status.
 - Roll back a completed phase.
 - Review overdue assumptions and risks.
-- Run a health check.
-- Retire the project.
+- Run a health check via `$idea2product-p0-doctor`.
+- Retire the project via `$idea2product-p0-retire`.
 
 ## Rework
 
@@ -111,9 +112,15 @@ Reopen rolls the target and downstream phases back, clears affected gates, and l
 
 For a guided, confirmation-checked rollback, invoke `$idea2product-p0-rollback` instead of running `reopen` by hand — it collects the target phase, affected reports, and reason from the user before reopening.
 
+For a direct health check, invoke `$idea2product-p0-doctor` instead of only describing
+the `doctor` command. It runs the read-only check and summarizes missing, stale,
+scaffold, or inconsistent state without changing files.
+
 ## Retiring a project
 
-Retire means abandon/terminate the project pre-release; it is not a phase skip. Before running retire:
+Retire means abandon/terminate the project pre-release; it is not a phase skip. Prefer
+invoking `$idea2product-p0-retire` so the confirmation and reason capture are handled
+consistently. Before running retire from this guided flow:
 
 1. Summarize the current phase and any completed phases from `pipeline.py handoff`.
 2. Ask the user to explicitly confirm retirement and provide the reason.

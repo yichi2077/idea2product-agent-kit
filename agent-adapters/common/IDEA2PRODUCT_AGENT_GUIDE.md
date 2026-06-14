@@ -22,9 +22,12 @@ If `.pipeline/scripts/pipeline.py` does not exist, the pipeline is not installed
 
 ## Phase Map
 
-- P0 guided flow: decide whether to report status, resume, ask for a real idea, or run the next phase.
-- P0 status: report mode, current phase, pilot validation state, gates, and blockers.
+- P0 guided flow: decide whether to report status, resume, ask for a real idea, run diagnostics, retire, or run the next phase.
+- P0 status: report current phase, pilot validation state, gates, and blockers.
 - P0 resume: report state and recommend the next command.
+- P0 rollback: reopen a completed phase after explicit target, affected reports, reason, and confirmation.
+- P0 doctor: run the read-only health check for state, recipes, gates, completed outputs, and stale artifacts.
+- P0 retire: retire or archive the project after explicit confirmation and a non-empty reason.
 - P1 idea expansion: capture a real idea and initialize assumptions and risks.
 - P2 strategy analysis: issue tree, hypothesis tree, market, competition, unit economics, options, evidence, unknowns.
 - P3 strategy decision: decision memo, recommendation, red-team, Strategy Gate request.
@@ -40,6 +43,8 @@ If `.pipeline/scripts/pipeline.py` does not exist, the pipeline is not installed
 ```bash
 python3 .pipeline/scripts/pipeline.py status
 python3 .pipeline/scripts/pipeline.py resume
+python3 .pipeline/scripts/pipeline.py handoff
+python3 .pipeline/scripts/pipeline.py doctor
 python3 .pipeline/scripts/pipeline.py run P1
 python3 .pipeline/scripts/pipeline.py run P2
 python3 .pipeline/scripts/pipeline.py run P3
@@ -50,6 +55,8 @@ python3 .pipeline/scripts/pipeline.py run P7
 python3 .pipeline/scripts/pipeline.py run P8
 python3 .pipeline/scripts/pipeline.py run P9
 python3 .pipeline/scripts/pipeline.py gate request strategy
+python3 .pipeline/scripts/pipeline.py reopen P5 --reason "reason from the user"
+python3 .pipeline/scripts/pipeline.py retire --reason "reason from the user"
 python3 .pipeline/scripts/pipeline.py assumptions due
 ```
 
@@ -90,3 +97,7 @@ On Windows:
 python .pipeline/scripts/pipeline.py status
 python .pipeline/scripts/pipeline.py handoff
 ```
+
+Use the dedicated skills for user-facing operations when available:
+`$idea2product-p0-status`, `$idea2product-p0-resume`, `$idea2product-p0-rollback`,
+`$idea2product-p0-doctor`, and `$idea2product-p0-retire`.
