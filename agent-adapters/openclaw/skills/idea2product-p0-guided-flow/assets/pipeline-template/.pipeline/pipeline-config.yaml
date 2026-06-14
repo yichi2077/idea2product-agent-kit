@@ -1,21 +1,10 @@
-modes:
-  light:
-    p1_minutes: 30
-    p7_minutes: 90
-  standard:
-    p1_minutes: 90
-    p2_minutes: 360
-    p3_minutes: 120
-    p4_minutes: 240
-    p5_minutes: 360
-    p6_minutes: 480
-  high_assurance:
-    p1_minutes: 180
-    p2_minutes: 960
-    p3_minutes: 240
-    p4_minutes: 480
-    p5_minutes: 720
-    p6_minutes: 960
+estimates:
+  p1_minutes: 90
+  p2_minutes: 360
+  p3_minutes: 120
+  p4_minutes: 240
+  p5_minutes: 360
+  p6_minutes: 480
 per_feature:
   p7_minutes_per_feature: 240
 gates:

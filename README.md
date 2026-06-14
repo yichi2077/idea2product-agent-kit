@@ -51,12 +51,6 @@ outcome review.
 that **only a human can approve**. Agents may *request* a gate and prepare the
 decision context; they can never approve one.
 
-**3 modes.** Pick the ceremony that fits the stakes:
-- **Light** — personal tools and low-risk prototypes (P1 → P7 → P8, minimal gates).
-- **Standard** — real product MVPs (full P1–P9, all four gates).
-- **High-Assurance** — regulated / sensitive / irreversible work (adds full financial
-  models, security & privacy review, cross-model red-teaming, supply-chain audit).
-
 **Single source of truth.** The Decision Memo owns the strategy decision, the PRD owns
 the product, ADRs own the technical direction, and Spec Kit specs own the features.
 Slides and issues are *expressions* of those, never the source.
@@ -66,7 +60,7 @@ real idea — a shipped placeholder is rejected on purpose, so you can't rubber-
 fabricated idea through the strategy gate.
 
 **Anti-confirmation-bias by design.** Strategy decisions compare build / buy / partner /
-do-nothing, and Standard+ runs a cross-model red-team review of the recommendation.
+do-nothing, and every strategy gate requires a cross-model red-team review of the recommendation.
 
 ---
 

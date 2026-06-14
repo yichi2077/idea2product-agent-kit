@@ -21,7 +21,10 @@ python3 .pipeline/scripts/pipeline.py status
 python3 .pipeline/scripts/pipeline.py resume
 ```
 
-3. If `.pipeline` does NOT exist, initialize this workspace once using the entry
+3. If `.pipeline` does NOT exist, or the user asks "what is this" / "how do I start",
+   run the first-run onboarding before initialization or routing. Do not scaffold until
+   the user has answered "what's your idea?"
+4. After onboarding captures the idea, initialize this workspace once using the entry
    script bundled with this skill, then use the repo-local script from then on.
    Use the path that matches where this skill is installed:
 
@@ -43,6 +46,15 @@ python3 "$HOME/.hermes/skills/idea2product-p0-guided-flow/scripts/pipeline_entry
    empty repos. In a non-empty directory, run `init .` explicitly or pass `--auto-init`
    after confirming this is the intended target.
 
+## First-run onboarding
+
+When `.pipeline` is absent, or the user asks what the kit is or how to start, orient before running any init command:
+
+1. Explain that idea2product turns a raw idea into a shipped product for a solo operator. The user talks; you run the engine commands. The only normal command the user runs directly is gate approval, because a human must be the approval anchor.
+2. Walk the path in one line each: P1 idea, P2 strategy analysis, P3 strategy decision `[Strategy Gate]`, P4 product discovery, P5 PRD `[Product Gate]`, P6 architecture/ADR `[Architecture Gate]`, P7 feature spec, P8 build/release `[Release Gate]`, P9 outcome review.
+3. Mention continuation and operations: status, resume, rollback, health check, and retire.
+4. Ask exactly: "What's your idea?" Wait for the user's answer. Only then scaffold/init and start P1 from that idea.
+
 ## Explicit Skills
 
 Phase skills:
@@ -63,6 +75,11 @@ Continuation skills:
 - `$idea2product-p0-resume`: continue from current state.
 - `$idea2product-p0-rollback`: roll a completed phase (and its downstream) back.
 
+Engine options surfaced through this guided flow:
+
+- Health check: run `python3 .pipeline/scripts/pipeline.py doctor` when the user asks if the workspace is OK, something looks inconsistent, or local state/files disagree.
+- Retire: run `python3 .pipeline/scripts/pipeline.py retire --reason "..."` only after the confirmation flow below.
+
 ## Guided Flow
 
 1. Run `python3 .pipeline/scripts/pipeline.py handoff` (use `python` on Windows). It is read-only and consolidates current phase, next step, gate states, recorded decisions, open assumptions/risks, and any stale outputs. Summarize it for the user — this is how you and the user re-orient at the start of any session.
@@ -70,6 +87,17 @@ Continuation skills:
 3. If a real idea is missing, ask the user for the real idea instead of inventing one.
 4. If a gate is awaiting approval, prepare the decision context and tell the user the manual approval command.
 5. If the handoff reports a **stale** output (a completed phase's file changed after completion), confirm with the user whether the change is harmless or whether the affected phase must be reworked.
+
+## Your options now
+
+After each handoff or resume summary, present a short state-aware menu in prose. Include only actions that are valid from the current state:
+
+- Continue to the ready phase.
+- Check status.
+- Roll back a completed phase.
+- Review overdue assumptions and risks.
+- Run a health check.
+- Retire the project.
 
 ## Rework
 
@@ -83,9 +111,32 @@ Reopen rolls the target and downstream phases back, clears affected gates, and l
 
 For a guided, confirmation-checked rollback, invoke `$idea2product-p0-rollback` instead of running `reopen` by hand — it collects the target phase, affected reports, and reason from the user before reopening.
 
+## Retiring a project
+
+Retire means abandon/terminate the project pre-release; it is not a phase skip. Before running retire:
+
+1. Summarize the current phase and any completed phases from `pipeline.py handoff`.
+2. Ask the user to explicitly confirm retirement and provide the reason.
+3. If confirmation or reason is missing, stop and ask for it.
+4. Run:
+
+```bash
+python3 .pipeline/scripts/pipeline.py retire --reason "reason from the user"
+```
+
+5. Report that unfinished phases were marked retired and that resuming requires `reopen <completed phase>`.
+
 ## Gate Rules
 
 Agents may request gates but must not approve gates. When you request a gate, state your confidence in the decision context you prepared, grounded in the open assumptions and risks:
+
+Before requesting any gate, run:
+
+```bash
+python3 .pipeline/scripts/pipeline.py assumptions due
+```
+
+Surface any overdue assumptions or risks to the user and account for them in the confidence rationale.
 
 ```bash
 python3 .pipeline/scripts/pipeline.py gate request strategy --confidence high|medium|low --rationale "what drives that confidence"

@@ -1,34 +1,44 @@
 from __future__ import annotations
 
-import re
 from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-REGISTER = ROOT / ".pipeline/state/assumption-register.yaml"
+ASSUMPTIONS = ROOT / ".pipeline/state/assumption-register.yaml"
+RISKS = ROOT / ".pipeline/state/risk-register.yaml"
 
-def main() -> int:
-    text = REGISTER.read_text(encoding="utf-8")
-    due = []
+def read_items(path: Path, label: str) -> list[dict]:
+    text = path.read_text(encoding="utf-8")
+    items = []
     current = {}
     for line in text.splitlines():
-        if line.strip().startswith("- id:"):
+        stripped = line.strip()
+        if stripped.startswith("- id:"):
             if current:
-                due.append(current)
-            current = {"id": line.split(":", 1)[1].strip()}
-        elif "review_by:" in line:
-            current["review_by"] = line.split(":", 1)[1].strip().strip('"')
-        elif "statement:" in line:
-            current["statement"] = line.split(":", 1)[1].strip().strip('"')
+                items.append(current)
+            current = {"kind": label, "id": stripped.split(":", 1)[1].strip().strip('"')}
+        elif current and "review_by:" in stripped:
+            current["review_by"] = stripped.split(":", 1)[1].strip().strip('"')
+        elif current and "statement:" in stripped:
+            current["statement"] = stripped.split(":", 1)[1].strip().strip('"')
+        elif current and "status:" in stripped:
+            current["status"] = stripped.split(":", 1)[1].strip().strip('"')
     if current:
-        due.append(current)
+        items.append(current)
+    return items
+
+def main() -> int:
     today = date.today().isoformat()
-    matches = [item for item in due if item.get("review_by", "9999-99-99") <= today]
+    due = read_items(ASSUMPTIONS, "assumption") + read_items(RISKS, "risk")
+    matches = [
+        item for item in due
+        if item.get("status", "open") == "open" and item.get("review_by", "9999-99-99") <= today
+    ]
     if not matches:
-        print("No assumptions due.")
+        print("No assumptions or risks due.")
         return 0
     for item in matches:
-        print(f"{item.get('id')}: due {item.get('review_by')} - {item.get('statement')}")
+        print(f"{item.get('kind')} {item.get('id')}: due {item.get('review_by')} - {item.get('statement')}")
     return 1
 
 if __name__ == "__main__":

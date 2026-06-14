@@ -27,10 +27,12 @@ These back the skills; the agent runs them for you (use `python3` on macOS/Linux
 | --- | --- |
 | `pipeline.py handoff` | read-only brief: phase, next step, gates, decisions, open assumptions/risks, stale outputs |
 | `pipeline.py status` / `next` / `resume` | current state (+ stale warnings) / next correct step / re-orient and continue |
+| `pipeline.py doctor` | read-only workspace health check: template files, recipes, registers, state invariants, stale outputs |
 | `pipeline.py run P1` … `run P9` | print and execute a phase recipe |
 | `pipeline.py gate request <gate> --confidence high\|medium\|low --rationale "…"` | request a gate with stated confidence (agent only) |
 | `pipeline.py reopen P5 --reason "…"` | rework a completed upstream phase and reset downstream |
-| `pipeline.py assumptions due` | assumptions past their review date |
+| `pipeline.py retire --reason "…"` | abandon a project pre-release after explicit confirmation |
+| `pipeline.py assumptions due` | assumptions and risks past their review date |
 | `pipeline_gate.py approve <gate>` | **you**, in a real OS terminal — approve a requested gate |
 
 ## Codex Skills
@@ -81,7 +83,7 @@ The level and rationale are recorded in `.pipeline/state/phase-metadata.json` an
 
 ## Handoff Brief
 
-When you return after a break, or a fresh agent session (or a different model) picks up the work, run `pipeline.py handoff` before doing anything else. It is a read-only renderer that consolidates the five things needed to continue without re-litigating settled work: current phase and mode, the next step, gate states, the decisions already recorded, the open assumptions (flagged `OVERDUE` past their review date) and open risks, and any stale completed outputs. It reads only the registers the pipeline already maintains and never changes state. `resume` points to it.
+When you return after a break, or a fresh agent session (or a different model) picks up the work, run `pipeline.py handoff` before doing anything else. It is a read-only renderer that consolidates the five things needed to continue without re-litigating settled work: current phase, the next step, gate states, the decisions already recorded, the open assumptions and risks (flagged `OVERDUE` past their review date), and any stale completed outputs. It reads only the registers the pipeline already maintains and never changes state. `resume` points to it.
 
 ## Rework Loops
 
@@ -89,4 +91,4 @@ Use `pipeline.py reopen Px --reason "..."` when downstream work proves an upstre
 
 `status` and `next` warn when a completed phase output changes after completion. Treat those warnings as a prompt to either confirm the change is harmless or reopen the affected phase before requesting the next gate.
 
-Product Gate requires a real PRD and a real PM critic report. Strategy Gate in standard/high-assurance mode requires a real decision memo and `.pipeline/reports/strategy-red-team.md`.
+Product Gate requires a real PRD and a real PM critic report. Strategy Gate requires a real decision memo and `.pipeline/reports/strategy-red-team.md`.

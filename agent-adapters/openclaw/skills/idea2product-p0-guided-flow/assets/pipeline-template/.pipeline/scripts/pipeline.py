@@ -19,7 +19,6 @@ ASSUMPTIONS = PIPE / "state" / "assumption-register.yaml"
 RISKS = PIPE / "state" / "risk-register.yaml"
 DECISION_LOG = PIPE / "state" / "decision-log.md"
 PHASES = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"]
-MODES = {"light", "standard", "high-assurance"}
 GATES = {"strategy", "product", "architecture", "release"}
 GATE_PHASES = {"strategy": "P3", "product": "P5", "architecture": "P6", "release": "P8"}
 CONFIDENCE_LEVELS = ("high", "medium", "low")
@@ -120,10 +119,6 @@ def print_stale_warnings() -> None:
     for phase, rel, status_value in stale:
         print(f"- {phase} output {rel} is {status_value}; reopen affected downstream phases if this changes approved decisions.")
 
-def state_mode(text: str) -> str:
-    match = re.search(r'mode: "([^"]+)"', text)
-    return match.group(1) if match else "standard"
-
 def phase_status(text: str, phase: str) -> str | None:
     match = re.search(rf"  {phase}: (\S+)", text)
     return match.group(1) if match else None
@@ -191,6 +186,9 @@ def print_next_action(state: str) -> int:
             print(f"Next: run {phase}")
             print(f"Command: {PYTHON_CMD} .pipeline/scripts/pipeline.py run {phase}")
             return 0
+    if re.search(r"  P\d: retired", state):
+        print("Project retired. Run reopen <completed phase> to resume from a completed checkpoint.")
+        return 1
     if "blocked_until_real_idea" in state:
         print("Blocked: capture a real idea in docs/00-idea/idea-brief.md, then "
               "complete P1.")
@@ -249,7 +247,6 @@ def handoff(_: argparse.Namespace) -> int:
     text = read(STATE)
     today = now()[:10]
     print("# idea2product handoff brief")
-    print(f"\nMode: {state_mode(text)}")
     current = re.search(r'current_phase: "([^"]+)"', text)
     if current:
         print(f"Current phase: {current.group(1)}")
@@ -283,7 +280,11 @@ def handoff(_: argparse.Namespace) -> int:
     open_risks = [r for r in parse_register(RISKS) if r.get("status") == "open"]
     if open_risks:
         for risk in open_risks:
-            print(f"- {risk.get('id')} [{risk.get('severity', '?')}]: {risk.get('statement', '')}")
+            review_by = risk.get("review_by")
+            due = ""
+            if review_by:
+                due = f" (review by {review_by}{' OVERDUE' if review_by <= today else ''})"
+            print(f"- {risk.get('id')} [{risk.get('severity', '?')}]{due}: {risk.get('statement', '')}")
     else:
         print("- none open")
     print_stale_warnings()
@@ -366,7 +367,6 @@ def gate_request(args: argparse.Namespace) -> int:
 
 def gate_precondition_errors(gate: str) -> list[str]:
     text = read(STATE)
-    mode = state_mode(text)
     errors = []
     gate_phase = GATE_PHASES[gate]
     if phase_status(text, gate_phase) != "complete":
@@ -379,8 +379,8 @@ def gate_precondition_errors(gate: str) -> list[str]:
         if is_scaffold_artifact(decision_memo):
             errors.append("docs/10-strategy/decision-memo.md must exist and contain real decision evidence.")
         red_team = ROOT / ".pipeline/reports/strategy-red-team.md"
-        if mode in {"standard", "high-assurance"} and is_scaffold_artifact(red_team):
-            errors.append(".pipeline/reports/strategy-red-team.md is required in standard/high-assurance mode.")
+        if is_scaffold_artifact(red_team):
+            errors.append(".pipeline/reports/strategy-red-team.md is required before the strategy gate.")
     if gate == "product":
         prd = ROOT / "docs/20-product/prd.md"
         critic = ROOT / "docs/20-product/pm-critic-report.md"
@@ -407,9 +407,6 @@ def replace_phase_status(text: str, phase: str, status_value: str) -> str:
 
 def replace_current_phase(text: str, phase: str) -> str:
     return re.sub(r'current_phase: "[^"]+"', f'current_phase: "{phase}"', text, count=1)
-
-def replace_last_updated(text: str) -> str:
-    return re.sub(r'last_updated: "[^"]+"', f'last_updated: "{now()}"', text, count=1)
 
 def replace_pilot_validation(text: str, status_value: str) -> str:
     return re.sub(r'pilot_validation: "[^"]+"', f'pilot_validation: "{status_value}"', text, count=1)
@@ -439,21 +436,6 @@ def close_real_idea_seed_registers() -> None:
         updated = replace_register_status(text, "R-0001", "closed")
         if updated != text:
             write(RISKS, updated)
-
-def mode_set(args: argparse.Namespace) -> int:
-    mode = args.mode.lower()
-    if mode not in MODES:
-        print(f"Unknown mode: {mode}. Choose one of: {', '.join(sorted(MODES))}")
-        return 2
-    text = read(STATE)
-    if not re.search(r'mode: "[^"]*"', text):
-        print("mode field not found in state.")
-        return 2
-    text = re.sub(r'mode: "[^"]*"', f'mode: "{mode}"', text, count=1)
-    text = replace_last_updated(text)
-    write(STATE, text)
-    print(f"Mode set: {mode}")
-    return 0
 
 def stage_complete(args: argparse.Namespace) -> int:
     phase = args.phase.upper()
@@ -545,6 +527,73 @@ def reopen(args: argparse.Namespace) -> int:
 def assumptions_due(_: argparse.Namespace) -> int:
     return subprocess.call([sys.executable, str(PIPE / "scripts" / "review_due.py")])
 
+def doctor(_: argparse.Namespace) -> int:
+    issues: list[str] = []
+    required_paths = [
+        PIPE,
+        PIPE / "scripts" / "pipeline.py",
+        PIPE / "recipes",
+        PIPE / "state",
+        STATE,
+        ASSUMPTIONS,
+        RISKS,
+        DECISION_LOG,
+    ]
+    for path in required_paths:
+        if not path.exists():
+            issues.append(f"missing required path: {path.relative_to(ROOT)}")
+    for phase in PHASES:
+        if recipe_path(phase) is None:
+            issues.append(f"missing recipe for {phase}")
+    if STATE.exists():
+        text = read(STATE)
+        issues.extend(validate_state_invariants(text))
+        if not has_real_idea():
+            for phase in ("P2", "P3"):
+                status_value = phase_status(text, phase)
+                if status_value not in {"blocked_until_real_idea", "waiting", "retired"}:
+                    issues.append(f"{phase} is {status_value} but no real idea-brief exists")
+    for register in (ASSUMPTIONS, RISKS):
+        if register.exists():
+            try:
+                parse_register(register)
+            except OSError as exc:
+                issues.append(f"cannot read {register.relative_to(ROOT)}: {exc}")
+    stale = stale_artifacts()
+    for phase, rel, status_value in stale:
+        issues.append(f"stale output: {phase} {rel} is {status_value}")
+    if issues:
+        print("Workspace doctor found issues:")
+        for issue in issues:
+            print(f"- {issue}")
+        return 1
+    print("✓ healthy")
+    return 0
+
+def retire(args: argparse.Namespace) -> int:
+    reason = args.reason.strip()
+    if not reason:
+        print("Retire requires a non-empty --reason.")
+        return 2
+    text = read(STATE)
+    changed = []
+    for phase in PHASES:
+        if phase_status(text, phase) != "complete":
+            text = replace_phase_status(text, phase, "retired")
+            changed.append(phase)
+    stamp = now()
+    text = re.sub(r'last_updated: "[^"]+"', f'last_updated: "{stamp}"', text, count=1)
+    write(STATE, text)
+    with DECISION_LOG.open("a", encoding="utf-8", newline="\n") as fh:
+        fh.write(f"\n## {stamp} - retired\n\nReason: {reason}\nRetired phases: {', '.join(changed) or 'none'}\n")
+    print(f"Project retired: {reason}")
+    if changed:
+        print(f"Retired phases: {', '.join(changed)}")
+    else:
+        print("All phases were already complete; no phase statuses changed.")
+    print("Run reopen <completed phase> to resume from a completed checkpoint.")
+    return 0
+
 def main() -> int:
     parser = argparse.ArgumentParser(prog="pipeline")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -552,14 +601,10 @@ def main() -> int:
     sub.add_parser("next").set_defaults(func=next_cmd)
     sub.add_parser("resume").set_defaults(func=resume)
     sub.add_parser("handoff").set_defaults(func=handoff)
+    sub.add_parser("doctor").set_defaults(func=doctor)
     run = sub.add_parser("run")
     run.add_argument("phase")
     run.set_defaults(func=run_phase)
-    mode = sub.add_parser("mode")
-    mode_sub = mode.add_subparsers(dest="mode_cmd", required=True)
-    mode_set_p = mode_sub.add_parser("set")
-    mode_set_p.add_argument("mode")
-    mode_set_p.set_defaults(func=mode_set)
     stage = sub.add_parser("stage")
     stage_sub = stage.add_subparsers(dest="stage_cmd", required=True)
     complete = stage_sub.add_parser("complete")
@@ -577,6 +622,9 @@ def main() -> int:
     reopen_p.add_argument("phase")
     reopen_p.add_argument("--reason", required=True)
     reopen_p.set_defaults(func=reopen)
+    retire_p = sub.add_parser("retire")
+    retire_p.add_argument("--reason", required=True)
+    retire_p.set_defaults(func=retire)
     ass = sub.add_parser("assumptions")
     ass_sub = ass.add_subparsers(dest="ass_cmd", required=True)
     ass_due = ass_sub.add_parser("due")
