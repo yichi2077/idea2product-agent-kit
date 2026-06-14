@@ -1,208 +1,491 @@
-# idea2product Agent Kit
+# idea2product-agent-kit
 
-> 中文说明：[README.zh-CN.md](README.zh-CN.md)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-green.svg)
+![Agents](https://img.shields.io/badge/Agents-Claude%20Code%20%7C%20Codex%20%7C%20Cursor%20%7C%20OpenCode%20%7C%20Hermes%20%7C%20OpenClaw%20%7C%20Generic-purple.svg)
+![Version](https://img.shields.io/badge/Version-v1.0.0-orange.svg)
 
-A portable, agent-driven workflow that takes one person from a **raw idea** all the
-way to a **shipped product** — through strategy, product definition, architecture,
-and delivery — without losing rigor and without drowning in documents.
-
-It is built for the solo operator who wears three hats at once: **strategy analyst**,
-**product manager**, and **engineer**. The kit bridges those three roles so the same
-idea flows cleanly from "is this even worth doing?" to "here is the merged, tested
-feature," with explicit human decision points in between.
-
-It runs as a set of **skills** inside coding agents (Claude Code and Codex today,
-with adapters for Cursor, OpenCode, Hermes, OpenClaw, and any AGENTS.md host).
+**A portable, agent-driven workflow that takes you from raw idea to shipped product — 9 phases, 4 human-only gates, zero guesswork.** Designed for solo operators wearing strategy, PM, and engineering hats simultaneously. Works with any coding agent you already use.
 
 ---
 
-## What problem it solves
+## Table of Contents
 
-Working alone, the easy failure mode is to fall in love with an idea and rush it
-into code — skipping the strategy and product thinking that would have killed or
-reshaped it. The opposite failure is to generate endless analysis documents that
-never become a product.
+- [Pipeline Overview](#pipeline-overview)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Phase Reference](#phase-reference)
+- [Gate System](#gate-system)
+- [Utility Skills](#utility-skills)
+- [Architecture](#architecture)
+- [FAQ](#faq)
+- [Contributing](#contributing)
+- [License](#license)
 
-This kit forces a disciplined **expand → contract** rhythm and makes you stop at the
-decisions that matter:
+---
+
+## Pipeline Overview
+
+The pipeline follows three expand-contract funnels. Each phase expands evidence and options, then contracts into a decision or artifact:
 
 ```
-Idea ──expand──▶ Strategy ──decide──▶ Product ──define──▶ Architecture ──build──▶ Outcome
-        market          KILL/HOLD/        PRD,            ADRs, feature      ship &
-        finance         EXPLORE/          discovery,      map, spikes        measure
-        risk            COMMIT            validation
+ ══════════════════════════════════════════════════════════════════════
+  idea2product-agent-kit v1.0.0 — 9 Phases · 4 Gates
+ ══════════════════════════════════════════════════════════════════════
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │                     FUNNEL 1: IDEA → STRATEGY                   │
+  │             market / finance / risk evidence → decision          │
+  ├──────────────────────────────────────────────────────────────────┤
+  │                                                                  │
+  │   ┌─────┐        ┌─────┐        ┌─────┐                         │
+  │   │ P1  │───────▶│ P2  │───────▶│ P3  │                         │
+  │   │Idea │        │Stra-│        │Stra-│                         │
+  │   │Brief│        │tegy │        │tegy │                         │
+  │   │     │        │Rese-│        │Deci-│                         │
+  │   │     │        │arch │        │sion │                         │
+  │   └─────┘        └─────┘        └─────┘                         │
+  │                                  ▼                               │
+  │                           ╔═══════════╗                          │
+  │                           ║  GATE 1   ║  ← STRATEGY GATE        │
+  │                           ║ Strategy  ║    human approval        │
+  │                           ╚═══════════╝                          │
+  └──────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+  ┌──────────────────────────────────────────────────────────────────┐
+  │                    FUNNEL 2: STRATEGY → PRODUCT                  │
+  │                 options → defined product                        │
+  ├──────────────────────────────────────────────────────────────────┤
+  │                                                                  │
+  │   ┌─────┐        ┌─────┐        ┌─────┐                         │
+  │   │ P4  │───────▶│ P5  │───────▶│ P6  │                         │
+  │   │Prod-│        │Prod-│        │Archi│                         │
+  │   │uct  │        │uct  │        │tec- │                         │
+  │   │Disco│        │Defi-│        │ture │                         │
+  │   │very │        │niti-│        │Hand-│                         │
+  │   │     │        │on   │        │off  │                         │
+  │   └─────┘        └─────┘        └─────┘                         │
+  │                                  ▼                               │
+  │                           ╔═══════════╗                          │
+  │                           ║  GATE 2   ║  ← PRODUCT GATE         │
+  │                           ║ Product   ║    human approval        │
+  │                           ╚═══════════╝                          │
+  └──────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+  ┌──────────────────────────────────────────────────────────────────┐
+  │                  FUNNEL 3: PRODUCT → DELIVERY                    │
+  │              technical options → shipped product                 │
+  ├──────────────────────────────────────────────────────────────────┤
+  │                                                                  │
+  │   ┌─────┐        ┌─────┐        ┌─────┐                         │
+  │   │ P7  │───────▶│ P8  │───────▶│ P9  │                         │
+  │   │Fea- │        │Build│        │Out- │                         │
+  │   │ture │        │  &  │        │come │                         │
+  │   │Spec │        │Rele-│        │Revi-│                         │
+  │   │     │        │ase  │        │ew   │                         │
+  │   └─────┘        └─────┘        └─────┘                         │
+  │           ▼                   ▼        ▼                         │
+  │    ╔═══════════╗       ╔═══════════╗                             │
+  │    ║  GATE 3   ║       ║  GATE 4   ║  ← RELEASE GATE           │
+  │    ║  Architec-║       ║  Release  ║    human approval          │
+  │    ║  ture     ║       ╚═══════════╝                             │
+  │    ╚═══════════╝                                                 │
+  └──────────────────────────────────────────────────────────────────┘
 ```
 
-Three expansion→contraction funnels:
-
-1. **Idea expands** into market / finance / risk evidence, then **contracts** to a strategy decision.
-2. **Strategy expands** into product options, then **contracts** to a defined product.
-3. **Product expands** into technical options, then **contracts** to an architecture and delivery.
-
 ---
 
-## Core concepts
+## Installation
 
-**9 phases (P1–P9).** Idea capture → strategy analysis → strategy decision → product
-discovery → product definition → architecture handoff → feature spec → build/release →
-outcome review.
+### Prerequisites
 
-**4 gates.** `Strategy`, `Product`, `Architecture`, `Release`. A gate is a hard stop
-that **only a human can approve**. Agents may *request* a gate and prepare the
-decision context; they can never approve one.
+- **Python 3.10+** (stdlib only — no pip packages required)
+- **Git**
+- A coding agent (one or more from the list below)
 
-**Single source of truth.** The Decision Memo owns the strategy decision, the PRD owns
-the product, ADRs own the technical direction, and Spec Kit specs own the features.
-Slides and issues are *expressions* of those, never the source.
+### Install for Your Agent
 
-**Real-idea guard.** P2 and P3 stay blocked until `docs/00-idea/idea-brief.md` holds a
-real idea — a shipped placeholder is rejected on purpose, so you can't rubber-stamp a
-fabricated idea through the strategy gate.
+```bash
+# Clone the repo
+git clone https://github.com/yichi2077/idea2product-agent-kit.git
+cd idea2product-agent-kit
+```
 
-**Anti-confirmation-bias by design.** Strategy decisions compare build / buy / partner /
-do-nothing, and every strategy gate requires a cross-model red-team review of the recommendation.
+> **Note:** Use `python3` on macOS/Linux. On Windows, use `python` instead.
 
-**Existing-solution check before build.** P2 starts by searching for ready-to-use
-products, services, open-source projects, and substitute workflows. If something
-already solves the idea well enough, the agent tells you before the kit pushes deeper
-into product planning.
-
----
-
-## What's in the box
-
-- **`skills/`** — 15 installable entry skills:
-  - `idea2product-p0-guided-flow` — the one-call orchestrator that reads state and tells you the next step.
-  - `idea2product-p1-…` through `…-p9-outcome-review` — one skill per phase. P2 strategy analysis includes the existing-solution check as a required first step.
-  - `idea2product-p0-status` / `idea2product-p0-resume` / `idea2product-p0-rollback` / `idea2product-p0-doctor` / `idea2product-p0-retire` — report / continue / roll back / health-check / retire.
-- **`pipeline-template/`** — the repo-local `.pipeline` engine that gets scaffolded into
-  your project: deterministic Python CLI, 9 phase recipes, state registers
-  (assumptions, risks, decisions), vendored domain skills, and user-facing docs.
-- **`agent-adapters/`** — host wiring for Claude Code, Codex, Cursor, OpenCode, Hermes,
-  OpenClaw, and generic AGENTS.md agents.
-- **`scripts/`** — install, scaffold, and adapter helpers.
-
-The pipeline's domain expertise comes from **vendored, license-tracked skills** pinned
-to fixed commits: strategy skills (market research, financial analysis, CEO advisor,
-etc.), product skills (lean canvas, JTBD, PRD, acceptance criteria, etc.), and
-engineering discipline skills (TDD, systematic debugging, code review).
-
----
-
-## Requirements
-
-- **Python 3.10+** — the only thing you need. The installer and all pipeline commands
-  (`status`, `run`, `gate`, `stage`, `doctor`, `retire`) use only the Python standard library. No
-  PowerShell, no Node, no pip install for everyday use. Works on Windows, macOS, Linux.
-- **Git** — for history and to tag gate approvals.
-
----
-
-## Install (one step, any OS)
-
-The installer is `scripts/install.py` and runs the same on every platform.
-
-### Claude Code
+#### Claude Code
 
 ```bash
 python3 scripts/install.py skills --target claude-code
+python3 scripts/install.py adapters /path/to/your-project --agent claude-code
 ```
 
-This copies the 15 skills into `~/.claude/skills`, where Claude Code discovers them by
-name. Open a new thread if they don't appear immediately.
+Installs skills to `~/.claude/skills` and generates a `CLAUDE.md` in your project root.
 
-### Codex
+#### Codex (OpenAI)
 
 ```bash
 python3 scripts/install.py skills --target codex
+python3 scripts/install.py adapters /path/to/your-project --agent codex
 ```
 
-Installs into `~/.agents/skills`. Invoke skills explicitly with `$skill-name`.
+Installs skills to `~/.agents/skills`. Each skill gets an `openai.yaml` config. Generates a `README.md` with agent instructions in your project.
 
-### Both at once
+#### Cursor
 
 ```bash
-python3 scripts/install.py skills
+python3 scripts/install.py adapters /path/to/your-project --agent cursor
 ```
 
-> Windows users may also use the `.ps1` wrappers in `scripts/` (e.g.
-> `install_user_skills.ps1`); they just forward to `install.py`.
+Generates `README.md` + `.cursor/rules` for Cursor's rule system.
+
+#### OpenCode
+
+```bash
+python3 scripts/install.py adapters /path/to/your-project --agent opencode
+```
+
+Generates an `AGENTS.md` in your project root.
+
+#### Hermes
+
+```bash
+python3 scripts/install.py adapters /path/to/your-project --agent hermes
+```
+
+Generates `AGENTS.hermes.md` in your project root. To also mirror skills to `~/.hermes/skills/`:
+
+```bash
+python3 scripts/install.py adapters /path/to/your-project --agent hermes --install-user-skills
+```
+
+#### OpenClaw
+
+```bash
+python3 scripts/install.py adapters /path/to/your-project --agent openclaw
+```
+
+Generates `AGENTS.openclaw.md`, `SOUL.md`, `TOOLS.md`, and copies skills to your project.
+
+#### Generic (Any Agent)
+
+```bash
+python3 scripts/install.py adapters /path/to/your-project --agent generic
+```
+
+Generates a universal `AGENTS.generic.md` that works with any agent supporting markdown-based instructions.
+
+### Scaffold a New Project
+
+```bash
+python3 scripts/install.py scaffold /path/to/new-project
+```
+
+Creates the full `.pipeline/` directory structure with state files, templates, and recipes in your target repo.
 
 ---
 
-## Quick start
+## Quick Start
 
-You drive this kit by **talking to your coding agent and invoking skills** — the
-agent runs the pipeline for you. You don't type pipeline commands yourself, with
-one deliberate exception: gate approval (below).
+### Step 1 — Install the Kit
 
-1. Open any project folder (empty is fine).
-2. Ask the agent to start the guided flow — e.g. *"Use idea2product-p0-guided-flow to begin."*
-   On first use it auto-creates `.pipeline/` and `docs/` only in an empty directory
-   (or a `.git`-only empty repo). In a non-empty repo, tell the agent to run
-   guided-flow `init .` (or scaffold explicitly) so the wrong repository is not dirtied.
-3. Give the agent your real idea; it captures it in `docs/00-idea/idea-brief.md`
-   during P1. (Until a real idea exists, P2/P3 stay blocked.)
-4. Keep going by asking the agent to proceed — it always tells you the next correct
-   step and runs it. The skills you invoke by name:
-
-```text
-idea2product-p0-guided-flow   one call: orient, then run the next step
-idea2product-p0-status        report where you are (+ stale-output warnings)
-idea2product-p0-resume        re-orient (handoff brief) and continue
-idea2product-p0-rollback      roll a completed phase back (guided reopen)
-idea2product-p0-doctor        health-check pipeline state and artifacts
-idea2product-p0-retire        retire/abandon the project with confirmation
-idea2product-p1-idea-expansion … idea2product-p9-outcome-review
+```bash
+git clone https://github.com/yichi2077/idea2product-agent-kit.git
+cd idea2product-agent-kit
+python3 scripts/install.py skills --target claude-code    # install skills to your agent
+python3 scripts/install.py scaffold /path/to/my-project   # set up .pipeline/ in your project
+python3 scripts/install.py adapters /path/to/my-project --agent claude-code  # generate agent instructions
 ```
 
-To pick up after a break or in a fresh session, just ask the agent to resume: it
-runs the read-only **handoff brief** — decisions already made, open questions,
-what's gone stale, and the next step — and summarizes it. If downstream work
-invalidates an upstream phase, ask the agent to **roll it back** — the
-`idea2product-p0-rollback` skill drives **reopen** after confirming the target
-phase, the affected reports, and the reason, reworking the state cleanly instead
-of hand-editing it.
+### Step 2 — Describe Your Idea
 
-When something looks inconsistent, ask the agent to use `idea2product-p0-doctor`.
-It runs the read-only health check and reports missing outputs, scaffold placeholders,
-stale completed artifacts, and gate/state invariant issues. When you want to abandon
-or archive the project, use `idea2product-p0-retire`; it requires explicit confirmation
-and a reason before marking unfinished phases retired.
+In your agent, run:
 
-### Gates are yours to approve
-
-Gates are the one place you act directly. The agent *prepares and requests* a gate
-(stating its confidence in the decision context it assembled); **you** approve or
-reject in a **plain OS terminal** (PowerShell/cmd/bash opened directly — **not** the
-agent's integrated terminal, which the command refuses on purpose):
-
-```powershell
-python .pipeline/scripts/pipeline_gate.py approve strategy
-python .pipeline/scripts/pipeline_gate.py reject strategy
+```
+run p1
 ```
 
-Approval requires the gate name, the random challenge printed at request time, and a
-note. The agent's stated confidence is shown to you first, so you can vary your
-scrutiny. A successful approval records the approver, time, and commit, and creates an
-annotated `i2p-gate-<gate>-<timestamp>` git tag. A rejected gate can be re-opened by
-requesting it again.
+The agent walks you through creating `docs/00-idea/idea-brief.md`. This is your raw idea captured in a structured template.
+
+### Step 3 — Run the Pipeline
+
+```
+next
+```
+
+The agent tells you which phase comes next and what to do. Alternatively, run a specific phase:
+
+```
+run p2
+```
+
+### Step 4 — Check Status Anytime
+
+```
+status
+```
+
+Shows current phase, completed phases, pending gates, and due assumptions.
+
+### Step 5 — Request a Gate
+
+When a phase requires a gate (P3, P6, P8), the agent will prompt you. Gate approval happens in a **real OS terminal** (not the agent's integrated terminal):
+
+```bash
+python scripts/pipeline_gate.py request strategy --confidence high --rationale "Market validated, financial model holds"
+```
+
+You'll be given a random challenge string to type — this prevents accidental approvals.
+
+### Step 6 — Keep Going
+
+```
+run p4
+run p5
+...
+run p9
+```
+
+Each phase has its own recipe, templates, and domain skills that guide the work.
 
 ---
 
-## Other hosts and project-scoped install
+## Phase Reference
 
-Install host adapters into a target repository (and, for Claude Code, repo-scoped
-skills under `.claude/skills` that travel with the project):
+| Phase | Name | What It Does | Key Outputs |
+|-------|------|-------------|-------------|
+| **P1** | Idea Brief | Capture and structure your raw idea into a concise brief | `docs/00-idea/idea-brief.md` |
+| **P2** | Strategy Research | Scan existing solutions, analyze market/finance/risk evidence | Market scan, financial model, risk register, assumption register |
+| **P3** | Strategy Decision | Compare build/buy/partner/do-nothing with red-team review | Decision memo, product thesis |
+| **P4** | Product Discovery | Define target users, jobs-to-be-done, opportunity mapping | JTBD canvas, opportunity tree, lean canvas |
+| **P5** | Product Definition | Write PRD, acceptance criteria, user stories, edge cases | PRD, acceptance criteria, user stories, edge case docs |
+| **P6** | Architecture Handoff | Evaluate technical options, create architecture decision records | ADRs, design rationale, architecture spec |
+| **P7** | Feature Specification | Specify MVP features with test-first approach | Feature specs, test plans, TDD specs |
+| **P8** | Build & Release | Execute implementation, code review, verification, launch prep | Working code, launch checklist, GTM plan |
+| **P9** | Outcome Review | Measure results against hypothesis, decide next steps | Outcome review, pivot/persevere decision |
+
+> **Note:** P2 and P3 are blocked until a real idea exists in `docs/00-idea/idea-brief.md`. P2 always starts with an existing-solutions scan.
+
+---
+
+## Gate System
+
+Gates are **human-only decision points** that protect you from rushing past critical commitments. The agent cannot approve gates for you.
+
+### The 4 Gates
+
+| Gate | After Phase | What You're Deciding |
+|------|------------|---------------------|
+| **Strategy Gate** | P3 | Is this idea worth pursuing? Should I build, buy, partner, or walk away? |
+| **Product Gate** | P6 | Is the product definition solid enough to commit to architecture? |
+| **Architecture Gate** | P7 | Is the technical plan sound enough to start building? |
+| **Release Gate** | P8 | Is the product ready to ship to real users? |
+
+### How to Approve a Gate
+
+1. Open a **real OS terminal** (not the agent's built-in terminal)
+2. Run the gate command:
 
 ```bash
-python3 scripts/install.py adapters /path/to/repo --agent claude-code
-python3 scripts/install.py adapters /path/to/repo --agent cursor
-python3 scripts/install.py adapters /path/to/repo --agent all
+python scripts/pipeline_gate.py request <gate-name> --confidence high --rationale "Your reasoning here"
 ```
 
-To pre-create the `.pipeline` engine in a repo without going through a skill:
+3. You'll see a **random challenge string** — type it exactly to confirm
+4. Add a **note** explaining your decision
+5. The gate is recorded in `.pipeline/state/pipeline-state.yaml`
+
+### Confidence Signals
+
+When requesting a gate, specify your confidence level:
+
+- **high** — Strong evidence, low uncertainty, ready to commit
+- **medium** — Reasonable evidence, some open questions remain
+- **low** — Proceeding with significant unknowns (allowed but logged)
+
+### Anti-Confirmation Bias
+
+P3 strategy decisions require comparing **build / buy / partner / do-nothing** options. A cross-model red-team review challenges your reasoning before you reach the Strategy Gate.
+
+---
+
+## Utility Skills
+
+| Skill | Command | Purpose |
+|-------|---------|---------|
+| **Status** | `status` | Show current phase, progress, pending gates, due assumptions |
+| **Resume** | `resume` | Resume a paused or interrupted pipeline from saved state |
+| **Rollback** | `rollback` | Roll back to a previous phase (reopens it, preserves history) |
+| **Doctor** | `doctor` | Diagnose pipeline health — check state files, missing artifacts, broken references |
+| **Retire** | `retire --reason "..."` | Gracefully retire a pipeline with a documented reason |
+| **Handoff** | `handoff` | Generate a context document for handing the project to another agent or person |
+
+### Other Useful Commands
 
 ```bash
-python3 scripts/install.py scaffold /path/to/repo
+run p4              # Run a specific phase
+stage complete p4   # Manually mark a phase complete
+reopen p3 --reason "New market data"  # Reopen a completed phase
+assumptions due     # List assumptions that need validation
 ```
+
+---
+
+## Architecture
+
+### What's in the Box
+
+```
+idea2product-agent-kit/
+├── scripts/
+│   ├── install.py             # Main installer (skills, adapters, scaffold)
+│   └── *.ps1                  # Windows convenience wrappers
+│
+├── skills/                    # 15 pipeline skills
+│   ├── p0-guided-flow/        # End-to-end guided walkthrough
+│   ├── p0-status/             # Pipeline status
+│   ├── p0-resume/             # Resume interrupted pipeline
+│   ├── p0-rollback/           # Roll back phases
+│   ├── p0-doctor/             # Pipeline health diagnostics
+│   ├── p0-retire/             # Graceful pipeline retirement
+│   ├── p1-idea-brief/         # Phase 1: Idea capture
+│   ├── p2-strategy-research/  # Phase 2: Market/finance/risk research
+│   ├── p3-strategy-decision/  # Phase 3: Strategy decision with red-team
+│   ├── p4-product-discovery/  # Phase 4: User/needs/opportunity mapping
+│   ├── p5-product-definition/ # Phase 5: PRD and specs
+│   ├── p6-architecture-handoff/ # Phase 6: Technical architecture
+│   ├── p7-feature-specification/ # Phase 7: Feature specs
+│   ├── p8-build-release/      # Phase 8: Implementation and launch
+│   └── p9-outcome-review/     # Phase 9: Outcome measurement
+│
+├── pipeline-template/         # Scaffolded into target repo as .pipeline/
+│   ├── .pipeline/
+│   │   ├── scripts/
+│   │   │   ├── pipeline.py        # Pipeline engine — phase execution, state management
+│   │   │   ├── pipeline_gate.py   # Gate approval — challenge/response system
+│   │   │   ├── link_skills.py     # Link skills into agent skill directories
+│   │   │   └── review_due.py      # Check for due reviews and assumptions
+│   │   ├── state/                 # Pipeline state files
+│   │   ├── pipeline-state.yaml
+│   │   ├── assumption-register.yaml
+│   │   ├── risk-register.yaml
+│   │   └── decision-log.md
+│   ├── templates/             # 10 document templates
+│   │   ├── idea-brief.md
+│   │   ├── decision-memo.md
+│   │   ├── hypothesis-tree.md
+│   │   ├── issue-tree.md
+│   │   ├── product-thesis.md
+│   │   ├── red-team-strategy.md
+│   │   ├── red-team-architecture.md
+│   │   ├── strategy-research-note.md
+│   │   ├── launch-gtm-checklist.md
+│   │   └── outcome-review.md
+│   ├── recipes/               # 9 phase recipes (YAML)
+│   │   ├── p1.yaml ... p9.yaml
+│   └── vendor/                # Vendored domain skills
+│       ├── strategy/          # market-research, financial-analyst, ceo-advisor,
+│       │                      # business-investment-advisor, product-discovery
+│       ├── product/           # lean-canvas, jtbd, prd, acceptance-criteria,
+│       │                      # edge-cases, user-stories, launch-checklist,
+│       │                      # hypothesis, experiment-design, instrumentation-spec,
+│       │                      # prioritization, problem-statement, opportunity-tree,
+│       │                      # design-rationale, adr, spike-summary,
+│       │                      # interview-synthesis, pm-critic
+│       └── engineering/       # tdd, systematic-debugging, code-review,
+│                              # finishing-branch, verification, executing-plans
+│
+└── agent-adapters/            # Per-agent configuration generators
+    ├── claude-code/           # → CLAUDE.md
+    ├── codex/                 # → README.md + openai.yaml per skill
+    ├── cursor/                # → README.md + .cursor/rules
+    ├── opencode/              # → AGENTS.md
+    ├── hermes/                # → AGENTS.md + skill mirror
+    ├── openclaw/              # → AGENTS.md + SOUL.md + TOOLS.md + skill mirror
+    └── generic/               # → AGENTS.md
+```
+
+### How It Works
+
+1. **Recipes** (`.pipeline/recipes/p*.yaml`) define each phase — what steps to run, which templates to use, which vendor skills to invoke
+2. **Skills** (`skills/p*`) contain the agent instructions (`SKILL.md`) and agent-specific configs (`agents/` directory)
+3. **Vendor skills** (`.pipeline/vendor/`) are domain-expert skills the pipeline invokes — strategy analysis, product documentation, engineering practices
+4. **State files** (`.pipeline/state/`) track progress, assumptions, risks, and decisions across sessions
+5. **Adapters** generate the right instruction files for your agent so it knows how to run the pipeline
+6. **Scripts** handle state transitions, gate approvals, and maintenance tasks
+
+---
+
+## FAQ
+
+### Do I need all 15 skills installed?
+
+No. Install only the phases you need. The pipeline is sequential but each phase works independently once prerequisites are met.
+
+### Can I skip phases?
+
+You can, but gates enforce minimum completeness. For example, you can't reach P4 (Product Discovery) without passing the Strategy Gate after P3.
+
+### What if I want to go back to an earlier phase?
+
+Use `reopen p3 --reason "New information"` or `rollback`. Previous work is preserved in the decision log — nothing is lost.
+
+### Does this work without an internet connection?
+
+Yes. The kit uses only Python stdlib and Git. Domain skills and templates are all local files. The agent may need internet for its own API calls, but the pipeline infrastructure is fully offline.
+
+### Can I use this with multiple agents on the same project?
+
+Yes. Run `python3 scripts/install.py adapters /path/to/your-project` with different `--agent` targets. Each adapter generates its own instruction files without overwriting others.
+
+### What happens if my agent session dies mid-phase?
+
+Use `resume` to pick up where you left off. Pipeline state is saved to `.pipeline/state/` after every meaningful step. You can also run `doctor` to check for any inconsistencies.
+
+### Why must gate approval happen in a real terminal?
+
+Gates are irreversible decision points. The random challenge + note system prevents accidental approvals and ensures you're making a deliberate, documented choice — not just clicking through prompts.
+
+### Can I customize the templates?
+
+Absolutely. Templates in `.pipeline/templates/` are plain markdown. Edit them to match your workflow. Recipes reference templates by name, so your customizations are picked up automatically.
+
+### How does the anti-confirmation bias work?
+
+P3 (Strategy Decision) forces the agent to compare all viable options — build, buy, partner, and do-nothing — rather than just justifying a pre-made decision. A cross-model red-team review (using `red-team-strategy.md`) challenges the reasoning before you reach the Strategy Gate.
+
+---
+
+## Contributing
+
+Contributions are welcome! Here's how to get involved:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-improvement`)
+3. **Commit** your changes with clear messages
+4. **Push** to your branch and open a **Pull Request**
+
+### Ideas for Contributions
+
+- New agent adapters (Windsurf, Aider, etc.)
+- Additional templates or vendor skills
+- Translations of README and templates
+- Bug fixes and documentation improvements
+- Pipeline recipe optimizations
+
+Please open an issue first for major changes to discuss the approach.
+
+---
+
+## License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+Copyright (c) 2026 [yichi2077](https://github.com/yichi2077)
+
+---
+
+<p align="center">
+  Built with ❤️ for solo builders who ship.
+</p>
