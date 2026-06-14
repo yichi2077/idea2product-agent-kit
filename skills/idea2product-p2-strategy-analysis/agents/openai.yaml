@@ -1,6 +1,6 @@
 interface:
   display_name: "idea2product-P2-strategy-analysis"
-  short_description: "Analyze the approved idea as a strategy problem: issue tree, hypothesis tree, market, competition, trend, right to win, unit economics, strategic options, evidence quality, and unknowns."
+  short_description: "Analyze the approved idea as a strategy problem, starting with an existing-solutions scan before deeper market and strategic work."
   default_prompt: "Use $idea2product-p2-strategy-analysis in the current workspace."
 policy:
   allow_implicit_invocation: false

@@ -10,7 +10,7 @@ What the agent does when you invoke the guided flow:
 2. Captures your real idea in `docs/00-idea/idea-brief.md` (P1).
 3. Runs `pipeline.py handoff` to orient, and summarizes it for you.
 4. Runs the next phase via the matching `idea2product-Px-*` skill.
-5. Follows the printed recipe, produces the listed outputs, and completes the phase only after those outputs are real rather than scaffold placeholders.
+5. Follows the printed recipe, produces the listed outputs, and completes the phase only after those outputs are real rather than scaffold placeholders. In P2, the first required output is an existing-solutions scan so the agent can warn you when a ready-to-use product may already solve the idea.
 
 If the target project does not have `.pipeline/scripts/pipeline.py`, the `idea2product-p0-guided-flow` entry script auto-initializes only an empty directory or a `.git`-only empty repo. In a non-empty project, initialize explicitly after confirming the target:
 
@@ -44,6 +44,7 @@ Use `$idea2product-p0-guided-flow` for the guided end-to-end flow.
 Use explicit phase skills when you already know the phase:
 
 - `$idea2product-p1-idea-expansion`
+- `$idea2product-p2-existing-solutions-scan` (required at the start of P2)
 - `$idea2product-p2-strategy-analysis`
 - `$idea2product-p3-strategy-decision`
 - `$idea2product-p4-product-discovery`
@@ -94,6 +95,19 @@ Use `pipeline.py reopen Px --reason "..."` when downstream work proves an upstre
 `status` and `next` warn when a completed phase output changes after completion. Treat those warnings as a prompt to either confirm the change is harmless or reopen the affected phase before requesting the next gate.
 
 Product Gate requires a real PRD and a real PM critic report. Strategy Gate requires a real decision memo and `.pipeline/reports/strategy-red-team.md`.
+
+## Existing Solutions Scan
+
+P2 starts by checking whether the expanded idea already has a ready-to-use solution.
+The agent uses `$idea2product-p2-existing-solutions-scan` to search for direct
+competitors, indirect competitors, substitute workflows, open-source projects, SaaS,
+apps, services, templates, and no-code tools. The result is written to
+`docs/10-strategy/existing-solutions-scan.md`.
+
+If the scan finds a perfect or good-enough solution, the agent must pause and ask
+whether you want to use/buy/partner, build a differentiated wedge, continue research,
+or retire. P2 cannot complete while the scan's `User Decision` is `pending`, `use_existing`,
+or `retire`.
 
 ## Health Check and Retire
 

@@ -15,6 +15,7 @@ PIPE = ROOT / ".pipeline"
 STATE = PIPE / "state" / "pipeline-state.yaml"
 METADATA = PIPE / "state" / "phase-metadata.json"
 IDEA_BRIEF = ROOT / "docs/00-idea/idea-brief.md"
+EXISTING_SOLUTIONS_SCAN = ROOT / "docs/10-strategy/existing-solutions-scan.md"
 ASSUMPTIONS = PIPE / "state" / "assumption-register.yaml"
 RISKS = PIPE / "state" / "risk-register.yaml"
 DECISION_LOG = PIPE / "state" / "decision-log.md"
@@ -435,6 +436,65 @@ def phase_output_errors(phase: str) -> list[str]:
             continue
         if all(is_scaffold_artifact(candidate) for candidate in files):
             errors.append(f"{rel} is still scaffolded; replace it with real phase evidence before completing {phase}.")
+    if phase == "P2":
+        errors.extend(existing_solutions_scan_errors())
+    return errors
+
+def markdown_section_value(text: str, heading: str) -> str:
+    pattern = re.compile(
+        rf"^## {re.escape(heading)}\n(?P<body>.*?)(?=^## |\Z)",
+        re.MULTILINE | re.DOTALL,
+    )
+    match = pattern.search(text)
+    if not match:
+        return ""
+    lines = [line.strip() for line in match.group("body").splitlines() if line.strip()]
+    return "\n".join(lines).strip()
+
+def normalized_section_token(text: str, heading: str) -> str:
+    value = markdown_section_value(text, heading)
+    if not value:
+        return ""
+    first = value.splitlines()[0].strip().strip("[]").strip()
+    return first.lower().replace("-", "_")
+
+def existing_solutions_scan_errors() -> list[str]:
+    if not EXISTING_SOLUTIONS_SCAN.exists() or is_scaffold_artifact(EXISTING_SOLUTIONS_SCAN):
+        return []
+    text = read(EXISTING_SOLUTIONS_SCAN)
+    classification = normalized_section_token(text, "Classification")
+    recommendation = normalized_section_token(text, "Recommendation")
+    decision = normalized_section_token(text, "User Decision")
+    rationale = markdown_section_value(text, "Rationale")
+    classifications = {
+        "perfect_match", "good_enough", "partial_match", "reference_only",
+        "no_credible_solution_found", "search_unavailable",
+    }
+    recommendations = {
+        "use_existing", "buy", "partner", "build_differentiated",
+        "continue_research", "retire_recommended",
+    }
+    decisions = {
+        "pending", "use_existing", "buy", "partner", "build_differentiated",
+        "continue_build", "continue_research", "retire",
+    }
+    errors = []
+    if classification not in classifications:
+        errors.append("docs/10-strategy/existing-solutions-scan.md must include a valid Classification.")
+    if recommendation not in recommendations:
+        errors.append("docs/10-strategy/existing-solutions-scan.md must include a valid Recommendation.")
+    if decision not in decisions:
+        errors.append("docs/10-strategy/existing-solutions-scan.md must include a valid User Decision.")
+    if decision == "pending":
+        errors.append("docs/10-strategy/existing-solutions-scan.md User Decision is pending; ask the user how to proceed before completing P2.")
+    if decision in {"use_existing", "retire"}:
+        errors.append("Existing-solution scan says the user chose not to build; do not complete P2. Use the existing solution or retire the project.")
+    if classification in {"perfect_match", "good_enough"} and recommendation in {"use_existing", "retire_recommended"}:
+        if decision not in {"buy", "partner", "build_differentiated", "continue_build", "continue_research"}:
+            errors.append("A ready existing solution appears to solve the idea; P2 can continue only if the user explicitly chooses buy, partner, build_differentiated, continue_build, or continue_research.")
+    if classification == "search_unavailable":
+        if len(rationale) < 80 or not re.search(r"\b(assumption|risk)\b", rationale, re.IGNORECASE):
+            errors.append("Search was unavailable; existing-solutions-scan.md must record the access limitation as an assumption or risk in the Rationale before completing P2.")
     return errors
 
 def replace_phase_status(text: str, phase: str, status_value: str) -> str:

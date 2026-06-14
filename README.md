@@ -62,13 +62,18 @@ fabricated idea through the strategy gate.
 **Anti-confirmation-bias by design.** Strategy decisions compare build / buy / partner /
 do-nothing, and every strategy gate requires a cross-model red-team review of the recommendation.
 
+**Existing-solution check before build.** P2 starts by searching for ready-to-use
+products, services, open-source projects, and substitute workflows. If something
+already solves the idea well enough, the agent tells you before the kit pushes deeper
+into product planning.
+
 ---
 
 ## What's in the box
 
-- **`skills/`** — 15 installable entry skills:
+- **`skills/`** — 16 installable entry skills:
   - `idea2product-p0-guided-flow` — the one-call orchestrator that reads state and tells you the next step.
-  - `idea2product-p1-…` through `…-p9-outcome-review` — one skill per phase.
+  - `idea2product-p1-…` through `…-p9-outcome-review` — one skill per phase, plus `idea2product-p2-existing-solutions-scan` inside P2.
   - `idea2product-p0-status` / `idea2product-p0-resume` / `idea2product-p0-rollback` / `idea2product-p0-doctor` / `idea2product-p0-retire` — report / continue / roll back / health-check / retire.
 - **`pipeline-template/`** — the repo-local `.pipeline` engine that gets scaffolded into
   your project: deterministic Python CLI, 9 phase recipes, state registers
@@ -103,7 +108,7 @@ The installer is `scripts/install.py` and runs the same on every platform.
 python3 scripts/install.py skills --target claude-code
 ```
 
-This copies the 15 skills into `~/.claude/skills`, where Claude Code discovers them by
+This copies the 16 skills into `~/.claude/skills`, where Claude Code discovers them by
 name. Open a new thread if they don't appear immediately.
 
 ### Codex
@@ -148,6 +153,8 @@ idea2product-p0-resume        re-orient (handoff brief) and continue
 idea2product-p0-rollback      roll a completed phase back (guided reopen)
 idea2product-p0-doctor        health-check pipeline state and artifacts
 idea2product-p0-retire        retire/abandon the project with confirmation
+idea2product-p2-existing-solutions-scan
+                               search for ready-to-use alternatives before P2 continues
 idea2product-p1-idea-expansion … idea2product-p9-outcome-review
 ```
 

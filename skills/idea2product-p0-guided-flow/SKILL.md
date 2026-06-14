@@ -53,7 +53,7 @@ python3 "$HOME/.hermes/skills/idea2product-p0-guided-flow/scripts/pipeline_entry
 When `.pipeline` is absent, or the user asks what the kit is or how to start, orient before running any init command:
 
 1. Explain that idea2product turns a raw idea into a shipped product for a solo operator. The user talks; you run the engine commands. The only normal command the user runs directly is gate approval, because a human must be the approval anchor.
-2. Walk the path in one line each: P1 idea, P2 strategy analysis, P3 strategy decision `[Strategy Gate]`, P4 product discovery, P5 PRD `[Product Gate]`, P6 architecture/ADR `[Architecture Gate]`, P7 feature spec, P8 build/release `[Release Gate]`, P9 outcome review.
+2. Walk the path in one line each: P1 idea, P2 existing-solution scan and strategy analysis, P3 strategy decision `[Strategy Gate]`, P4 product discovery, P5 PRD `[Product Gate]`, P6 architecture/ADR `[Architecture Gate]`, P7 feature spec, P8 build/release `[Release Gate]`, P9 outcome review.
 3. Mention continuation and operations: status, resume, rollback, doctor health check, and retire.
 4. Ask exactly: "What's your idea?" Wait for the user's answer. Only then scaffold/init and start P1 from that idea.
 5. Do not run the entry script before the answer, even if the target directory is empty and the entry script would auto-initialize safely.
@@ -63,6 +63,7 @@ When `.pipeline` is absent, or the user asks what the kit is or how to start, or
 Phase skills:
 
 - `$idea2product-p1-idea-expansion`: idea2product-P1-idea-expansion
+- `$idea2product-p2-existing-solutions-scan`: idea2product-P2-existing-solutions-scan
 - `$idea2product-p2-strategy-analysis`: idea2product-P2-strategy-analysis
 - `$idea2product-p3-strategy-decision`: idea2product-P3-strategy-decision
 - `$idea2product-p4-product-discovery`: idea2product-P4-product-discovery
@@ -83,7 +84,7 @@ Continuation skills:
 ## Guided Flow
 
 1. Run `python3 .pipeline/scripts/pipeline.py handoff` (use `python` on Windows). It is read-only and consolidates current phase, next step, gate states, recorded decisions, open assumptions/risks, and any stale outputs. Summarize it for the user — this is how you and the user re-orient at the start of any session.
-2. If a ready phase is shown, use the corresponding numbered `idea2product-Px-*` skill.
+2. If a ready phase is shown, use the corresponding numbered `idea2product-Px-*` skill. When P2 is ready, ensure `$idea2product-p2-existing-solutions-scan` runs before deeper strategy analysis.
 3. If a real idea is missing, ask the user for the real idea instead of inventing one.
 4. If a gate is awaiting approval, prepare the decision context and tell the user the manual approval command.
 5. If the handoff reports a **stale** output (a completed phase's file changed after completion), confirm with the user whether the change is harmless or whether the affected phase must be reworked.

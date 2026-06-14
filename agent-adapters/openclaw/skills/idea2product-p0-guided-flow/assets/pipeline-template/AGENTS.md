@@ -19,4 +19,4 @@ Rules for agents:
 - Do not edit gate approval fields directly in `.pipeline/state/pipeline-state.yaml`.
 - All pipeline skills must keep `agents/openai.yaml` with `allow_implicit_invocation: false`.
 
-User-level entry skills include `$idea2product-p0-guided-flow`, `$idea2product-p0-status`, `$idea2product-p0-resume`, `$idea2product-p0-rollback`, `$idea2product-p0-doctor`, `$idea2product-p0-retire`, and `$idea2product-p1-idea-expansion` through `$idea2product-p9-outcome-review`.
+User-level entry skills include `$idea2product-p0-guided-flow`, `$idea2product-p0-status`, `$idea2product-p0-resume`, `$idea2product-p0-rollback`, `$idea2product-p0-doctor`, `$idea2product-p0-retire`, `$idea2product-p2-existing-solutions-scan`, and `$idea2product-p1-idea-expansion` through `$idea2product-p9-outcome-review`.

@@ -29,6 +29,7 @@ If `.pipeline/scripts/pipeline.py` does not exist, the pipeline is not installed
 - P0 doctor: run the read-only health check for state, recipes, gates, completed outputs, and stale artifacts.
 - P0 retire: retire or archive the project after explicit confirmation and a non-empty reason.
 - P1 idea expansion: capture a real idea and initialize assumptions and risks.
+- P2 existing solutions scan: search for ready-to-use products, services, open-source projects, and substitute workflows; require a user decision before deeper strategy work.
 - P2 strategy analysis: issue tree, hypothesis tree, market, competition, unit economics, options, evidence, unknowns.
 - P3 strategy decision: decision memo, recommendation, red-team, Strategy Gate request.
 - P4 product discovery: product thesis, target user, problem, JTBD, value proposition, boundaries.
@@ -100,4 +101,5 @@ python .pipeline/scripts/pipeline.py handoff
 
 Use the dedicated skills for user-facing operations when available:
 `$idea2product-p0-status`, `$idea2product-p0-resume`, `$idea2product-p0-rollback`,
-`$idea2product-p0-doctor`, and `$idea2product-p0-retire`.
+`$idea2product-p0-doctor`, `$idea2product-p0-retire`, and
+`$idea2product-p2-existing-solutions-scan`.

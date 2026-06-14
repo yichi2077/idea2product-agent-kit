@@ -5,7 +5,11 @@ description: "Convert strategy analysis into a decision memo comparing build, bu
 
 # idea2product-P3-strategy-decision
 
-Convert strategy analysis into a decision memo comparing build, buy, partner, capability-only, internal improvement, wait, and do-nothing options, then red-team the recommendation and request Strategy Gate.
+Convert strategy analysis into a decision memo comparing build, buy, partner,
+capability-only, internal improvement, wait, and do-nothing options, then red-team
+the recommendation and request Strategy Gate. The decision must reference
+`docs/10-strategy/existing-solutions-scan.md` so the recommendation accounts for
+ready-to-use products, services, open-source projects, and substitute workflows.
 
 ## Required Workspace
 
@@ -36,5 +40,8 @@ Then follow the printed recipe exactly. The recipe separates required skills, co
 
 - Do not skip earlier gates or approved dependencies.
 - Do not invent a fake business idea for P1-P3 validation.
+- Ground build / buy / partner / do-nothing in the P2 existing-solutions scan.
+  If a ready solution exists, explain why the user should buy/partner/use it or why
+  a differentiated build is still justified.
 - If the command reports a blocker, report the blocker and the concrete missing input.
 - After editing pipeline state, re-run `python3 .pipeline/scripts/pipeline.py status` (or `python` on Windows) to confirm the workspace is consistent.

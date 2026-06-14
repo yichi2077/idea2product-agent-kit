@@ -10,6 +10,8 @@ required_context:
   - ".pipeline/state/pipeline-state.yaml"
   - ".pipeline/state/assumption-register.yaml"
   - ".pipeline/state/risk-register.yaml"
+  - "docs/10-strategy/existing-solutions-scan.md"
+  - "docs/10-strategy/strategy-research-note.md"
 outputs:
   - docs/10-strategy/decision-memo.md
   - .pipeline/reports/strategy-red-team.md

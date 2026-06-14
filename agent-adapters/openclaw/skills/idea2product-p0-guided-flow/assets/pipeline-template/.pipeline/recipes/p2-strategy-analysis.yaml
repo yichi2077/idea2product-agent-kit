@@ -1,5 +1,6 @@
 phase: "P2"
 required_skills:
+  - $idea2product-p2-existing-solutions-scan
   - $market-research
   - $business-investment-advisor
 conditional_skills:
@@ -13,6 +14,7 @@ required_context:
   - ".pipeline/state/assumption-register.yaml"
   - ".pipeline/state/risk-register.yaml"
 outputs:
+  - docs/10-strategy/existing-solutions-scan.md
   - docs/10-strategy/strategy-research-note.md
 completion_commands:
   - python .pipeline/scripts/pipeline.py stage complete P2
