@@ -37,8 +37,8 @@ When asked to create an ADR, follow these steps:
 1. **Assign a Number and Title**
    ADRs are numbered sequentially (ADR-001, ADR-002, etc.) for easy reference. The title should be a short noun phrase describing the decision, like "Use PostgreSQL for order data" or "Adopt React for frontend."
 
-2. **Set the Status**
-   New ADRs start as "Proposed." After team review, they become "Accepted," "Deprecated," or "Superseded by ADR-XXX." Status changes should be tracked.
+2. **Set the Status and Decision Provenance**
+   New ADRs start as "Proposed." After team review, they become "Accepted," "Deprecated," or "Superseded by ADR-XXX." Status changes should be tracked. Because this pipeline is agent-driven across multiple hosts and models, also record the decision's provenance in the Status section: the **agent** (e.g. claude-code, codex, cursor), the **model** (e.g. claude-opus-4-8), and the **trigger** (user-prompt, autonomous, or review-driven). This keeps a P6 architecture decision auditable later, regardless of which agent or model produced it.
 
 3. **Describe the Context**
    Explain the circumstances that led to this decision. What problem are you solving? What forces are at play (technical constraints, team expertise, timeline, cost)? This section should help a reader who wasn't there understand why this decision was needed.
@@ -51,7 +51,7 @@ When asked to create an ADR, follow these steps:
 
 ## Output Format
 
-Use the template in `references/TEMPLATE.md` to structure the output. A complete ADR fills every template section: Status; Context; Decision; Consequences; Alternatives Considered; and References.
+Use the template in `references/TEMPLATE.md` to structure the output. A complete ADR fills every template section: Status (including decision provenance — agent, model, trigger); Context; Decision; Consequences; Alternatives Considered; and References.
 
 ## Quality Checklist
 
@@ -59,6 +59,7 @@ Before finalizing, verify:
 
 - [ ] Title is a short, descriptive noun phrase
 - [ ] Status is clearly indicated (Proposed/Accepted/Deprecated/Superseded)
+- [ ] Decision provenance recorded (agent, model, trigger)
 - [ ] Context explains why this decision was needed
 - [ ] Decision is stated clearly in active voice
 - [ ] Consequences include both positive and negative outcomes

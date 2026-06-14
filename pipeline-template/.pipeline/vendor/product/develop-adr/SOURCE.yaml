@@ -5,3 +5,4 @@ source_license: "See vendored LICENSE copy"
 vendored_at: "2026-06-12T11:06:22Z"
 local_modifications:
   - "Added Codex openai.yaml policy to disable implicit invocation."
+  - "Added agent/model/trigger decision-provenance fields to the ADR Status section (template + skill step 2 + Output Format + checklist) so agent-made P6 decisions stay auditable across hosts/models. Concept inspired by AgDR (me2resh/agent-decision-record); no upstream text copied."

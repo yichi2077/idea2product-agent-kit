@@ -13,6 +13,9 @@ status: draft
 
 **Date:** [YYYY-MM-DD]
 **Deciders:** [List of people involved in the decision]
+**Agent:** [coding agent that made or recorded the decision — e.g. claude-code, codex, cursor]
+**Model:** [model identifier — e.g. claude-opus-4-8]
+**Trigger:** [user-prompt | autonomous | review-driven]
 
 ## Context
 
