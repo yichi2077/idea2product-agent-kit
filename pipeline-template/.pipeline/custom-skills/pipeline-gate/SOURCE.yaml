@@ -1,6 +1,6 @@
 source_repository: "local"
 source_path: ".pipeline/custom-skills/pipeline-gate"
 source_commit: "LOCAL"
-source_license: "Proprietary local workflow"
+source_license: "MIT (first-party; covered by the repository root LICENSE)"
 vendored_at: "2026-06-12T11:06:22Z"
 local_modifications: []
