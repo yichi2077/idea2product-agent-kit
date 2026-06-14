@@ -101,5 +101,6 @@ python .pipeline/scripts/pipeline.py handoff
 
 Use the dedicated skills for user-facing operations when available:
 `$idea2product-p0-status`, `$idea2product-p0-resume`, `$idea2product-p0-rollback`,
-`$idea2product-p0-doctor`, `$idea2product-p0-retire`, and
-`$idea2product-p2-existing-solutions-scan`.
+`$idea2product-p0-doctor`, and `$idea2product-p0-retire`. Use
+`$idea2product-p2-strategy-analysis` for P2; it includes the existing-solutions
+scan as a required first step.

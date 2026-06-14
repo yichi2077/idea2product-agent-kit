@@ -1,6 +1,5 @@
 phase: "P2"
 required_skills:
-  - $idea2product-p2-existing-solutions-scan
   - $market-research
   - $business-investment-advisor
 conditional_skills:
@@ -13,6 +12,8 @@ required_context:
   - ".pipeline/state/pipeline-state.yaml"
   - ".pipeline/state/assumption-register.yaml"
   - ".pipeline/state/risk-register.yaml"
+non_skill_process:
+  - "Within $idea2product-p2-strategy-analysis, first perform the existing-solutions scan, write docs/10-strategy/existing-solutions-scan.md, and collect a non-pending User Decision before deeper strategy analysis."
 outputs:
   - docs/10-strategy/existing-solutions-scan.md
   - docs/10-strategy/strategy-research-note.md

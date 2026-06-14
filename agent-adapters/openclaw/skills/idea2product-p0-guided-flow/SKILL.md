@@ -63,7 +63,6 @@ When `.pipeline` is absent, or the user asks what the kit is or how to start, or
 Phase skills:
 
 - `$idea2product-p1-idea-expansion`: idea2product-P1-idea-expansion
-- `$idea2product-p2-existing-solutions-scan`: idea2product-P2-existing-solutions-scan
 - `$idea2product-p2-strategy-analysis`: idea2product-P2-strategy-analysis
 - `$idea2product-p3-strategy-decision`: idea2product-P3-strategy-decision
 - `$idea2product-p4-product-discovery`: idea2product-P4-product-discovery
@@ -84,7 +83,7 @@ Continuation skills:
 ## Guided Flow
 
 1. Run `python3 .pipeline/scripts/pipeline.py handoff` (use `python` on Windows). It is read-only and consolidates current phase, next step, gate states, recorded decisions, open assumptions/risks, and any stale outputs. Summarize it for the user — this is how you and the user re-orient at the start of any session.
-2. If a ready phase is shown, use the corresponding numbered `idea2product-Px-*` skill. When P2 is ready, ensure `$idea2product-p2-existing-solutions-scan` runs before deeper strategy analysis.
+2. If a ready phase is shown, use the corresponding numbered `idea2product-Px-*` skill. When P2 is ready, use `$idea2product-p2-strategy-analysis`; its required first step is the existing-solutions scan before deeper strategy analysis.
 3. If a real idea is missing, ask the user for the real idea instead of inventing one.
 4. If a gate is awaiting approval, prepare the decision context and tell the user the manual approval command.
 5. If the handoff reports a **stale** output (a completed phase's file changed after completion), confirm with the user whether the change is harmless or whether the affected phase must be reworked.

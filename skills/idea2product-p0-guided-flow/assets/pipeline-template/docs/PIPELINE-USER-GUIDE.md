@@ -44,7 +44,6 @@ Use `$idea2product-p0-guided-flow` for the guided end-to-end flow.
 Use explicit phase skills when you already know the phase:
 
 - `$idea2product-p1-idea-expansion`
-- `$idea2product-p2-existing-solutions-scan` (required at the start of P2)
 - `$idea2product-p2-strategy-analysis`
 - `$idea2product-p3-strategy-decision`
 - `$idea2product-p4-product-discovery`
@@ -99,10 +98,10 @@ Product Gate requires a real PRD and a real PM critic report. Strategy Gate requ
 ## Existing Solutions Scan
 
 P2 starts by checking whether the expanded idea already has a ready-to-use solution.
-The agent uses `$idea2product-p2-existing-solutions-scan` to search for direct
-competitors, indirect competitors, substitute workflows, open-source projects, SaaS,
-apps, services, templates, and no-code tools. The result is written to
-`docs/10-strategy/existing-solutions-scan.md`.
+The agent uses the required first step inside `$idea2product-p2-strategy-analysis`
+to search for direct competitors, indirect competitors, substitute workflows,
+open-source projects, SaaS, apps, services, templates, and no-code tools. The
+result is written to `docs/10-strategy/existing-solutions-scan.md`.
 
 If the scan finds a perfect or good-enough solution, the agent must pause and ask
 whether you want to use/buy/partner, build a differentiated wedge, continue research,
