@@ -1,11 +1,11 @@
 ---
-name: product-discovery
-description: Use when validating product opportunities, mapping assumptions, planning discovery sprints, or testing problem-solution fit before committing delivery resources.
+name: assumption-challenger
+description: Use when stress-testing the assumptions behind an idea or strategy before committing resources — classify desirability/viability/feasibility/usability assumptions, score them by risk and certainty, and plan the cheapest tests to de-risk the riskiest ones. Also covers opportunity framing and problem/solution validation.
 ---
 
-# Product Discovery
+# Assumption Challenger
 
-Run structured discovery to identify high-value opportunities and de-risk product bets.
+Surface and stress-test the assumptions an idea or strategy rests on, then plan the cheapest evidence that would prove or kill the riskiest ones — so weak bets are rejected early and strong bets are de-risked before delivery.
 
 ## When To Use
 

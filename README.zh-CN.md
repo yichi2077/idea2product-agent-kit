@@ -96,6 +96,7 @@
 - **Python 3.10+**（仅使用标准库，无需 pip 安装任何依赖）
 - **Git**
 - 一个编程智能体（从下方列表中选择一个或多个）
+- **Spec Kit** — _可选_。阶段 **P7** 会把生成的 Specify Packet 交给 [github/spec-kit](https://github.com/github/spec-kit) 的 `speckit.*` 命令做规格驱动交付。不装也能跑（P7 仍会产出 packet），装上则解锁完整的 P7 → P8 流程。详见下方「Spec Kit（可选）」一节。
 
 ### 为你的智能体安装
 
@@ -176,6 +177,38 @@ python3 scripts/install.py scaffold /path/to/new-project
 ```
 
 在目标仓库中创建完整的 `.pipeline/` 目录结构，包含状态文件、模板和配方。
+
+### 升级已有项目
+
+当工具包更新后，可在不丢失你工作成果的前提下升级已脚手架项目的引擎：
+
+```bash
+python3 scripts/install.py upgrade /path/to/my-project
+```
+
+替换引擎机件（`scripts/`、`recipes/`、`vendor/`、`custom-skills/`、`templates/`），并**原样保留你的 `state/`、`reports/` 和 `docs/`**。被替换的文件会就地备份为 `*.bak-<时间戳>`（确认无误后可删除）。升级后运行 `python3 .pipeline/scripts/pipeline.py doctor` 确认一致性。
+
+### Spec Kit（可选）
+
+阶段 **P7** 会产出一个 *Specify Packet*，并通过 `speckit.*` 命令（`speckit.specify`、`speckit.plan`、`speckit.tasks` 等）交给 [Spec Kit](https://github.com/github/spec-kit)——GitHub 的规格驱动开发工具包。**Spec Kit 是由 GitHub 独立维护的可选外部依赖。** 流水线始终会产出 packet；只有要在其上运行规格驱动的实现循环时才需要 Spec Kit。
+
+用内置助手查看状态或安装：
+
+```bash
+python3 scripts/install.py speckit            # 查看 Spec Kit 是否已安装，并打印确切的安装命令
+python3 scripts/install.py speckit --install  # 替你在当前项目执行初始化（需要 uv）
+```
+
+或直接安装（需要 [uv](https://docs.astral.sh/uv/)）：
+
+```bash
+# 一次性、按项目（在项目目录内运行）：
+uvx --from git+https://github.com/github/spec-kit.git specify init --here --ai claude
+# 或持久安装 CLI：
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+```
+
+当未检测到 Spec Kit 时，`pipeline.py run P7` 和 `pipeline.py doctor` 会打印一条非阻断提醒（含安装命令）。
 
 ---
 

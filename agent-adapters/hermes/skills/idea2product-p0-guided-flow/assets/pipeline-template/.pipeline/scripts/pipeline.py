@@ -5,6 +5,7 @@ import hashlib
 import json
 import re
 import secrets
+import shutil
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -55,6 +56,46 @@ def phase_outputs(phase: str) -> list[str]:
         if value:
             outputs.append(value)
     return outputs
+
+def recipe_external_tools(phase: str) -> list[str]:
+    recipe = recipe_path(phase)
+    if not recipe:
+        return []
+    match = re.search(r"^external_tools:\n((?:  - .+\n)+)", read(recipe), re.MULTILINE)
+    if not match:
+        return []
+    tools = []
+    for line in match.group(1).splitlines():
+        value = line.split("-", 1)[1].strip().strip('"')
+        if value:
+            tools.append(value)
+    return tools
+
+# Spec Kit (https://github.com/github/spec-kit) supplies the speckit.* commands that
+# P7 hands its Specify Packet off to. It is an OPTIONAL external dependency: the phase
+# still produces its packet without it. These helpers only advise; they never block.
+SPECKIT_DOCS_URL = "https://github.com/github/spec-kit"
+SPECKIT_INSTALL_CMD = (
+    "uvx --from git+https://github.com/github/spec-kit.git specify init . --ai claude"
+)
+
+def speckit_available() -> bool:
+    """Best-effort, non-blocking detection of a Spec Kit installation.
+
+    True if the specify CLI is on PATH, a .specify/ workspace exists, or any host
+    has speckit.* command files installed. Errs toward False (advisory only)."""
+    if shutil.which("specify"):
+        return True
+    if (ROOT / ".specify").exists():
+        return True
+    command_dirs = (
+        ROOT / ".claude" / "commands",
+        ROOT / ".github" / "prompts",
+        ROOT / ".codex" / "prompts",
+        ROOT / ".gemini" / "commands",
+        ROOT / ".cursor" / "commands",
+    )
+    return any(d.exists() and any(d.glob("speckit*")) for d in command_dirs)
 
 def load_metadata() -> dict:
     if not METADATA.exists():
@@ -315,6 +356,14 @@ def run_phase(args: argparse.Namespace) -> int:
         return 2
     print(f"Recipe: {recipe.relative_to(ROOT)}")
     print(read(recipe))
+    speckit_tools = [t for t in recipe_external_tools(phase) if t.startswith("speckit")]
+    if speckit_tools and not speckit_available():
+        print()
+        print(f"NOTE (non-blocking): this phase hands off to Spec Kit ({', '.join(speckit_tools)}),")
+        print("but Spec Kit was not detected. The phase still produces its Specify Packet; you")
+        print("need Spec Kit only to run the speckit.* commands on that packet.")
+        print(f"  Install: {SPECKIT_INSTALL_CMD}")
+        print(f"  Docs:    {SPECKIT_DOCS_URL}")
     if phase in {"P2", "P3"} and not has_real_idea():
         print("BLOCKED: docs/00-idea/idea-brief.md must hold a real idea "
               "(not the scaffold placeholder) before P2/P3.")
@@ -670,13 +719,21 @@ def doctor(_: argparse.Namespace) -> int:
     stale = stale_artifacts()
     for phase, rel, status_value in stale:
         issues.append(f"stale output: {phase} {rel} is {status_value}")
+    rc = 0
     if issues:
         print("Workspace doctor found issues:")
         for issue in issues:
             print(f"- {issue}")
-        return 1
-    print("✓ healthy")
-    return 0
+        rc = 1
+    else:
+        print("✓ healthy")
+    if not speckit_available():
+        print(
+            "Note (non-blocking): Spec Kit not detected. P7 hands off to speckit.* commands; "
+            f"install it ({SPECKIT_DOCS_URL}) to run the spec-driven flow. P7 still produces "
+            "its Specify Packet without it."
+        )
+    return rc
 
 def retire(args: argparse.Namespace) -> int:
     reason = args.reason.strip()

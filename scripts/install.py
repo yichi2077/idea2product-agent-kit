@@ -8,6 +8,8 @@ Subcommands:
   skills              Install the 15 entry skills into the user's agent skill dir(s).
   scaffold <repo>     Create the .pipeline engine + docs inside a target repository.
   adapters <repo>     Install host adapter files into a target repository.
+  upgrade <repo>      Update a scaffolded project's engine; preserves state, reports, and docs.
+  speckit             Detect (or, with --install, install) Spec Kit -- the optional P7 dependency.
 
 Examples:
   python3 scripts/install.py skills --target claude-code  # macOS/Linux
@@ -15,6 +17,9 @@ Examples:
   python3 scripts/install.py skills                       # both claude-code and codex
   python3 scripts/install.py scaffold /path/to/repo
   python3 scripts/install.py adapters /path/to/repo --agent all
+  python3 scripts/install.py upgrade /path/to/repo
+  python3 scripts/install.py speckit                      # show Spec Kit status + install commands
+  python3 scripts/install.py speckit --install            # run the per-project Spec Kit init (needs uv)
 """
 from __future__ import annotations
 
@@ -31,6 +36,13 @@ TEMPLATE = KIT_ROOT / "pipeline-template"
 ADAPTERS = KIT_ROOT / "agent-adapters"
 HOME = Path.home()
 IGNORE = shutil.ignore_patterns("__pycache__", "*.pyc", ".pytest_cache")
+
+# Spec Kit is the OPTIONAL external dependency that pipeline phase P7 hands its
+# Specify Packet off to (the speckit.* commands). The kit works without it; Spec Kit
+# only adds the spec-driven implementation flow. See https://github.com/github/spec-kit
+SPECKIT_REPO = "https://github.com/github/spec-kit"
+SPECKIT_TOOL_INSTALL = "uv tool install specify-cli --from git+https://github.com/github/spec-kit.git"
+SPECKIT_GIT_REF = "git+https://github.com/github/spec-kit.git"
 
 
 def copy_skill_dirs(source: Path, dest: Path) -> int:
@@ -162,6 +174,83 @@ def cmd_adapters(args: argparse.Namespace) -> int:
     return 0
 
 
+# ---------------------------------------------------------------- speckit
+
+def speckit_init_cmd(project: str) -> list[str]:
+    base = ["uvx", "--from", SPECKIT_GIT_REF, "specify", "init"]
+    if project in (".", ""):
+        # Existing repo / current directory: spec-kit uses --here for a non-empty dir.
+        return base + ["--here", "--ai", "claude"]
+    return base + [project, "--ai", "claude"]
+
+
+def cmd_speckit(args: argparse.Namespace) -> int:
+    project = args.project
+    print("Spec Kit is the OPTIONAL external tool that pipeline phase P7 hands off to")
+    print("(the speckit.* commands). The kit produces its Specify Packet without it.")
+    print(f"Docs: {SPECKIT_REPO}\n")
+
+    specify = shutil.which("specify")
+    init_cmd = speckit_init_cmd(project)
+    if specify:
+        print(f"✓ Spec Kit CLI 'specify' is installed: {specify}")
+        print("  Initialize this project with:")
+        print("    " + " ".join(["specify", "init"] + init_cmd[init_cmd.index("init") + 1:]))
+        return 0
+
+    print("Spec Kit CLI 'specify' was not found on PATH. Recommended install commands:")
+    print(f"  One-off (per project):  {' '.join(init_cmd)}")
+    print(f"  Persistent CLI:         {SPECKIT_TOOL_INSTALL}")
+    if not args.install:
+        print("\nRe-run with --install to run the per-project init for you (requires 'uv').")
+        return 0
+
+    if not (shutil.which("uvx") or shutil.which("uv")):
+        print("\nCannot auto-install: 'uv'/'uvx' is required but was not found.")
+        print("  Install uv first: https://docs.astral.sh/uv/getting-started/installation/")
+        return 1
+    print(f"\nRunning: {' '.join(init_cmd)}")
+    return subprocess.call(init_cmd)
+
+
+# ---------------------------------------------------------------- upgrade
+
+# Engine machinery is safe to replace from the canonical template on upgrade.
+# Everything NOT listed here (state/, reports/, and the repo's docs/) is the user's
+# work and is preserved untouched.
+UPGRADE_MACHINERY = ["scripts", "recipes", "vendor", "custom-skills", "templates", "README.md"]
+
+
+def cmd_upgrade(args: argparse.Namespace) -> int:
+    repo = Path(args.repo).resolve()
+    pipe = repo / ".pipeline"
+    if not (pipe / "scripts" / "pipeline.py").exists():
+        print(f"Not a scaffolded project (no .pipeline/scripts/pipeline.py): {repo}")
+        print("Use 'scaffold' to create a new workspace instead.")
+        return 2
+
+    src_pipe = TEMPLATE / ".pipeline"
+    updated: list[str] = []
+    for name in UPGRADE_MACHINERY:
+        src = src_pipe / name
+        if not src.exists():
+            continue
+        dst = pipe / name
+        backup_if_exists(dst)  # renames existing -> <name>.bak-<timestamp>, fully reversible
+        if src.is_dir():
+            shutil.copytree(src, dst, ignore=IGNORE)
+        else:
+            shutil.copy2(src, dst)
+        updated.append(name)
+        print(f"Upgraded .pipeline/{name}")
+
+    print(f"\nUpgraded the engine in {repo}.")
+    print("Preserved untouched: .pipeline/state/, .pipeline/reports/, docs/, AGENTS.md.")
+    print("Replaced machinery was backed up in place as *.bak-<timestamp> (delete once verified).")
+    print("Next: python3 .pipeline/scripts/pipeline.py doctor   # confirm the workspace is consistent")
+    return 0
+
+
 # ---------------------------------------------------------------- main
 
 def main() -> int:
@@ -181,6 +270,15 @@ def main() -> int:
     a.add_argument("--agent", choices=["all", "codex", "cursor", "claude-code", "opencode", "hermes", "openclaw", "generic"], default="all")
     a.add_argument("--install-user-skills", action="store_true")
     a.set_defaults(func=cmd_adapters)
+
+    up = sub.add_parser("upgrade", help="update a scaffolded project's engine (preserves state + docs)")
+    up.add_argument("repo")
+    up.set_defaults(func=cmd_upgrade)
+
+    sk = sub.add_parser("speckit", help="detect or install Spec Kit (optional P7 dependency)")
+    sk.add_argument("--project", default=".", help="project dir to init Spec Kit in (default: current dir)")
+    sk.add_argument("--install", action="store_true", help="run the per-project Spec Kit init (requires uv)")
+    sk.set_defaults(func=cmd_speckit)
 
     args = parser.parse_args()
     return args.func(args)

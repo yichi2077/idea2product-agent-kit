@@ -5,3 +5,4 @@ source_license: "See vendored LICENSE copy"
 vendored_at: "2026-06-12T11:06:22Z"
 local_modifications:
   - "Added Codex openai.yaml policy to disable implicit invocation."
+  - "Renamed skill name from 'product-discovery' to 'assumption-challenger' to match the vendored directory and the recipe invocation token ($assumption-challenger in P1/P2/P3/P9); sharpened description and title toward the assumption-stress-testing role. Methodology body unchanged."

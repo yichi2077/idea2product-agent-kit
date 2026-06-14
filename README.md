@@ -104,6 +104,7 @@ The pipeline follows three expand-contract funnels. Each phase expands evidence 
 - **Python 3.10+** (stdlib only — no pip packages required)
 - **Git**
 - A coding agent (one or more from the list below)
+- **Spec Kit** — _optional_. Phase **P7** hands its Specify Packet off to [github/spec-kit](https://github.com/github/spec-kit)'s `speckit.*` commands for spec-driven delivery. The pipeline runs fine without it (P7 still produces the packet); installing it unlocks the full P7 → P8 flow. See [Spec Kit (optional)](#spec-kit-optional) below.
 
 ### Install for Your Agent
 
@@ -184,6 +185,38 @@ python3 scripts/install.py scaffold /path/to/new-project
 ```
 
 Creates the full `.pipeline/` directory structure with state files, templates, and recipes in your target repo.
+
+### Upgrade an Existing Project
+
+When the kit improves, update an already-scaffolded project's engine without losing your work:
+
+```bash
+python3 scripts/install.py upgrade /path/to/my-project
+```
+
+Replaces the engine machinery (`scripts/`, `recipes/`, `vendor/`, `custom-skills/`, `templates/`) and **preserves your `state/`, `reports/`, and `docs/`** untouched. The files it replaces are backed up in place as `*.bak-<timestamp>` (delete once verified). Run `python3 .pipeline/scripts/pipeline.py doctor` afterward to confirm consistency.
+
+### Spec Kit (optional)
+
+Phase **P7** produces a *Specify Packet* and hands it to [Spec Kit](https://github.com/github/spec-kit) — GitHub's spec-driven-development toolkit — via its `speckit.*` commands (`speckit.specify`, `speckit.plan`, `speckit.tasks`, …). **Spec Kit is an optional external dependency maintained separately by GitHub.** The pipeline always produces the packet; you need Spec Kit only to run the spec-driven implementation loop on it.
+
+Check status or install it with the bundled helper:
+
+```bash
+python3 scripts/install.py speckit            # show whether Spec Kit is installed + the exact install commands
+python3 scripts/install.py speckit --install  # run the per-project init for you (requires uv)
+```
+
+Or install it directly (requires [uv](https://docs.astral.sh/uv/)):
+
+```bash
+# one-off, per project (run inside your project dir):
+uvx --from git+https://github.com/github/spec-kit.git specify init --here --ai claude
+# or install the CLI persistently:
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+```
+
+`pipeline.py run P7` and `pipeline.py doctor` print a non-blocking reminder (with the install command) when Spec Kit is not detected.
 
 ---
 
