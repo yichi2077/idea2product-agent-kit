@@ -15,7 +15,11 @@ Rules for agents:
 
 - Before phase work, run `pipeline run Px` and follow the recipe skill list.
 - Recipes are closed lists; do not invoke skills outside the current recipe.
-- Gate approval is not available to agents.
+- Gates are human-owned. In the default **light** gate mode the agent may RECORD a human's verdict
+  (`pipeline_gate.py approve|reject <gate> --rationale "..."`) but ONLY after the human explicitly
+  approves or rejects in the conversation — never autonomously, never with an invented rationale. In
+  **strict** mode the agent cannot approve at all (the human uses a separate terminal + challenge
+  code). Check the mode with `pipeline.py gate mode`.
 - Do not edit gate approval fields directly in `.pipeline/state/pipeline-state.yaml`.
 - All pipeline skills must keep `agents/openai.yaml` with `allow_implicit_invocation: false`.
 

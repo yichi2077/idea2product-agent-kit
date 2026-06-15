@@ -262,15 +262,17 @@ status
 
 Shows current phase, completed phases, pending gates, and due assumptions.
 
-### Step 5 — Request a Gate
+### Step 5 — Approve a Gate
 
-When a phase requires a gate (P3, P6, P8), the agent will prompt you. Gate approval happens in a **real OS terminal** (not the agent's integrated terminal):
+When a phase reaches a gate (Strategy / Product / Architecture / Release), the agent stops, shows you the decision, its confidence, and the open assumptions/risks, and asks you to approve or reject.
+
+By default (**light** gate mode) you approve **right in the agent chat** — tell the agent "approve" with a one-line reason and it records your verdict. No separate terminal.
+
+Want a hard, agent-proof checkpoint instead? Switch to **strict** mode (approval only in a separate real terminal with a challenge code):
 
 ```bash
-python scripts/pipeline_gate.py request strategy --confidence high --rationale "Market validated, financial model holds"
+python3 .pipeline/scripts/pipeline.py gate mode strict
 ```
-
-You'll be given a random challenge string to type — this prevents accidental approvals.
 
 ### Step 6 — Keep Going
 
@@ -305,7 +307,7 @@ Each phase has its own recipe, templates, and domain skills that guide the work.
 
 ## Gate System
 
-Gates are **human-only decision points** that protect you from rushing past critical commitments. The agent cannot approve gates for you.
+Gates are **human-owned decision points** that protect you from rushing past critical commitments. The decision is always yours, and the agent can never *skip* a gate — the next phase stays blocked until your verdict is recorded.
 
 ### The 4 Gates
 
@@ -316,18 +318,22 @@ Gates are **human-only decision points** that protect you from rushing past crit
 | **Architecture Gate** | P7 | Is the technical plan sound enough to start building? |
 | **Release Gate** | P8 | Is the product ready to ship to real users? |
 
+### Gate Modes
+
+| Mode | How you approve | Guarantee | Best for |
+|------|-----------------|-----------|----------|
+| **light** (default) | In the agent chat — say "approve" + a one-line reason; the agent records it | Behavioral contract + audit trail; not cryptographically agent-proof | Solo operators who want to stay in flow |
+| **strict** | In a **separate real OS terminal**, typing a random challenge code | The agent literally cannot approve (env + TTY checks) | High-stakes or multi-party setups |
+
+Switch anytime: `python3 .pipeline/scripts/pipeline.py gate mode strict` (or `light`). Either way the agent can never *skip* a gate — the next phase stays blocked until a human verdict is recorded.
+
 ### How to Approve a Gate
 
-1. Open a **real OS terminal** (not the agent's built-in terminal)
-2. Run the gate command:
+**Light mode (default):** the agent presents the decision and waits. Tell it to approve — e.g. *"approve the strategy gate: the scan found no good existing option and the unit economics hold."* The agent then runs `pipeline_gate.py approve <gate> --rationale "<your reason>"` and continues. To reject, tell it why.
 
-```bash
-python scripts/pipeline_gate.py request <gate-name> --confidence high --rationale "Your reasoning here"
-```
+**Strict mode:** open a real OS terminal and run `python3 .pipeline/scripts/pipeline_gate.py approve <gate>`; type the challenge code shown at request time plus a note. (The agent's own terminal is refused by design.)
 
-3. You'll see a **random challenge string** — type it exactly to confirm
-4. Add a **note** explaining your decision
-5. The gate is recorded in `.pipeline/state/pipeline-state.yaml`
+Approvals are recorded in `.pipeline/state/pipeline-state.yaml` and `.pipeline/state/decision-log.md`.
 
 ### Confidence Signals
 

@@ -24,6 +24,11 @@ PHASES = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"]
 GATES = {"strategy", "product", "architecture", "release"}
 GATE_PHASES = {"strategy": "P3", "product": "P5", "architecture": "P6", "release": "P8"}
 CONFIDENCE_LEVELS = ("high", "medium", "low")
+# Gate approval modes. "light" (default) lets a human sign off inside the agent app
+# via `pipeline_gate.py approve <gate> --rationale "..."`; "strict" requires a separate
+# real terminal + challenge code. Read with a default so older state files still work.
+GATE_MODES = ("light", "strict")
+DEFAULT_GATE_MODE = "light"
 PYTHON_CMD = "python" if sys.platform.startswith("win") else "python3"
 # A scaffolded placeholder idea-brief carries this marker. The real-idea guard
 # treats any brief that still contains it as "not a real idea yet".
@@ -388,6 +393,40 @@ def record_gate_confidence(gate: str, level: str | None, rationale: str | None) 
     }
     save_metadata(metadata)
 
+def gate_mode() -> str:
+    """Current gate approval mode, defaulting to light when unset/unknown so that
+    state files scaffolded before this field existed keep working."""
+    if not STATE.exists():
+        return DEFAULT_GATE_MODE
+    match = re.search(r'^\s*gate_mode:\s*"?(\w+)"?', read(STATE), re.MULTILINE)
+    mode = match.group(1) if match else DEFAULT_GATE_MODE
+    return mode if mode in GATE_MODES else DEFAULT_GATE_MODE
+
+def set_gate_mode(mode: str) -> None:
+    text = read(STATE)
+    if re.search(r'^\s*gate_mode:.*$', text, re.MULTILINE):
+        text = re.sub(r'^(\s*)gate_mode:.*$', rf'\1gate_mode: "{mode}"', text, count=1, flags=re.MULTILINE)
+    else:
+        # Insert into the pipeline: block, right after pilot_validation.
+        text = re.sub(r'(\n  pilot_validation: "[^"]*"\n)', rf'\1  gate_mode: "{mode}"\n', text, count=1)
+    write(STATE, text)
+
+def gate_mode_cmd(args: argparse.Namespace) -> int:
+    if args.mode is None:
+        print(f"gate_mode: {gate_mode()}")
+        return 0
+    if not STATE.exists():
+        print("No pipeline state found; scaffold the workspace first.")
+        return 2
+    set_gate_mode(args.mode)
+    print(f"gate_mode set to: {args.mode}")
+    if args.mode == "light":
+        print("Light gate: a human approves inside the agent with "
+              "`pipeline_gate.py approve <gate> --rationale \"...\"` after an explicit OK.")
+    else:
+        print("Strict gate: a human approves in a separate real OS terminal using the challenge code.")
+    return 0
+
 def gate_request(args: argparse.Namespace) -> int:
     gate = args.gate.lower()
     if gate not in GATES:
@@ -423,12 +462,21 @@ def gate_request(args: argparse.Namespace) -> int:
     write(STATE, text)
     record_gate_confidence(gate, args.confidence, args.rationale)
     print(f"Gate requested: {gate}")
-    print(f"Manual approval challenge: {challenge}")
     level = args.confidence or "unstated"
     print(f"Recorded agent confidence: {level}")
     if level in {"low", "unstated"}:
-        print("Confidence is low/unstated; the human approver will be prompted to apply extra scrutiny.")
-    print("Approval must be performed by a human in a real interactive terminal using pipeline_gate.py.")
+        print("Confidence is low/unstated; apply extra scrutiny before approving.")
+    if gate_mode() == "strict":
+        print(f"Manual approval challenge: {challenge}")
+        print("STRICT gate: a human must approve in a SEPARATE real OS terminal (the agent's")
+        print("terminal is refused). They will be asked for the challenge above:")
+        print(f"  python3 .pipeline/scripts/pipeline_gate.py approve {gate}")
+    else:
+        print("LIGHT gate: STOP here. Present to the human the decision summary, your stated")
+        print("confidence, and the open assumptions/risks, and ask them to approve or reject.")
+        print("ONLY after the human explicitly approves in the conversation, record it with:")
+        print(f"  python3 .pipeline/scripts/pipeline_gate.py approve {gate} --rationale \"<their reason>\"")
+        print("Never approve on your own. For the stricter separate-terminal flow: pipeline.py gate mode strict.")
     return 0
 
 def gate_precondition_errors(gate: str) -> list[str]:
@@ -783,6 +831,9 @@ def main() -> int:
                      help="agent self-rated confidence in the prepared decision context")
     req.add_argument("--rationale", help="what drives that confidence (ground it in open assumptions/risks)")
     req.set_defaults(func=gate_request)
+    mode_p = gate_sub.add_parser("mode")
+    mode_p.add_argument("mode", nargs="?", choices=GATE_MODES, help="show current mode, or set to light|strict")
+    mode_p.set_defaults(func=gate_mode_cmd)
     reopen_p = sub.add_parser("reopen")
     reopen_p.add_argument("phase")
     reopen_p.add_argument("--reason", required=True)

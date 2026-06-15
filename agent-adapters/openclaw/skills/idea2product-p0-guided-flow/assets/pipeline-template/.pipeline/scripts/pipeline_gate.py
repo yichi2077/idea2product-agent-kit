@@ -39,6 +39,27 @@ NONHUMAN_ENV_MARKERS = (
 )
 
 
+GATE_MODES = ("light", "strict")
+DEFAULT_GATE_MODE = "light"
+
+
+def gate_mode() -> str:
+    """Project gate mode, defaulting to light when unset (older state files)."""
+    if not STATE.exists():
+        return DEFAULT_GATE_MODE
+    match = re.search(r'^\s*gate_mode:\s*"?(\w+)"?', STATE.read_text(encoding="utf-8"), re.MULTILINE)
+    mode = match.group(1) if match else DEFAULT_GATE_MODE
+    return mode if mode in GATE_MODES else DEFAULT_GATE_MODE
+
+
+def effective_mode(args: argparse.Namespace) -> str:
+    if getattr(args, "strict", False):
+        return "strict"
+    if getattr(args, "light", False):
+        return "light"
+    return gate_mode()
+
+
 def now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -188,20 +209,28 @@ def prompt_human(gate: str, stored_challenge: str | None) -> tuple[bool, str]:
 
 
 def approve(args: argparse.Namespace) -> int:
-    deny_nonhuman()
     gate = require_gate(args.gate)
+    mode = effective_mode(args)
     text = STATE.read_text(encoding="utf-8")
     match, block = find_block(text, gate)
     if 'status: "awaiting_approval"' not in block:
         print("Gate is not awaiting approval. Request the gate first.")
         return 2
     print_confidence_banner(gate)
-    stored_challenge = field(block, "challenge")
-    ok, note = prompt_human(gate, stored_challenge)
-    if not ok:
-        return 3
+    if mode == "strict":
+        deny_nonhuman()
+        stored_challenge = field(block, "challenge")
+        ok, note = prompt_human(gate, stored_challenge)
+        if not ok:
+            return 3
+    else:
+        note = (args.rationale or "").strip()
+        if not note:
+            print("Light gate: a non-empty --rationale \"<the human's reason>\" is required.")
+            print("Run this only AFTER the human explicitly approved this gate in the conversation.")
+            return 3
     stamp = now()
-    approver = getpass.getuser()
+    approver = (getattr(args, "by", None) or getpass.getuser())
     commit = head_commit() or "(no commit)"
     tag = create_tag(gate, stamp, approver, note)
     block = block.replace('status: "awaiting_approval"', 'status: "approved"', 1)
@@ -224,20 +253,27 @@ def approve(args: argparse.Namespace) -> int:
 
 
 def reject(args: argparse.Namespace) -> int:
-    deny_nonhuman()
     gate = require_gate(args.gate)
+    mode = effective_mode(args)
     text = STATE.read_text(encoding="utf-8")
     match, block = find_block(text, gate)
     if 'status: "awaiting_approval"' not in block:
         print("Gate is not awaiting approval. Nothing to reject.")
         return 2
     print_confidence_banner(gate)
-    stored_challenge = field(block, "challenge")
-    ok, note = prompt_human(gate, stored_challenge)
-    if not ok:
-        return 3
+    if mode == "strict":
+        deny_nonhuman()
+        stored_challenge = field(block, "challenge")
+        ok, note = prompt_human(gate, stored_challenge)
+        if not ok:
+            return 3
+    else:
+        note = (args.rationale or "").strip()
+        if not note:
+            print("Light gate: a non-empty --rationale \"<the human's reason>\" is required to reject.")
+            return 3
     stamp = now()
-    approver = getpass.getuser()
+    approver = (getattr(args, "by", None) or getpass.getuser())
     commit = head_commit() or "(no commit)"
     block = block.replace('status: "awaiting_approval"', 'status: "rejected"', 1)
     block = re.sub(r"approved_at: (null|\"[^\"]*\")", f'approved_at: "{stamp}"', block, count=1)
@@ -271,11 +307,18 @@ def log_decision(
 def main() -> int:
     parser = argparse.ArgumentParser(prog="pipeline_gate")
     sub = parser.add_subparsers(dest="cmd", required=True)
+    def add_decision_args(p: argparse.ArgumentParser) -> None:
+        p.add_argument("gate")
+        p.add_argument("--rationale", help="light mode: the human's explicit reason (required in light mode)")
+        p.add_argument("--by", help="approver name (defaults to the OS user)")
+        p.add_argument("--strict", action="store_true", help="force the strict separate-terminal flow")
+        p.add_argument("--light", action="store_true", help="force the light in-app flow")
+
     app = sub.add_parser("approve")
-    app.add_argument("gate")
+    add_decision_args(app)
     app.set_defaults(func=approve)
     rej = sub.add_parser("reject")
-    rej.add_argument("gate")
+    add_decision_args(rej)
     rej.set_defaults(func=reject)
     args = parser.parse_args()
     return args.func(args)

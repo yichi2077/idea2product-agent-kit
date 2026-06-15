@@ -3,6 +3,7 @@ pipeline:
   current_phase: "P1"
   last_updated: "2026-06-12T11:06:22Z"
   pilot_validation: "PENDING_REAL_IDEA"
+  gate_mode: "light"
 gates:
   strategy:
     status: "not_requested"
