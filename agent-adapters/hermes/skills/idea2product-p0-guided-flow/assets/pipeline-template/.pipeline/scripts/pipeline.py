@@ -412,14 +412,19 @@ def gate_mode() -> str:
     mode = match.group(1) if match else DEFAULT_GATE_MODE
     return mode if mode in GATE_MODES else DEFAULT_GATE_MODE
 
-def set_gate_mode(mode: str) -> None:
+def set_gate_mode(mode: str) -> bool:
+    """Persist gate_mode into the pipeline: block. Returns False if the state has no
+    recognizable insertion point (so callers can surface a failure instead of lying)."""
     text = read(STATE)
     if re.search(r'^\s*gate_mode:.*$', text, re.MULTILINE):
         text = re.sub(r'^(\s*)gate_mode:.*$', rf'\1gate_mode: "{mode}"', text, count=1, flags=re.MULTILINE)
+    elif re.search(r'\ngates:\n', text):
+        # Append to the end of the pipeline: block, just before the top-level gates: key.
+        text = re.sub(r'\n(gates:\n)', rf'\n  gate_mode: "{mode}"\n\1', text, count=1)
     else:
-        # Insert into the pipeline: block, right after pilot_validation.
-        text = re.sub(r'(\n  pilot_validation: "[^"]*"\n)', rf'\1  gate_mode: "{mode}"\n', text, count=1)
+        return False
     write(STATE, text)
+    return True
 
 def gate_mode_cmd(args: argparse.Namespace) -> int:
     if args.mode is None:
@@ -428,7 +433,10 @@ def gate_mode_cmd(args: argparse.Namespace) -> int:
     if not STATE.exists():
         print("No pipeline state found; scaffold the workspace first.")
         return 2
-    set_gate_mode(args.mode)
+    if not set_gate_mode(args.mode) or gate_mode() != args.mode:
+        print("Could not persist gate_mode (unexpected state format); "
+              "add `gate_mode: \"<mode>\"` under the pipeline: block manually.")
+        return 1
     print(f"gate_mode set to: {args.mode}")
     if args.mode == "light":
         print("Light gate: a human approves inside the agent with "
