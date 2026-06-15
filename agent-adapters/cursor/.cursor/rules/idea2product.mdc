@@ -7,4 +7,4 @@ alwaysApply: true
 
 Follow `agent-adapters/common/IDEA2PRODUCT_AGENT_GUIDE.md` when the user asks for idea2product, product strategy, PRD-to-architecture handoff, staged delivery, gates, resume, or status.
 
-Do not approve gates. Ask the user to run the manual approval command in a real terminal.
+Do not approve gates autonomously. In light mode (default) you may record the user's explicit in-chat approval (`pipeline_gate.py approve <gate> --rationale "…"`); in strict mode ask the user to approve in a real terminal. Never approve without the user's explicit decision.

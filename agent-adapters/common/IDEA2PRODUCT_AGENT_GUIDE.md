@@ -63,18 +63,23 @@ python3 .pipeline/scripts/pipeline.py assumptions due
 
 ## Gate Rules
 
-Agents may request gates but must not approve gates.
+Gates are human-owned: agents may REQUEST a gate and can never *skip* one, but the human
+decides. The mode (`pipeline.py gate mode [light|strict]`) governs how the verdict is recorded:
 
-Human approval or rejection requires a real interactive terminal (a plain OS
-terminal, not an agent's integrated terminal). The human types the gate name, the
-random challenge printed at request time, and a non-empty note:
+- **light (default):** after the user explicitly approves or rejects in the conversation,
+  the agent records it with the user's reason (no separate terminal):
+  ```bash
+  python3 .pipeline/scripts/pipeline_gate.py approve strategy --rationale "<the user's reason>"
+  python3 .pipeline/scripts/pipeline_gate.py reject strategy --rationale "<the user's reason>"
+  ```
+- **strict (opt-in):** the agent cannot approve. The human runs it in a plain OS terminal
+  (not the agent's integrated terminal) and types the gate name, the challenge printed at
+  request time, and a note (`python` on Windows):
+  ```bash
+  python3 .pipeline/scripts/pipeline_gate.py approve strategy
+  ```
 
-```powershell
-python .pipeline/scripts/pipeline_gate.py approve strategy
-python .pipeline/scripts/pipeline_gate.py reject strategy
-```
-
-On macOS/Linux, use `python3` for the same gate commands.
+The agent must never approve without the user's explicit decision in the conversation.
 
 A rejected gate can be re-opened by requesting it again. Do not bypass with direct
 state edits, `--yes`, `--force`, CI, pipes, redirects, or environment variables.
