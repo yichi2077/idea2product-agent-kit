@@ -9,3 +9,5 @@ docs/dogfood/
 *.pyc
 .claude/
 .e2e-sandbox/
+# Internal development/audit/test notes — kept locally for review, not shipped in the published tree.
+docs/founder-playbook-review/

@@ -6,7 +6,7 @@ All notable changes to `idea2product-agent-kit`.
 
 > **Major release.** The phase renumber (P6→P7, P7→P8, P8→P9, P9→P10) plus the new **P6 Validation Prototype** phase is a **breaking change** to public phase/skill identifiers — existing installs that reference `idea2product-p6..p9-*` by name must update.
 
-Brings Anthropic's *Founder's Playbook* validation methodology into the pipeline, applied under a first-principles / "如无必要勿增实体" filter. Full review, rationale, and decision log in [`docs/founder-playbook-review/`](docs/founder-playbook-review/).
+Brings Anthropic's *Founder's Playbook* validation methodology into the pipeline, applied under a first-principles / "如无必要勿增实体" filter.
 
 ### Added
 - **P6 Validation Prototype phase** — the pipeline is now **10 phases**. Define the single core interaction, test a throwaway with ~5 target users, then decide go/pivot/waive. **Non-gated and waivable** with a recorded rationale (no hard floor). Phases renumbered: Architecture→**P7**, Feature-Spec→**P8**, Build→**P9**, Outcome→**P10**; Architecture Gate→P7, Release Gate→P9 (Strategy@P3, Product@P5 unchanged).
@@ -19,8 +19,8 @@ Brings Anthropic's *Founder's Playbook* validation methodology into the pipeline
 - Required red-team (pre-mortem) checkpoint at P2 and P4; skeptic-check and moat-check prompts in decision/outcome templates.
 
 ### Fixed
-- Confirmation-bias watch no longer false-positives on the seed bookkeeping assumption (A-0001), which the engine auto-closes at P1. Bookkeeping assumptions use `validation_method: n/a` and are exempt; real assumptions closed without user contact / without disconfirming evidence still fire. (Found by the end-to-end sandbox run — see `docs/founder-playbook-review/09-e2e-validation-report.md`.)
+- Confirmation-bias watch no longer false-positives on the seed bookkeeping assumption (A-0001), which the engine auto-closes at P1. Bookkeeping assumptions use `validation_method: n/a` and are exempt; real assumptions closed without user contact / without disconfirming evidence still fire. (Found by an end-to-end sandbox dry-run.)
 
 ### Notes
 - All additions are agent-agnostic and propagated to bundled copies via `scripts/sync_bundled_copies.py`.
-- Deliberately **not** added (first-principles): a required pre-release security gate (off-thesis), a post-build architecture-memory nudge (redundant with ADRs). See [`docs/founder-playbook-review/06-occam-dev-plan.md`](docs/founder-playbook-review/06-occam-dev-plan.md).
+- Deliberately **not** added (first-principles): a required pre-release security gate (off-thesis), a post-build architecture-memory nudge (redundant with ADRs).

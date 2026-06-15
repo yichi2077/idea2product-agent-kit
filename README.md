@@ -58,7 +58,7 @@ This kit does not just *reference* the *Founder's Playbook* — it **operational
 | A **security review before any user touches it** | **P9** recommended pre-release security review (auth, leakage, injection, CVE deps) |
 | Iterate toward **evidence (PMF)**, not perfection | **P6 / P10** PMF instruments: Sean Ellis 40% · effort (push vs pull) · the three R's, plus pivot diagnostics |
 
-> **Scope note (honest):** the kit fully embodies the playbook's **Idea** and **MVP** methodology. The playbook's **Launch / Scale** material is mostly *operations* (founder-attention workflows, growth staffing, compliance programs) and is intentionally **out of scope** — this kit is a 0→1 validation-and-build pipeline, not an ops platform. The full mapping, rationale, and audits live in [`docs/founder-playbook-review/`](docs/founder-playbook-review/).
+> **Scope note (honest):** the kit fully embodies the playbook's **Idea** and **MVP** methodology. The playbook's **Launch / Scale** material is mostly *operations* (founder-attention workflows, growth staffing, compliance programs) and is intentionally **out of scope** — this kit is a 0→1 validation-and-build pipeline, not an ops platform.
 
 ---
 
@@ -187,7 +187,6 @@ At the end of each phase the agent commits the docs + state with a standardized 
 
 ## Documentation & customization
 
-- **Methodology, mapping & audits:** [`docs/founder-playbook-review/`](docs/founder-playbook-review/) — how each playbook principle is landed, plus fidelity, UX, and end-to-end validation reports.
 - **Advanced setup, per-agent install, Spec Kit:** [Technical Deep Dive & User Guide](docs/TECHNICAL-DEEP-DIVE.md).
 - **Customize the flow:** edit phase recipes in `.pipeline/recipes/p*.yaml` and document templates in `.pipeline/templates/`.
 - **Changelog:** [CHANGELOG.md](CHANGELOG.md).
