@@ -83,6 +83,8 @@ SPECKIT_DOCS_URL = "https://github.com/github/spec-kit"
 SPECKIT_INSTALL_CMD = (
     "uvx --from git+https://github.com/github/spec-kit.git specify init . --ai claude"
 )
+SPECKIT_UV_HINT_UNIX = "curl -LsSf https://astral.sh/uv/install.sh | sh"
+SPECKIT_UV_HINT_WIN = 'powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"'
 
 def speckit_available() -> bool:
     """Best-effort, non-blocking detection of a Spec Kit installation.
@@ -101,6 +103,12 @@ def speckit_available() -> bool:
         ROOT / ".cursor" / "commands",
     )
     return any(d.exists() and any(d.glob("speckit*")) for d in command_dirs)
+
+def uv_available() -> bool:
+    return bool(shutil.which("uv") or shutil.which("uvx"))
+
+def uv_install_cmd() -> str:
+    return SPECKIT_UV_HINT_WIN if sys.platform.startswith("win") else SPECKIT_UV_HINT_UNIX
 
 def load_metadata() -> dict:
     if not METADATA.exists():
@@ -367,6 +375,8 @@ def run_phase(args: argparse.Namespace) -> int:
         print(f"NOTE (non-blocking): this phase hands off to Spec Kit ({', '.join(speckit_tools)}),")
         print("but Spec Kit was not detected. The phase still produces its Specify Packet; you")
         print("need Spec Kit only to run the speckit.* commands on that packet.")
+        if not uv_available():
+            print(f"  (Spec Kit needs uv — install it first: {uv_install_cmd()})")
         print(f"  Install: {SPECKIT_INSTALL_CMD}")
         print(f"  Docs:    {SPECKIT_DOCS_URL}")
     if phase in {"P2", "P3"} and not has_real_idea():
@@ -783,6 +793,8 @@ def doctor(_: argparse.Namespace) -> int:
             f"install it ({SPECKIT_DOCS_URL}) to run the spec-driven flow. P7 still produces "
             "its Specify Packet without it."
         )
+        if not uv_available():
+            print(f"  (installing Spec Kit needs uv first: {uv_install_cmd()})")
     return rc
 
 def retire(args: argparse.Namespace) -> int:

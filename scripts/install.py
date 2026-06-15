@@ -46,6 +46,7 @@ IGNORE = shutil.ignore_patterns("__pycache__", "*.pyc", ".pytest_cache")
 SPECKIT_REPO = "https://github.com/github/spec-kit"
 SPECKIT_TOOL_INSTALL = "uv tool install specify-cli --from git+https://github.com/github/spec-kit.git"
 SPECKIT_GIT_REF = "git+https://github.com/github/spec-kit.git"
+UV_DOCS = "https://docs.astral.sh/uv/getting-started/installation/"
 
 
 def copy_skill_dirs(source: Path, dest: Path) -> int:
@@ -179,6 +180,32 @@ def cmd_adapters(args: argparse.Namespace) -> int:
 
 # ---------------------------------------------------------------- speckit
 
+def ensure_uv() -> int:
+    """Make `uv`/`uvx` available, installing it via the official Astral installer if
+    missing (announce, then run). Adds the default install dir to PATH so the freshly
+    installed uv is usable in this same process."""
+    if shutil.which("uv") or shutil.which("uvx"):
+        return 0
+    if sys.platform.startswith("win"):
+        cmd = ["powershell", "-ExecutionPolicy", "ByPass", "-c", "irm https://astral.sh/uv/install.ps1 | iex"]
+    else:
+        cmd = ["sh", "-c", "curl -LsSf https://astral.sh/uv/install.sh | sh"]
+    print("uv not found — installing it via the official Astral installer (https://astral.sh/uv).")
+    print(f"  Running: {' '.join(cmd)}")
+    if subprocess.call(cmd) != 0:
+        print(f"  uv install failed. Install it manually: {UV_DOCS}")
+        return 1
+    # The installer drops uv in ~/.local/bin (or ~/.cargo/bin); surface it to this process.
+    for extra in (Path.home() / ".local" / "bin", Path.home() / ".cargo" / "bin"):
+        if extra.exists() and str(extra) not in os.environ.get("PATH", ""):
+            os.environ["PATH"] = str(extra) + os.pathsep + os.environ.get("PATH", "")
+    if not (shutil.which("uv") or shutil.which("uvx")):
+        print(f"  uv installed but not on PATH yet. Open a new shell and retry, or see {UV_DOCS}")
+        return 1
+    print("  uv is ready.")
+    return 0
+
+
 def speckit_init_cmd(project: str) -> list[str]:
     base = ["uvx", "--from", SPECKIT_GIT_REF, "specify", "init"]
     if project in (".", ""):
@@ -208,10 +235,9 @@ def cmd_speckit(args: argparse.Namespace) -> int:
         print("\nRe-run with --install to run the per-project init for you (requires 'uv').")
         return 0
 
-    if not (shutil.which("uvx") or shutil.which("uv")):
-        print("\nCannot auto-install: 'uv'/'uvx' is required but was not found.")
-        print("  Install uv first: https://docs.astral.sh/uv/getting-started/installation/")
-        return 1
+    rc = ensure_uv()
+    if rc != 0:
+        return rc
     print(f"\nRunning: {' '.join(init_cmd)}")
     return subprocess.call(init_cmd)
 
