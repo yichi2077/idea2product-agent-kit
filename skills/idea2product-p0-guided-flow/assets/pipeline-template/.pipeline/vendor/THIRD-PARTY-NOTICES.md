@@ -45,10 +45,19 @@ shares one upstream's structure and metadata. Replacing one skill with a differe
 version would break those references and mix licenses, so swaps must clear a high bar:
 **verified higher quality AND license-compatible AND coherent with the existing set.**
 
+### Vendored skills are excerpts
+
+Each skill is kept verbatim from its upstream commit (see its `SOURCE.yaml`) so it can be
+re-vendored cleanly. Because the kit cherry-picks the skills each pipeline node needs, a
+vendored skill's body may cross-reference sibling skills from its origin collection
+(e.g. `superpowers:using-git-worktrees`, `foundation-persona`) that are **not** bundled
+here. Those cross-references are **informational only** — the pipeline drives execution
+solely through the recipes (closed lists), which reference only bundled skills. Bodies are
+deliberately not rewritten to strip such references: most have no in-kit equivalent, and
+editing them would fork each skill from its upstream and break re-vendorability.
+
 A 2026-06 review of proposed alternatives found none that cleared the bar:
 
-| Candidate source | License | Decision | Reason |
-|------------------|---------|----------|--------|
 | Candidate (target skill) | License (verified) | Decision | Evidence |
 |--------------------------|--------------------|----------|----------|
 | deanpeters/Product-Manager-Skills | **CC BY-NC-SA 4.0** | rejected | NonCommercial + ShareAlike — would force the kit under BY-NC-SA |

@@ -15,6 +15,11 @@ Rules for agents:
 
 - Before phase work, run `pipeline run Px` and follow the recipe skill list.
 - Recipes are closed lists; do not invoke skills outside the current recipe.
+- Vendored skills are excerpts from larger upstream collections, kept verbatim. Their text
+  may cross-reference sibling skills (e.g. `superpowers:…`, `foundation-…`) that are not
+  bundled here. Such a reference is informational: if the named skill is not in
+  `.pipeline/vendor/` or the current recipe, do not block on it and do not try to install
+  it — the recipe is authoritative for what to run.
 - Gates are human-owned. In the default **light** gate mode the agent may RECORD a human's verdict
   (`pipeline_gate.py approve|reject <gate> --rationale "..."`) but ONLY after the human explicitly
   approves or rejects in the conversation — never autonomously, never with an invented rationale. In
