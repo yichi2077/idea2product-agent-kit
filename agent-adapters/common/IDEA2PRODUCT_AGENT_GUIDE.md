@@ -34,10 +34,11 @@ If `.pipeline/scripts/pipeline.py` does not exist, the pipeline is not installed
 - P3 strategy decision: decision memo, recommendation, red-team, Strategy Gate request.
 - P4 product discovery: product thesis, target user, problem, JTBD, value proposition, boundaries.
 - P5 product definition: PRD, stories, acceptance criteria, edge cases, instrumentation, PM critique.
-- P6 architecture handoff: feature map, traceability, options, spikes, ADRs.
-- P7 feature specification: one MVP feature at a time using approved PRD and ADRs.
-- P8 build release: implementation, verification, launch/GTM checklist, Release Gate request.
-- P9 outcome review: update assumptions, risks, decision log, PRD, or ADRs based on real outcomes.
+- P6 validation prototype: single core interaction, ~5-user test, go/pivot/waive decision (waivable).
+- P7 architecture handoff: feature map, traceability, options, spikes, ADRs.
+- P8 feature specification: one MVP feature at a time using approved PRD and ADRs.
+- P9 build release: implementation, verification, launch/GTM checklist, Release Gate request.
+- P10 outcome review: update assumptions, risks, decision log, PRD, or ADRs based on real outcomes.
 
 ## Commands
 

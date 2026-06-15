@@ -5,7 +5,7 @@ Two checks:
 
 1. HARD (gates CI): every `$skill` token referenced in a recipe
    (`.pipeline/recipes/*.yaml`) must resolve to a bundled skill — a vendor skill, a
-   custom skill, or a P0-P9 entry skill. The pipeline executes only what the recipes
+   custom skill, or a P0-P10 entry skill. The pipeline executes only what the recipes
    list, so an unresolved recipe reference is a real defect.
 
 2. SOFT (informational): vendored skill *bodies* are excerpts from larger upstream
@@ -44,7 +44,7 @@ SIB_REF = re.compile(
 
 
 def resolvable_skills() -> set[str]:
-    """All skill names the kit can actually invoke: vendor + custom + P0-P9 entry."""
+    """All skill names the kit can actually invoke: vendor + custom + P0-P10 entry."""
     names: set[str] = set()
     for cat in CATEGORIES:
         d = VENDOR / cat

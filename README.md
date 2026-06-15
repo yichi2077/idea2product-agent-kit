@@ -50,7 +50,7 @@ By defining the business strategy and product scope first, you eliminate wasted 
 ```
        WHY?                    WHAT?                     HOW?
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────────┐
-│  P1 - P3        │────▶│  P4 - P5        │────▶│  P6 - P9            │
+│  P1 - P3        │────▶│  P4 - P6        │────▶│  P7 - P10           │
 │  Strategy &     │     │  Product        │     │  Architecture,      │
 │  Feasibility    │     │  Definition     │     │  Specs & Build      │
 └─────────────────┘     └─────────────────┘     └─────────────────────┘
@@ -65,9 +65,9 @@ If you build software based on intuition and rapid agent chats (Vibe Coding), th
 
 ## The Solution: A Phase-Gate State Machine
 
-`idea2product-agent-kit` organizes the workspace into **9 linear phases** and **4 human-in-the-loop gates**. The CLI engine blocks the agent from progressing to code generation until the preceding design and architecture gates are manually approved.
+`idea2product-agent-kit` organizes the workspace into **10 linear phases** and **4 human-in-the-loop gates**. The CLI engine blocks the agent from progressing to code generation until the preceding design and architecture gates are manually approved.
 
-### The 9-Phase Workflow
+### The 10-Phase Workflow
 
 | Phase | Description | Outputs | Gate Check |
 |-------|-------------|---------|------------|
@@ -76,10 +76,11 @@ If you build software based on intuition and rapid agent chats (Vibe Coding), th
 | **P3** | Strategy Decision | Build/buy/partner memo, product thesis | **Strategy Gate** |
 | **P4** | Product Discovery | JTBD canvas, opportunity tree, lean canvas | - |
 | **P5** | Product Definition | PRD, user stories, acceptance criteria | **Product Gate** |
-| **P6** | Architecture Handoff| ADRs, spikes, traceability matrix | **Architecture Gate** |
-| **P7** | Feature Spec | Test-driven feature specifications | - |
-| **P8** | Build & Release | Verified implementation, release checklist | **Release Gate** |
-| **P9** | Outcome Review | Post-launch hypothesis measurement | - |
+| **P6** | Validation Prototype | Single core interaction tested with ~5 users (waivable) | - |
+| **P7** | Architecture Handoff| ADRs, spikes, traceability matrix | **Architecture Gate** |
+| **P8** | Feature Spec | Test-driven feature specifications | - |
+| **P9** | Build & Release | Verified implementation, release checklist | **Release Gate** |
+| **P10** | Outcome Review | Post-launch hypothesis measurement | - |
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-description: Guides staged idea-to-product work with status, resume, P1-P9 execution, and manual gate handling.
+description: Guides staged idea-to-product work with status, resume, P1-P10 execution, and manual gate handling.
 mode: primary
 temperature: 0.1
 permission:

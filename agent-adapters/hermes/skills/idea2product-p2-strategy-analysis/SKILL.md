@@ -57,13 +57,16 @@ product category.
 
 ### Search
 
-Use web search from the agent runtime. Search for:
+Use web search from the agent runtime. Cover four competitor layers (the fix for
+"competitor blindness" — do not only look at direct rivals):
 
-- direct competitors
-- indirect competitors
-- substitute workflows
-- open-source projects
-- SaaS, apps, services, templates, and no-code tools that are ready to use
+- Layer 1 — direct competitors (do almost the same thing)
+- Layer 2 — indirect competitors / substitute workflows (solve the same job differently)
+- Layer 3 — potential acquirers / incumbents with an adjacent capability who could enter
+- Layer 4 — adjacent movers (not in this space today, but a plausible next step away)
+
+Include open-source projects and ready-to-use SaaS, apps, services, templates, and
+no-code tools at every layer.
 
 Generate queries from the idea brief's user, job-to-be-done, problem, core
 capability, constraints, and target market. Do not rely on one generic query.
@@ -86,8 +89,18 @@ Write `docs/10-strategy/existing-solutions-scan.md` with this exact structure:
 - [query 2]
 
 ## Candidate Solutions
-| Name | URL | Type | Ready to Use | Fit | Gaps | Notes |
-| --- | --- | --- | --- | --- | --- | --- |
+| Name | URL | Layer (1-4) | Type | Ready to Use | Fit | Gaps | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+
+## Competitor Pain Mining
+[Free qualitative research: from reviews (App Store / G2 / Reddit / forums), the top
+recurring complaints about the leading alternatives. Cite sources.]
+| Competitor | Top recurring pain | Source | Does our hypothesis address it? |
+| --- | --- | --- | --- |
+
+## Steelman (strongest rival)
+[The most persuasive case for why the strongest competitor WINS and we fail. Is our
+differentiation an actual moat, or a feature they can copy in a quarter?]
 
 ## Classification
 [perfect_match | good_enough | partial_match | reference_only | no_credible_solution_found | search_unavailable]

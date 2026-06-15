@@ -1,6 +1,0 @@
-interface:
-  display_name: "idea2product-P9-outcome-review"
-  short_description: "Review real outcomes after release, decide continue, scale, iterate, pivot, pause, or retire, and update assumptions, risks, decision log, PRD, or ADRs rather than only writing a retrospective."
-  default_prompt: "Use $idea2product-p9-outcome-review in the current workspace."
-policy:
-  allow_implicit_invocation: false

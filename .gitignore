@@ -8,3 +8,4 @@ node_modules/
 docs/dogfood/
 *.pyc
 .claude/
+.e2e-sandbox/

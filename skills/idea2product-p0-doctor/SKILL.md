@@ -1,6 +1,6 @@
 ---
 name: idea2product-p0-doctor
-description: "Run the idea-to-product pipeline health check from the current workspace, report whether pipeline state and required artifacts are coherent, and never change pipeline state."
+description: "Run the idea-to-product pipeline health check from the current workspace, report whether pipeline state and required artifacts are coherent, surface any confirmation-bias warnings about assumption evidence, and never change pipeline state. Use also when the user asks whether they are fooling themselves or whether their evidence is solid."
 ---
 
 # idea2product-P0-doctor
@@ -34,6 +34,9 @@ Summarize the result in plain language:
 
 - If healthy, say the pipeline is healthy and name the next useful action
   (`$idea2product-p0-resume`, `$idea2product-p0-status`, or the ready phase skill).
+- Always relay any "Confirmation-bias watch" lines (non-blocking) to the user — assumptions
+  closed without user contact, closed with zero disconfirming evidence, or a register lopsided
+  toward supporting evidence. They do not fail the check, but the human should weigh them.
 - If unhealthy, list the concrete failures from the command: missing files, scaffold
   outputs that still need replacement, stale completed outputs, gate invariant
   failures, or other state inconsistencies.

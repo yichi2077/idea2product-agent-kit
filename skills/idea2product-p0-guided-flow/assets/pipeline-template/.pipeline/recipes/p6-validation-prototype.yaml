@@ -1,0 +1,28 @@
+phase: "P6"
+required_skills:
+  - $assumption-challenger
+conditional_skills:
+  - name: $measure-experiment-design
+    when: "Use when the core interaction warrants a designed experiment rather than a lightweight 5-user test."
+  - name: $discover-interview-synthesis
+    when: "Use only when the prototype sessions produced raw interview/usability material to synthesize."
+  - name: $measure-experiment-results
+    when: "Use only after real prototype/experiment data exists."
+  - name: $iterate-pivot-decision
+    when: "Use only when the prototype evidence indicates a pivot/persevere decision is needed."
+non_skill_process:
+  - "Define the SINGLE core, indispensable interaction: if a user could try only one thing to judge value, what is it? Cut everything else for the prototype."
+  - "Build the smallest throwaway version of just that interaction, then put it in front of ~5 target-persona users and observe BEHAVIOR (not stated preference). The prototype is a prop; the conversations are the evidence."
+  - "Record observed behavior, the confirm/challenge split, and whether the validated problem matches the one assumed at P1, into docs/20-product/validation-prototype.md and the registers."
+  - "This phase is WAIVABLE with no hard floor: if you deliberately skip the prototype, set Decision: skip_with_rationale in the output and record the accepted risk in the registers. Never silently skip."
+required_context:
+  - ".pipeline/state/pipeline-state.yaml"
+  - ".pipeline/state/assumption-register.yaml"
+  - ".pipeline/state/risk-register.yaml"
+outputs:
+  - docs/20-product/validation-prototype.md
+completion_commands:
+  - python .pipeline/scripts/pipeline.py stage complete P6
+post_skill_verification:
+  required: true
+  fallback: "Read the vendored SKILL.md directly if explicit skill invocation did not load."

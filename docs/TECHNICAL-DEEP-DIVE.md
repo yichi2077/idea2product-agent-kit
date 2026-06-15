@@ -76,7 +76,7 @@ Replaces the engine machinery (`scripts/`, `recipes/`, `vendor/`, `custom-skills
 
 ## 3. Spec Kit (optional)
 
-Phase **P7** produces a *Specify Packet* and hands it to [Spec Kit](https://github.com/github/spec-kit) — GitHub's spec-driven-development toolkit — via its `speckit.*` commands (`speckit.specify`, `speckit.plan`, `speckit.tasks`, …). **Spec Kit is an optional external dependency maintained separately by GitHub.** The pipeline always produces the packet; you need Spec Kit only to run the spec-driven implementation loop on it.
+Phase **P8** produces a *Specify Packet* and hands it to [Spec Kit](https://github.com/github/spec-kit) — GitHub's spec-driven-development toolkit — via its `speckit.*` commands (`speckit.specify`, `speckit.plan`, `speckit.tasks`, …). **Spec Kit is an optional external dependency maintained separately by GitHub.** The pipeline always produces the packet; you need Spec Kit only to run the spec-driven implementation loop on it.
 
 Check status or install it with the bundled helper:
 ```bash

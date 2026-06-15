@@ -27,7 +27,7 @@ Scaffolding is non-destructive: existing `.pipeline`, `docs/`, and state are pre
 
 | Host | Adapter | Notes |
 | --- | --- | --- |
-| Codex | `$HOME/.agents/skills` plus repo `.agents/skills` | Uses `idea2product-p0-guided-flow`, P1-P9 skills, status, resume, rollback, doctor, and retire. |
+| Codex | `$HOME/.agents/skills` plus repo `.agents/skills` | Uses `idea2product-p0-guided-flow`, P1-P10 skills, status, resume, rollback, doctor, and retire. |
 | Cursor | `.cursor/rules/idea2product.mdc` | Project rule points Cursor at the shared guide. |
 | Claude Code | `CLAUDE.md` | Project memory points Claude Code at the shared guide and pipeline commands. |
 | OpenCode | `AGENTS.md` and `.opencode/agents/idea2product.md` | OpenCode supports project instructions and markdown-defined agents. |

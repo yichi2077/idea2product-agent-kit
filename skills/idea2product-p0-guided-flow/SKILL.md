@@ -1,6 +1,6 @@
 ---
 name: idea2product-p0-guided-flow
-description: "Guide a user through the full idea-to-product pipeline from initial idea through strategy, product, architecture, delivery, and outcome review; choose the next step from state, invoke the matching P1-P9 skill, request gates when needed, and keep the user oriented."
+description: "Guide a user through the full idea-to-product pipeline from initial idea through strategy, product, architecture, delivery, and outcome review; choose the next step from state, invoke the matching P1-P10 skill, request gates when needed, and keep the user oriented."
 ---
 
 # idea2product-P0-guided-flow
@@ -53,7 +53,7 @@ python3 "$HOME/.hermes/skills/idea2product-p0-guided-flow/scripts/pipeline_entry
 When `.pipeline` is absent, or the user asks what the kit is or how to start, orient before running any init command:
 
 1. Explain that idea2product turns a raw idea into a shipped product for a solo operator. The user talks; you run the engine commands. The only normal command the user runs directly is gate approval, because a human must be the approval anchor.
-2. Walk the path in one line each: P1 idea, P2 existing-solution scan and strategy analysis, P3 strategy decision `[Strategy Gate]`, P4 product discovery, P5 PRD `[Product Gate]`, P6 architecture/ADR `[Architecture Gate]`, P7 feature spec, P8 build/release `[Release Gate]`, P9 outcome review.
+2. Walk the path in one line each: P1 idea, P2 existing-solution scan and strategy analysis, P3 strategy decision `[Strategy Gate]`, P4 product discovery, P5 PRD `[Product Gate]`, P6 validation prototype (single core interaction, ~5-user test, waivable), P7 architecture/ADR `[Architecture Gate]`, P8 feature spec, P9 build/release `[Release Gate]`, P10 outcome review.
 3. Mention continuation and operations: status, resume, rollback, doctor health check, and retire.
 4. Ask exactly: "What's your idea?" Wait for the user's answer. Only then scaffold/init and start P1 from that idea.
 5. Do not run the entry script before the answer, even if the target directory is empty and the entry script would auto-initialize safely.
@@ -67,10 +67,11 @@ Phase skills:
 - `$idea2product-p3-strategy-decision`: idea2product-P3-strategy-decision
 - `$idea2product-p4-product-discovery`: idea2product-P4-product-discovery
 - `$idea2product-p5-product-definition`: idea2product-P5-product-definition
-- `$idea2product-p6-architecture-handoff`: idea2product-P6-architecture-handoff
-- `$idea2product-p7-feature-specification`: idea2product-P7-feature-specification
-- `$idea2product-p8-build-release`: idea2product-P8-build-release
-- `$idea2product-p9-outcome-review`: idea2product-P9-outcome-review
+- `$idea2product-p6-validation-prototype`: idea2product-P6-validation-prototype
+- `$idea2product-p7-architecture-handoff`: idea2product-P7-architecture-handoff
+- `$idea2product-p8-feature-specification`: idea2product-P8-feature-specification
+- `$idea2product-p9-build-release`: idea2product-P9-build-release
+- `$idea2product-p10-outcome-review`: idea2product-P10-outcome-review
 
 Continuation skills:
 
@@ -105,7 +106,7 @@ After each handoff or resume summary, present a short state-aware menu in prose.
 When downstream work proves an upstream phase is wrong or stale, reopen it — never hand-edit state files:
 
 ```bash
-python3 .pipeline/scripts/pipeline.py reopen P5 --reason "technical infeasibility found in P7"
+python3 .pipeline/scripts/pipeline.py reopen P5 --reason "technical infeasibility found in P8"
 ```
 
 Reopen rolls the target and downstream phases back, clears affected gates, and logs the reason. Only a completed phase can be reopened.

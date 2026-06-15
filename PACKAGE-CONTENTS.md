@@ -1,6 +1,6 @@
 # Package Contents
 
-- `skills/` — 15 installable entry skills (guided flow, P1-P9, status, resume, rollback, doctor, retire). P2 strategy analysis includes the existing-solutions scan as a required first step.
+- `skills/` — 16 installable entry skills (guided flow, P1-P10, status, resume, rollback, doctor, retire). P2 strategy analysis includes the existing-solutions scan as a required first step.
 - `pipeline-template/` — the repo-local `.pipeline` engine, `docs/` tree, recipes,
   templates, vendored domain skills, state registers, and user-facing pipeline
   guides. Excludes internal dogfood/audit artifacts, `.pipeline/upstream`, `.git`,

@@ -1,0 +1,24 @@
+phase: "P10"
+required_skills:
+  - $measure-experiment-results
+  - $iterate-pivot-decision
+  - $iterate-lessons-log
+optional_skills:
+  - name: $assumption-challenger
+    when: "Use for final assumption review after outcomes and lessons are recorded."
+non_skill_process:
+  - python .pipeline/scripts/review_due.py
+  - Update assumption-register.yaml, risk-register.yaml, and decision-log.md.
+  - "When closing assumptions, record provenance (validation_method, user_contact_n, evidence_for, evidence_against, confidence) so the doctor confirmation-bias watch can engage."
+  - Reopen PRD or ADR only when outcome evidence requires it.
+required_context:
+  - ".pipeline/state/pipeline-state.yaml"
+  - ".pipeline/state/assumption-register.yaml"
+  - ".pipeline/state/risk-register.yaml"
+outputs:
+  - docs/40-delivery/outcome-review.md
+completion_commands:
+  - python .pipeline/scripts/pipeline.py stage complete P10
+post_skill_verification:
+  required: true
+  fallback: "Read the vendored SKILL.md directly if explicit skill invocation did not load."

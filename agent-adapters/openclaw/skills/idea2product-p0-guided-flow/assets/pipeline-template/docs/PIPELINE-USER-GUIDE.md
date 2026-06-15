@@ -48,10 +48,11 @@ Use explicit phase skills when you already know the phase:
 - `$idea2product-p3-strategy-decision`
 - `$idea2product-p4-product-discovery`
 - `$idea2product-p5-product-definition`
-- `$idea2product-p6-architecture-handoff`
-- `$idea2product-p7-feature-specification`
-- `$idea2product-p8-build-release`
-- `$idea2product-p9-outcome-review`
+- `$idea2product-p6-validation-prototype`
+- `$idea2product-p7-architecture-handoff`
+- `$idea2product-p8-feature-specification`
+- `$idea2product-p9-build-release`
+- `$idea2product-p10-outcome-review`
 
 Use `$idea2product-p0-status` to report current state, `$idea2product-p0-resume` to continue from the current state, `$idea2product-p0-doctor` to health-check state and artifacts, and `$idea2product-p0-retire` to retire the project after confirmation.
 

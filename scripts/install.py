@@ -6,7 +6,7 @@ Works the same on Windows, macOS, and Linux. Python is the only requirement
 
 Subcommands:
   init [repo]         One-shot onboarding: skills + scaffold + adapters (auto-detects host).
-  skills              Install the 15 entry skills into the user's agent skill dir(s).
+  skills              Install the 16 entry skills into the user's agent skill dir(s).
   scaffold <repo>     Create the .pipeline engine + docs inside a target repository.
   adapters <repo>     Install host adapter files into a target repository.
   upgrade <repo>      Update a scaffolded project's engine; preserves state, reports, and docs.

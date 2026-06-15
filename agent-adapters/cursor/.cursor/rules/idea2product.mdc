@@ -1,5 +1,5 @@
 ---
-description: Use idea2product for staged Idea to Strategy to Product to Architecture to Delivery work; applies when the user asks for pipeline status, resume, P1-P9 execution, gates, PRD, strategy, architecture handoff, release, or outcome review.
+description: Use idea2product for staged Idea to Strategy to Product to Architecture to Delivery work; applies when the user asks for pipeline status, resume, P1-P10 execution, gates, PRD, validation prototype, strategy, architecture handoff, release, or outcome review.
 alwaysApply: true
 ---
 

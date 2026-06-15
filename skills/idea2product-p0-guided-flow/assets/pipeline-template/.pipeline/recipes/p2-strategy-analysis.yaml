@@ -5,15 +5,13 @@ required_skills:
 conditional_skills:
   - name: $financial-analyst
     when: "Use only when real revenue, cost, cash-flow, budget, or forecast data exists."
-optional_skills:
-  - name: $assumption-challenger
-    when: "Use for an additional strategy assumption review or pre-mortem."
 required_context:
   - ".pipeline/state/pipeline-state.yaml"
   - ".pipeline/state/assumption-register.yaml"
   - ".pipeline/state/risk-register.yaml"
 non_skill_process:
   - "Within $idea2product-p2-strategy-analysis, first perform the existing-solutions scan, write docs/10-strategy/existing-solutions-scan.md, and collect a non-pending User Decision before deeper strategy analysis."
+  - "Run $assumption-challenger as a REQUIRED red-team / pre-mortem on the strategy before completing P2. Argue against building; record the strongest counter-argument and the riskiest load-bearing assumption (with its cheapest test) into the registers."
 outputs:
   - docs/10-strategy/existing-solutions-scan.md
   - docs/10-strategy/strategy-research-note.md

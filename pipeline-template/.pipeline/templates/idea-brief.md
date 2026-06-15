@@ -6,11 +6,22 @@
 ## Purpose
 <!-- One paragraph: who is this for and what does it do? -->
 
+## Falsifiable hypothesis
+<!-- One sentence, testable AND falsifiable. Shape:
+     "[persona] in [scenario] every [frequency] hits [problem] because [cause], costing them [quantified loss]."
+     P2's existing-solutions scan generates its search queries from this line. -->
+
 ## Target user
 <!-- The specific user/segment who has the problem. -->
 
 ## Problem
 <!-- The job/pain in their words; why current options fall short. -->
+
+## Frequency
+<!-- How often the target user hits this problem (per day/week/month). Drives severity. -->
+
+## Current workaround (and where it hurts)
+<!-- What they do today instead, and exactly where it breaks down — the wedge for a better solution. -->
 
 ## Urgency / why now
 <!-- What changed (tech, market, behavior) that makes this timely? -->

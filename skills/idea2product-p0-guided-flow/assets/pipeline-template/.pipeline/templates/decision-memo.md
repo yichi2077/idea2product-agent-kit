@@ -23,4 +23,8 @@
 ## Confidence
 <!-- high | medium | low + what would change it. -->
 
+## Moat check
+<!-- If a well-funded incumbent shipped your product today, would users stay? Why?
+     Name the intended moat: proprietary knowledge / data advantage / workflow lock-in / other. -->
+
 ## Open Questions

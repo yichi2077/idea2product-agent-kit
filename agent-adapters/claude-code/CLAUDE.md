@@ -9,7 +9,7 @@ python3 .pipeline/scripts/pipeline.py status
 python3 .pipeline/scripts/pipeline.py resume
 ```
 
-When the user asks for a stage, run the matching `P1` through `P9` command. You may request gates but never approve one autonomously: in light mode (the default) record the user's explicit in-chat approval (`pipeline_gate.py approve <gate> --rationale "…"`); in strict mode the user approves in a real terminal.
+When the user asks for a stage, run the matching `P1` through `P10` command. You may request gates but never approve one autonomously: in light mode (the default) record the user's explicit in-chat approval (`pipeline_gate.py approve <gate> --rationale "…"`); in strict mode the user approves in a real terminal.
 
 Skills in `.claude/skills` (installed by the adapter) are discovered natively by name; this `.pipeline` command surface is the source of truth for state and gates. Both point at the same workflow.
 

@@ -17,8 +17,8 @@ GATES = {"strategy", "product", "architecture", "release"}
 GATE_NEXT_PHASES = {
     "strategy": "P4",
     "product": "P6",
-    "architecture": "P7",
-    "release": "P9",
+    "architecture": "P8",
+    "release": "P10",
 }
 
 # Environment markers that indicate a non-interactive automation host. The TTY

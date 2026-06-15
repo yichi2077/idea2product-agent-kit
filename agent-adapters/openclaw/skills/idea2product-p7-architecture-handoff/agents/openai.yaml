@@ -1,0 +1,6 @@
+interface:
+  display_name: "idea2product-P7-architecture-handoff"
+  short_description: "Bridge product definition into technical direction by creating feature maps, traceability, architecture options, spikes, design rationale, and ADRs before Architecture Gate."
+  default_prompt: "Use $idea2product-p7-architecture-handoff in the current workspace."
+policy:
+  allow_implicit_invocation: false

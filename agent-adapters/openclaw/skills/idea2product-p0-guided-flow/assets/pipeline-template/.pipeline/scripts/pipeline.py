@@ -20,9 +20,9 @@ EXISTING_SOLUTIONS_SCAN = ROOT / "docs/10-strategy/existing-solutions-scan.md"
 ASSUMPTIONS = PIPE / "state" / "assumption-register.yaml"
 RISKS = PIPE / "state" / "risk-register.yaml"
 DECISION_LOG = PIPE / "state" / "decision-log.md"
-PHASES = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9"]
+PHASES = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"]
 GATES = {"strategy", "product", "architecture", "release"}
-GATE_PHASES = {"strategy": "P3", "product": "P5", "architecture": "P6", "release": "P8"}
+GATE_PHASES = {"strategy": "P3", "product": "P5", "architecture": "P7", "release": "P9"}
 CONFIDENCE_LEVELS = ("high", "medium", "low")
 # Gate approval modes. "light" (default) lets a human sign off inside the agent app
 # via `pipeline_gate.py approve <gate> --rationale "..."`; "strict" requires a separate
@@ -86,7 +86,7 @@ def recipe_external_tools(phase: str) -> list[str]:
     return tools
 
 # Spec Kit (https://github.com/github/spec-kit) supplies the speckit.* commands that
-# P7 hands its Specify Packet off to. It is an OPTIONAL external dependency: the phase
+# P8 hands its Specify Packet off to. It is an OPTIONAL external dependency: the phase
 # still produces its packet without it. These helpers only advise; they never block.
 SPECKIT_DOCS_URL = "https://github.com/github/spec-kit"
 SPECKIT_INSTALL_CMD = (
@@ -293,7 +293,8 @@ def resume(_: argparse.Namespace) -> int:
 def read_optional(path: Path) -> str:
     return path.read_text(encoding="utf-8") if path.exists() else ""
 
-REGISTER_KEYS = {"statement", "status", "review_by", "severity", "owner", "mitigation"}
+REGISTER_KEYS = {"statement", "status", "review_by", "severity", "owner", "mitigation",
+                 "validation_method", "user_contact_n", "evidence_for", "evidence_against", "confidence"}
 
 def parse_register(path: Path) -> list[dict]:
     """Parse the kit's lightweight ``- id:`` field registers without PyYAML.
@@ -374,7 +375,7 @@ def run_phase(args: argparse.Namespace) -> int:
     phase = args.phase.upper()
     recipe = recipe_path(phase)
     if not recipe:
-        print(f"Unknown phase: {phase}. Valid phases are P1-P9.")
+        print(f"Unknown phase: {phase}. Valid phases are P1-P10.")
         return 2
     print(f"Recipe: {recipe.relative_to(ROOT)}")
     # Show the OS-correct interpreter (python3 on macOS/Linux, python on Windows) so the
@@ -495,6 +496,11 @@ def gate_request(args: argparse.Namespace) -> int:
     print(f"Recorded agent confidence: {level}")
     if level in {"low", "unstated"}:
         print("Confidence is low/unstated; apply extra scrutiny before approving.")
+    bias = assumption_bias_warnings()
+    if bias:
+        print("Confirmation-bias watch (weigh before approving):")
+        for warning in bias:
+            print(f"- {warning}")
     if gate_mode() == "strict":
         print(f"Manual approval challenge: {challenge}")
         print("STRICT gate: a human must approve in a SEPARATE real OS terminal (the agent's")
@@ -667,7 +673,7 @@ def close_real_idea_seed_registers() -> None:
 def stage_complete(args: argparse.Namespace) -> int:
     phase = args.phase.upper()
     if phase not in PHASES:
-        print(f"Unknown phase: {phase}. Valid phases are P1-P9.")
+        print(f"Unknown phase: {phase}. Valid phases are P1-P10.")
         return 2
     text = read(STATE)
     current_status = phase_status(text, phase)
@@ -686,8 +692,8 @@ def stage_complete(args: argparse.Namespace) -> int:
     blocked_next = {
         "P3": "blocked_until_strategy_gate",
         "P5": "blocked_until_product_gate",
-        "P6": "blocked_until_architecture_gate",
-        "P8": "blocked_until_release_gate",
+        "P7": "blocked_until_architecture_gate",
+        "P9": "blocked_until_release_gate",
     }
     stamp = now()
     text = replace_phase_status(text, phase, "complete")
@@ -711,8 +717,8 @@ def stage_complete(args: argparse.Namespace) -> int:
               f"git init && git add -A && git commit -m \"idea2product: complete {phase}\"")
     if next_phase:
         print(f"Next phase: {next_phase}")
-    if phase in {"P3", "P5", "P6", "P8"}:
-        gate = {"P3": "strategy", "P5": "product", "P6": "architecture", "P8": "release"}[phase]
+    if phase in {"P3", "P5", "P7", "P9"}:
+        gate = {"P3": "strategy", "P5": "product", "P7": "architecture", "P9": "release"}[phase]
         print(f"Required next gate command: {PYTHON_CMD} .pipeline/scripts/pipeline.py gate request {gate}")
     return 0
 
@@ -720,7 +726,7 @@ def reopen(args: argparse.Namespace) -> int:
     phase = args.phase.upper()
     reason = (args.reason or "").strip()
     if phase not in PHASES:
-        print(f"Unknown phase: {phase}. Valid phases are P1-P9.")
+        print(f"Unknown phase: {phase}. Valid phases are P1-P10.")
         return 2
     if not reason:
         print("Reopen requires a non-empty --reason.")
@@ -766,6 +772,44 @@ def reopen(args: argparse.Namespace) -> int:
 
 def assumptions_due(_: argparse.Namespace) -> int:
     return subprocess.call([sys.executable, str(PIPE / "scripts" / "review_due.py")])
+
+def assumption_bias_warnings() -> list[str]:
+    """Non-blocking confirmation-bias watch over the assumption register.
+
+    The article's core warning -- "confirmation bias now has a research engine" --
+    becomes a guardrail only persistent state can run: flag assumptions closed
+    without user contact, closed with no disconfirming evidence, and a register
+    that is lopsided toward supporting evidence. Warnings, never errors; they only
+    fire when the provenance fields are actually populated (legacy entries stay quiet)."""
+    def as_int(value: object) -> int:
+        try:
+            return int(str(value).strip())
+        except (TypeError, ValueError):
+            return 0
+    warnings: list[str] = []
+    total_for = total_against = 0
+    for a in parse_register(ASSUMPTIONS):
+        method = a.get("validation_method", "")
+        if method == "n/a":
+            continue  # bookkeeping/seed assumptions are exempt from the desirability watch
+        ef, ea = as_int(a.get("evidence_for")), as_int(a.get("evidence_against"))
+        uc = as_int(a.get("user_contact_n"))
+        total_for += ef
+        total_against += ea
+        if a.get("status") == "closed":
+            if uc == 0 and method in {"desk_research", "founder_belief", "none"}:
+                warnings.append(
+                    f"{a.get('id')} closed without user contact "
+                    f"(validation_method={method or 'unset'}); confirm it did not need real users.")
+            if ef > 0 and ea == 0:
+                warnings.append(
+                    f"{a.get('id')} closed with {ef} supporting and 0 disconfirming data points "
+                    f"-- did you look for evidence against?")
+    if total_for and total_against * 3 <= total_for:
+        warnings.append(
+            f"register-wide asymmetry: {total_for} supporting vs {total_against} disconfirming "
+            f"data points -- you may be collecting only evidence that fits the hypothesis.")
+    return warnings
 
 def doctor(_: argparse.Namespace) -> int:
     issues: list[str] = []
@@ -813,10 +857,15 @@ def doctor(_: argparse.Namespace) -> int:
         rc = 1
     else:
         print("✓ healthy")
+    bias = assumption_bias_warnings()
+    if bias:
+        print("\nConfirmation-bias watch (non-blocking):")
+        for warning in bias:
+            print(f"- {warning}")
     if not speckit_available():
         print(
-            "Note (non-blocking): Spec Kit not detected. P7 hands off to speckit.* commands; "
-            f"install it ({SPECKIT_DOCS_URL}) to run the spec-driven flow. P7 still produces "
+            "Note (non-blocking): Spec Kit not detected. P8 hands off to speckit.* commands; "
+            f"install it ({SPECKIT_DOCS_URL}) to run the spec-driven flow. P8 still produces "
             "its Specify Packet without it."
         )
         if not uv_available():

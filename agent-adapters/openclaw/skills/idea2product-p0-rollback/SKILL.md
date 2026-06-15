@@ -33,7 +33,7 @@ you ask anything.
 Before running anything, ask the user and WAIT for answers to all three. Never infer or
 invent these:
 
-1. **目标阶段 / Target phase** — exactly which completed phase to roll back to (P1–P9)?
+1. **目标阶段 / Target phase** — exactly which completed phase to roll back to (P1–P10)?
 2. **涉及报告 / Affected reports** — which rejected or to-be-rewritten documents/reports
    triggered this rollback?
 3. **回退理由 / Reason** — the concrete fact, strategic change, or rework cause behind it?
@@ -57,8 +57,8 @@ the target:
 |------|-------|
 | strategy | P3 |
 | product | P5 |
-| architecture | P6 |
-| release | P8 |
+| architecture | P7 |
+| release | P9 |
 
 (e.g. reopening P5 clears product, architecture, and release; strategy stays because P3 < P5.)
 

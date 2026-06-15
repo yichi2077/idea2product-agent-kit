@@ -16,6 +16,9 @@ conditional_skills:
     when: "Use only after real experiment data exists."
   - name: $iterate-pivot-decision
     when: "Use only after validation evidence indicates a pivot/persevere decision is needed."
+non_skill_process:
+  - "Run $assumption-challenger as a REQUIRED red-team / pre-mortem on the product hypotheses before completing P4. Map desirability/viability/feasibility/usability assumptions, confirm each load-bearing claim traces to user evidence (not founder belief), and record gaps as assumptions/risks."
+  - "Recommended for desirability-risky ideas: build a customer-discovery plan from templates/interview-plan.md (who + where, bias-audited past-behavior questions, per-interview debrief, every-5 asymmetry guard), then synthesize with $discover-interview-synthesis. No hard floor — but if you skip real users, log it as an assumption (validation_method=none) so the doctor can flag it."
 required_context:
   - ".pipeline/state/pipeline-state.yaml"
   - ".pipeline/state/assumption-register.yaml"

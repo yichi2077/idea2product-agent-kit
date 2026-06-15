@@ -1,7 +1,21 @@
+# Assumption register — flat fields per `- id:` entry (parsed without PyYAML).
+# Provenance fields power the doctor's confirmation-bias watch:
+#   validation_method: user_interview | experiment | desk_research | founder_belief | none | n/a (bookkeeping, exempt from the watch)
+#   user_contact_n:    how many real target users informed this (integer)
+#   evidence_for / evidence_against: count of supporting vs disconfirming data points
+#   confidence:        high | med | low
+# When you CLOSE an assumption, fill these honestly — the doctor flags assumptions
+# closed without user contact, closed with zero disconfirming evidence, and a
+# register lopsided toward supporting evidence.
 assumptions:
   - id: A-0001
     statement: "First real idea is not supplied yet; pilot P1-P3 remains pending."
     owner: "user"
     evidence: []
+    validation_method: "n/a"
+    user_contact_n: 0
+    evidence_for: 0
+    evidence_against: 0
+    confidence: "low"
     status: "open"
     review_by: "2026-06-19"
