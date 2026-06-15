@@ -1,6 +1,6 @@
 # Pipeline User Guide
 
-The primary interface is skills: tell your agent *"Use idea2product-p0-guided-flow"* (or `$idea2product-p0-guided-flow` in Codex) and it operates the pipeline for you. The `pipeline.py` commands in this guide are what the **agent** runs on your behalf — the deterministic engine behind the skills. You can run the read-only ones (`status`, `handoff`) yourself to look under the hood, but the only command you run directly in normal use is **gate approval**, in a real terminal. Direct `pipeline_entry.py` initialization is a low-level tooling path; the recommended user path is guided-flow first, so onboarding captures the idea before scaffolding.
+The primary interface is skills: tell your agent *"Use idea2product-p0-guided-flow"* (or `$idea2product-p0-guided-flow` in Codex) and it operates the pipeline for you. The `pipeline.py` commands in this guide are what the **agent** runs on your behalf — the deterministic engine behind the skills. You can run the read-only ones (`status`, `handoff`) yourself to look under the hood. At a gate you simply approve in the chat — the default **light** mode records your decision in-agent; switch to **strict** mode (`pipeline.py gate mode strict`) if you want approval to require a separate real terminal. Direct `pipeline_entry.py` initialization is a low-level tooling path; the recommended user path is guided-flow first, so onboarding captures the idea before scaffolding.
 
 ## Start
 
@@ -35,7 +35,7 @@ These back the skills; the agent runs them for you (use `python3` on macOS/Linux
 | `pipeline.py reopen P5 --reason "…"` | rework a completed upstream phase and reset downstream |
 | `pipeline.py retire --reason "…"` | abandon a project pre-release after explicit confirmation |
 | `pipeline.py assumptions due` | assumptions and risks past their review date |
-| `pipeline_gate.py approve <gate>` | **you**, in a real OS terminal — approve a requested gate |
+| `pipeline_gate.py approve <gate> --rationale "…"` | approve a gate — **light** (default): the agent records your in-chat OK; **strict**: you run it in a real terminal |
 
 ## Codex Skills
 
@@ -59,21 +59,26 @@ All entry skills are self-bootstrapping through `$idea2product-p0-guided-flow`: 
 
 ## Other Agents
 
-This package includes adapters for Cursor, Claude Code, OpenCode, Hermes, OpenClaw, and generic `AGENTS.md`-compatible agents. Install them from the distribution package with:
+This package includes adapters for Cursor, Claude Code, OpenCode, Hermes, OpenClaw, and generic `AGENTS.md`-compatible agents. Install them cross-platform with:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/install_agent_adapters.ps1 -TargetPath C:\path\to\repo -Agent all
+```bash
+python3 scripts/install.py adapters /path/to/repo --agent all   # use `python` on Windows
 ```
 
 See `docs/AGENT-ADAPTERS.md`.
 
 ## Gates
 
-Agents can request a gate but cannot approve it. Approval requires a real terminal:
+Gates are human-owned: the agent can request a gate and can never *skip* one (the next
+phase stays blocked until you decide), but the decision is always yours. Two modes,
+switchable with `pipeline.py gate mode [light|strict]`:
 
-`python3 .pipeline/scripts/pipeline_gate.py approve strategy` on macOS/Linux, or `python .pipeline/scripts/pipeline_gate.py approve strategy` on Windows.
+- **light (default):** approve right in the agent chat. Tell the agent "approve" with a
+  one-line reason; it records your verdict with `pipeline_gate.py approve <gate> --rationale "<your reason>"`. No separate terminal.
+- **strict (opt-in):** the agent cannot approve at all. You run `python3 .pipeline/scripts/pipeline_gate.py approve strategy` (`python` on Windows) in a real OS terminal and type the challenge code. It refuses CI, pipes, redirects, and non-interactive shells.
 
-The command asks for the gate name and challenge. It refuses CI, pipes, redirects, and non-interactive shells.
+Either way the agent must first present the decision, its confidence, and the open
+assumptions/risks; it can never approve on its own.
 
 ### Confidence signal
 
@@ -81,7 +86,7 @@ When an agent requests a gate it should state how confident it is in the decisio
 
 `pipeline.py gate request strategy --confidence high|medium|low --rationale "what drives that confidence"`
 
-The level and rationale are recorded in `.pipeline/state/phase-metadata.json` and shown to you at approval time, so you can vary your scrutiny accordingly. A `low` or unstated confidence prints a caution before the challenge prompt. Confidence is advisory only — it never auto-approves or auto-rejects, because a self-rated score is not a reliable gate. Ground the rationale in the open assumptions and risks (`pipeline.py handoff`).
+The level and rationale are recorded in `.pipeline/state/phase-metadata.json` and shown to you at approval time, so you can vary your scrutiny accordingly. A `low` or unstated confidence prints a caution before you approve. Confidence is advisory only — it never auto-approves or auto-rejects, because a self-rated score is not a reliable gate. Ground the rationale in the open assumptions and risks (`pipeline.py handoff`).
 
 ## Handoff Brief
 

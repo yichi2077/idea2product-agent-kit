@@ -368,7 +368,9 @@ def run_phase(args: argparse.Namespace) -> int:
         print(f"Unknown phase: {phase}")
         return 2
     print(f"Recipe: {recipe.relative_to(ROOT)}")
-    print(read(recipe))
+    # Show the OS-correct interpreter (python3 on macOS/Linux, python on Windows) so the
+    # printed completion commands can be copy-pasted as-is.
+    print(read(recipe).replace("python .pipeline/scripts/", f"{PYTHON_CMD} .pipeline/scripts/"))
     speckit_tools = [t for t in recipe_external_tools(phase) if t.startswith("speckit")]
     if speckit_tools and not speckit_available():
         print()

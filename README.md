@@ -3,7 +3,7 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-green.svg)
 ![Agents](https://img.shields.io/badge/Agents-Claude%20Code%20%7C%20Codex%20%7C%20Cursor%20%7C%20OpenCode%20%7C%20Hermes%20%7C%20OpenClaw%20%7C%20Generic-purple.svg)
-![Version](https://img.shields.io/badge/Version-v1.0.0-orange.svg)
+![Version](https://img.shields.io/badge/Version-v1.1.0-orange.svg)
 
 **A portable, agent-driven workflow that takes you from raw idea to shipped product — 9 phases, 4 human-only gates, zero guesswork.** Designed for solo operators wearing strategy, PM, and engineering hats simultaneously. Works with any coding agent you already use.
 
@@ -30,7 +30,7 @@ The pipeline follows three expand-contract funnels. Each phase expands evidence 
 
 ```
  ══════════════════════════════════════════════════════════════════════
-  idea2product-agent-kit v1.0.0 — 9 Phases · 4 Gates
+  idea2product-agent-kit v1.1.0 — 9 Phases · 4 Gates
  ══════════════════════════════════════════════════════════════════════
 
   ┌──────────────────────────────────────────────────────────────────┐
@@ -66,11 +66,12 @@ The pipeline follows three expand-contract funnels. Each phase expands evidence 
   │   │very │        │niti-│        │Hand-│                         │
   │   │     │        │on   │        │off  │                         │
   │   └─────┘        └─────┘        └─────┘                         │
-  │                                  ▼                               │
-  │                           ╔═══════════╗                          │
-  │                           ║  GATE 2   ║  ← PRODUCT GATE         │
-  │                           ║ Product   ║    human approval        │
-  │                           ╚═══════════╝                          │
+  │              ▼                   ▼                               │
+  │       ╔═══════════╗       ╔═══════════╗                          │
+  │       ║  GATE 2   ║       ║  GATE 3   ║  ← human approval        │
+  │       ║ Product   ║       ║Architectu ║                          │
+  │       ║ after P5  ║       ║ after P6  ║                          │
+  │       ╚═══════════╝       ╚═══════════╝                          │
   └──────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -86,12 +87,11 @@ The pipeline follows three expand-contract funnels. Each phase expands evidence 
   │   │Spec │        │Rele-│        │Revi-│                         │
   │   │     │        │ase  │        │ew   │                         │
   │   └─────┘        └─────┘        └─────┘                         │
-  │           ▼                   ▼        ▼                         │
-  │    ╔═══════════╗       ╔═══════════╗                             │
-  │    ║  GATE 3   ║       ║  GATE 4   ║  ← RELEASE GATE           │
-  │    ║  Architec-║       ║  Release  ║    human approval          │
-  │    ║  ture     ║       ╚═══════════╝                             │
-  │    ╚═══════════╝                                                 │
+  │                     ▼                                            │
+  │              ╔═══════════╗                                       │
+  │              ║  GATE 4   ║  ← RELEASE GATE (after P8)           │
+  │              ║ Release   ║    human approval                     │
+  │              ╚═══════════╝                                       │
   └──────────────────────────────────────────────────────────────────┘
 ```
 
@@ -329,8 +329,8 @@ Gates are **human-owned decision points** that protect you from rushing past cri
 | Gate | After Phase | What You're Deciding |
 |------|------------|---------------------|
 | **Strategy Gate** | P3 | Is this idea worth pursuing? Should I build, buy, partner, or walk away? |
-| **Product Gate** | P6 | Is the product definition solid enough to commit to architecture? |
-| **Architecture Gate** | P7 | Is the technical plan sound enough to start building? |
+| **Product Gate** | P5 | Is the product definition solid enough to commit to architecture? |
+| **Architecture Gate** | P6 | Is the technical plan sound enough to start building? |
 | **Release Gate** | P8 | Is the product ready to ship to real users? |
 
 ### Gate Modes
