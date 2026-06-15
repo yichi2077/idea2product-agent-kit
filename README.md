@@ -2,193 +2,208 @@
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-green.svg)
-![Agents](https://img.shields.io/badge/Agents-Claude%20Code%20%7C%20Cursor%20%7C%20Codex%20%7C%20Generic-purple.svg)
-![Version](https://img.shields.io/badge/Version-v1.1.0-orange.svg)
+![Agents](https://img.shields.io/badge/Agents-Claude%20Code%20%7C%20Cursor%20%7C%20Codex%20%7C%20OpenCode%20%7C%20Generic-purple.svg)
+![Methodology](https://img.shields.io/badge/Methodology-Anthropic%20Founder's%20Playbook-8A2BE2.svg)
+![Version](https://img.shields.io/badge/Version-v2.0.0-orange.svg)
 
-`idea2product-agent-kit` is a local, state-driven workflow manager that guides AI coding agents (Claude Code, Cursor, Codex, etc.) through a structured software engineering lifecycle.
+**`idea2product-agent-kit` is the local, enforced, in-chat embodiment of [Anthropic's *Founder's Playbook*](https://claude.com/blog/the-founders-playbook).** It turns the playbook's central discipline — *validate before you build* — into a deterministic phase-gate state machine that your AI coding agent (Claude Code, Cursor, Codex, …) runs **inside the chat**, blocking premature code until the idea, strategy, product, and architecture are validated and approved.
 
-By running a lightweight Python state machine (`pipeline.py`) in your project, it prevents coding agents from writing code prematurely. It enforces planning, research, product specification, and architecture design in markdown before code generation begins.
+> *"42% of startups fail because they built something nobody wanted — and AI makes that failure mode more likely, not less, because a working prototype is so easily mistaken for proof."* — the problem the *Founder's Playbook* names, and the one this kit is built to prevent.
 
 ---
 
 ## Table of Contents
 
-- [Background](#background)
-  - [The Problem: Agent Drift](#the-problem-agent-drift)
-  - [The "Shift-Left" Philosophy](#the-shift-left-philosophy)
-  - [The Value for "Vibe Coders"](#the-value-for-vibe-coders)
-- [The Solution: A Phase-Gate State Machine](#the-solution-a-phase-gate-state-machine)
-- [Core Comparisons \& Advantages](#core-comparisons--advantages)
-- [Applicable Scope \& Scenarios](#applicable-scope--scenarios)
-  - [Project Boundary (Scope)](#project-boundary-scope)
-  - [Recommended Scenarios](#recommended-scenarios)
-- [Installation \& Quick Start](#installation--quick-start)
-- [Core Mechanics](#core-mechanics)
-  - [Human-in-the-Loop Gates](#human-in-the-loop-gates)
-  - [Auto-Git Commits](#auto-git-commits)
-  - [Integrated Diagnostics](#integrated-diagnostics)
-- [Documentation \& Customization](#documentation--customization)
+- [Why this exists](#why-this-exists)
+- [Built on the Founder's Playbook](#built-on-the-founders-playbook)
+- [How it works: a phase-gate state machine](#how-it-works-a-phase-gate-state-machine)
+- [What makes it different](#what-makes-it-different)
+- [Comparison](#comparison)
+- [Who it's for & when to use it](#who-its-for--when-to-use-it)
+- [Installation & Quick Start](#installation--quick-start)
+- [Core mechanics](#core-mechanics)
+- [Documentation & customization](#documentation--customization)
 - [Contributing](#contributing)
 - [License](#license)
 
 ---
 
-## Background
+## Why this exists
 
-### The Problem: Agent Drift
-When working with coding agents, a common pitfall is the lack of structured planning:
-1. The agent starts writing code immediately based on a raw prompt.
-2. Without a strategy scan, it may reinvent existing solutions or miss critical constraints.
-3. Without a product definition or technical architecture, code debt accumulates rapidly.
-4. The agent's context window collapses, resulting in refactoring loops and a fragmented codebase.
+In the AI era, products don't die because they're hard to build — they die because someone built a thing nobody wanted. Agentic coding collapses "idea → working prototype" to an afternoon, which makes it *easier* to skip the only thing that matters: evidence that the problem is real.
 
-### The "Shift-Left" Philosophy
-Most agentic tools focus heavily on the **"How"** (implementation, TDD, code generation). `idea2product` enforces a **Shift-Left** approach, standardizing the **"Why"** and **"What"** before any engineering decisions are made. 
+Left unchecked, an AI coding agent will:
+1. Start writing code immediately from a raw prompt.
+2. Reinvent solutions that already exist, and miss business/security constraints.
+3. Accumulate technical debt with no product definition or architecture to anchor it.
+4. Collapse its own context window into refactor loops and a fragmented codebase.
 
-By defining the business strategy and product scope first, you eliminate wasted engineering hours on unfeasible or redundant ideas.
-
-```
-       WHY?                    WHAT?                     HOW?
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────────┐
-│  P1 - P3        │────▶│  P4 - P6        │────▶│  P7 - P10           │
-│  Strategy &     │     │  Product        │     │  Architecture,      │
-│  Feasibility    │     │  Definition     │     │  Specs & Build      │
-└─────────────────┘     └─────────────────┘     └─────────────────────┘
-```
-
-### The Value for "Vibe Coders"
-If you build software based on intuition and rapid agent chats (Vibe Coding), this framework acts as a stabilizer:
-*   **Requirements Consolidation**: It forces you to map target user needs (P4 opportunity trees) and business feasibility (P2 financial models) to prevent scope creep.
-*   **A "Source of Truth" for your Agent**: 90% of agent code generation errors stem from a lack of context regarding business intent. The markdown artifacts created in phases P1-P5 (PRDs, risk registers) serve as a structured knowledge base. When you reach the build phase (P8), the agent references these local files, significantly reducing logical drift and hallucinations.
+This kit installs a **"shift-left"** discipline: standardize the **Why** and the **What** — *with evidence* — before any **How**. It is deliberately **agent-agnostic** and **local-first**: a lightweight Python state machine (`pipeline.py`) plus Markdown artifacts committed to your repo. No SaaS, no cloud lock-in.
 
 ---
 
-## The Solution: A Phase-Gate State Machine
+## Built on the Founder's Playbook
 
-`idea2product-agent-kit` organizes the workspace into **10 linear phases** and **4 human-in-the-loop gates**. The CLI engine blocks the agent from progressing to code generation until the preceding design and architecture gates are manually approved.
+This kit does not just *reference* the *Founder's Playbook* — it **operationalizes its Idea + MVP methodology** as an enforced workflow. Where the playbook is prose advice an AI can quietly ignore, the kit makes the advice **structural**: required steps, human gates, and checks the engine itself runs.
 
-### The 10-Phase Workflow
+| Founder's Playbook principle | How the kit enforces it |
+| :--- | :--- |
+| Turn the idea into a **falsifiable hypothesis** | **P1** idea brief: persona · frequency · quantified loss · current workaround |
+| **Map the competitive landscape** (don't be blind to rivals) | **P2** existing-solutions scan: 4 layers (direct / indirect / acquirers / adjacent) + competitor **review-mining** + **steelman-the-rival** |
+| Run **customer discovery** — ask about *past behavior*, not future intent | **P4** interview-plan: bias-audited questions, per-interview debrief, every-5 **asymmetry guard** |
+| Use AI as a **structured devil's advocate at every stage** | Required red-team / pre-mortem at **P2–P4**, fresh-context PM critic at **P5**, architecture red-team at **P7** |
+| *"Confirmation bias now has a research engine"* | **Evidence-provenance** fields + the **confirmation-bias watch**: `doctor` and every gate flag assumptions closed *without user contact*, *without disconfirming evidence*, or a register skewed toward supporting evidence |
+| *"The prototype is not evidence — the conversations are"* | **P6 Validation Prototype**: build the single core interaction, test with ~5 target users, decide go / pivot / waive *before* committing to a full build |
+| Protect MVP scope — *"real user signal, or founder enthusiasm?"* | **P5** PRD: explicit **non-goals** + an **evidence-gated feature-add bar** |
+| A **security review before any user touches it** | **P9** recommended pre-release security review (auth, leakage, injection, CVE deps) |
+| Iterate toward **evidence (PMF)**, not perfection | **P6 / P10** PMF instruments: Sean Ellis 40% · effort (push vs pull) · the three R's, plus pivot diagnostics |
 
-| Phase | Description | Outputs | Gate Check |
-|-------|-------------|---------|------------|
-| **P1** | Idea Brief | `docs/00-idea/idea-brief.md` | - |
-| **P2** | Strategy Research | Solutions scan, market analysis, risk register | - |
-| **P3** | Strategy Decision | Build/buy/partner memo, product thesis | **Strategy Gate** |
-| **P4** | Product Discovery | JTBD canvas, opportunity tree, lean canvas | - |
-| **P5** | Product Definition | PRD, user stories, acceptance criteria | **Product Gate** |
-| **P6** | Validation Prototype | Single core interaction tested with ~5 users (waivable) | - |
-| **P7** | Architecture Handoff| ADRs, spikes, traceability matrix | **Architecture Gate** |
-| **P8** | Feature Spec | Test-driven feature specifications | - |
-| **P9** | Build & Release | Verified implementation, release checklist | **Release Gate** |
-| **P10** | Outcome Review | Post-launch hypothesis measurement | - |
+> **Scope note (honest):** the kit fully embodies the playbook's **Idea** and **MVP** methodology. The playbook's **Launch / Scale** material is mostly *operations* (founder-attention workflows, growth staffing, compliance programs) and is intentionally **out of scope** — this kit is a 0→1 validation-and-build pipeline, not an ops platform. The full mapping, rationale, and audits live in [`docs/founder-playbook-review/`](docs/founder-playbook-review/).
 
 ---
 
-## Core Comparisons & Advantages
+## How it works: a phase-gate state machine
 
-| Feature / Aspect | `idea2product` Workflow | Ad-hoc Agent Usage (Aider, Claude Code, Cursor) | Multi-Agent Frameworks (CrewAI, AutoGen) |
+The workspace is organized into **10 linear phases** and **4 human-in-the-loop gates**. The engine refuses to advance — and especially refuses to let the agent write product code — until each gate is approved.
+
+```
+       WHY?                      WHAT?                        HOW?
+┌─────────────────┐     ┌─────────────────────┐     ┌─────────────────────┐
+│  P1 – P3        │────▶│  P4 – P6            │────▶│  P7 – P10           │
+│  Strategy &     │     │  Product Definition │     │  Architecture,      │
+│  Feasibility    │     │  & Validation       │     │  Specs & Build      │
+└─────────────────┘     └─────────────────────┘     └─────────────────────┘
+```
+
+| Phase | Description | Key outputs | Gate |
+|-------|-------------|-------------|------|
+| **P1** | Idea Brief | Falsifiable hypothesis, cost of doing nothing, stop conditions | — |
+| **P2** | Strategy Research | Existing-solutions scan (use/buy/partner/build), market analysis, risk register | — |
+| **P3** | Strategy Decision | Build/buy/partner memo, strategy red-team, moat check | **Strategy Gate** |
+| **P4** | Product Discovery | JTBD, opportunity tree, lean canvas, **interview plan** | — |
+| **P5** | Product Definition | PRD (non-goals + evidence-gated scope), user stories, PM critique | **Product Gate** |
+| **P6** | **Validation Prototype** | Single core interaction tested with ~5 users; go/pivot/waive *(waivable)* | — |
+| **P7** | Architecture Handoff | ADRs, spikes, feature map, traceability matrix | **Architecture Gate** |
+| **P8** | Feature Spec | Test-driven, Spec-Kit-ready feature packets | — |
+| **P9** | Build & Release | Verified implementation, security review, release decision | **Release Gate** |
+| **P10** | Outcome Review | Post-launch hypothesis measurement, PMF signals, pivot/persevere | — |
+
+Everything is driven from **inside your agent's chat**: say `run p1` or `next`, and the agent runs the engine, follows the phase recipe, and produces the Markdown artifacts. The only action a human takes directly is approving a gate.
+
+---
+
+## What makes it different
+
+- 🧭 **Evidence over enthusiasm.** A persistent **assumption register** tracks *how* each claim was validated (real users? experiment? desk research?). The engine's **confirmation-bias watch** flags self-deception before a gate — the one thing prose advice can't do for you.
+- 🧪 **A real validation step, not just a prototype.** P6 forces the playbook's hardest lesson into the workflow: build one interaction, put it in front of real people, and let *their behavior* decide go/pivot — before you sink weeks into a full build.
+- 🛑 **Deterministic, not autonomous.** A state machine with human gates — no runaway agent loops, no "AI testing AI."
+- 🧱 **Low context overhead.** The agent only ever loads the active phase and its deliverables, so context doesn't collapse on long projects.
+- 🔒 **Local-first, zero SaaS.** YAML state + Markdown reports live in your Git repo. No external service sees your idea.
+- 🤖 **Agent-agnostic & skills-based.** Works across Claude Code, Cursor, Codex, OpenCode, Hermes, OpenClaw, and any AGENTS.md agent — entirely via skills / natural language in the chat.
+- 📋 **A source of truth for your agent.** The artifacts from P1–P5 become the agent's grounding context at build time, dramatically cutting hallucination and logical drift.
+
+---
+
+## Comparison
+
+| Aspect | `idea2product` | Ad-hoc agent use (Aider, Claude Code, Cursor) | Multi-agent frameworks (CrewAI, AutoGen) |
 | :--- | :--- | :--- | :--- |
-| **Execution Path** | **Deterministic state machine**. Enforces planning documents before code. | **Ad-hoc generation**. Starts writing code immediately without specifications. | **Autonomous loops**. High risk of agent loop drift and unpredictable code quality. |
-| **Context Overhead** | **Low**. Focuses agent context only on the active phase and deliverables. | **High**. Prompts quickly accumulate mixed history, leading to context collapse. | **Extremely High**. Multiple agents chatting increases token cost and noise. |
-| **Quality Control** | **Human-in-the-loop gates**. Blocks progression until human approvals are logged. | **Manual review post-generation**. Harder to catch architectural flaws early. | **Self-validation**. Relies on AI-testing-AI, which often misses edge cases. |
-| **Privacy & Cost** | **Local-first (Zero SaaS)**. YAML state and Markdown reports committed to Git. | **Local-first**. | **Often Cloud-reliant**. Can run up high API fees during recursive runs. |
+| **Execution** | Deterministic state machine; planning docs **before** code | Ad-hoc generation; code first, specs maybe | Autonomous loops; high drift risk |
+| **Validation** | **Evidence-tracked** with a confirmation-bias guard | None — vibes | Self-validation (AI checks AI) |
+| **Context** | Low — active phase only | High — mixed history collapses context | Very high — chatty agents burn tokens |
+| **Quality control** | Human-in-the-loop gates, logged | Manual post-hoc review | Often misses edge cases |
+| **Privacy & cost** | Local-first, zero SaaS | Local-first | Often cloud-reliant, high API cost |
 
 ---
 
-## Applicable Scope & Scenarios
+## Who it's for & when to use it
 
-### Project Boundary (Scope)
-*   **In-Scope (What it's built for):**
-    *   **0-to-1 MVP Development:** Setting up a clean, architected repository with validated assumptions.
-    *   **Large Feature Extensions (1-to-N):** Isolating a major new feature (e.g., adding billing or OAuth) and running it through research and specification before coding.
-    *   **Spikes & Feasibility Studies:** Exploring technical unknowns using Phase 6 Spikes.
-*   **Out-of-Scope (What it's NOT for):**
-    *   **Hotfixes & Tiny Tweaks:** Running a 9-phase pipeline to fix a typo or modify a single line of CSS adds unnecessary overhead.
-    *   **Monolithic Legacy Systems:** Highly coupled codebases where linear phase-gate transitions are too rigid.
-    *   **Autonomous Code Generation:** This kit does not generate code without human validation; it is strictly an interactive pipeline.
+**Best for**
+- **Solo operators & indie hackers** — stops you building for an unvalidated audience (P4) with unvalidated economics (P2).
+- **Technical product managers** — generates clean PRDs, acceptance criteria, and architecture handoffs as local Markdown, ready for a dev team.
+- **Engineering leads** — enforces a design-first, TDD culture across AI-assisted developers.
 
-### Recommended Scenarios
-*   **Solo Operators & Indie Hackers:** Restrains you from writing code for features without validating target users (P4) and unit economics (P2).
-*   **Technical Product Managers:** Generates clean PRDs, acceptance criteria, and architecture decisions in local markdown files, ready to hand off to developers.
-*   **Engineering Leads:** Enforces a standardized TDD (Test-Driven Development) and design-first culture across AI-assisted developer workflows.
+**In scope:** 0→1 MVPs · large 1→N feature extensions (billing, OAuth, …) · spikes & feasibility studies (P7).
+
+**Out of scope:** hotfixes & tiny tweaks (a 10-phase pipeline is overkill for a typo) · highly-coupled legacy monoliths · fully autonomous, unattended code generation.
 
 ---
 
 ## Installation & Quick Start
 
-### Prerequisites
-- **Python 3.10+** (standard library only)
-- **Git**
-- A compatible coding agent (Claude Code, Cursor, etc.)
+**Prerequisites:** Python 3.10+ (standard library only) · Git · a compatible coding agent.
 
-### 1. Installation
-Run the installer script to scaffold the `.pipeline` folder and generate the configuration adapter for your agent:
-
+### One-shot onboarding (recommended)
 ```bash
-# Clone the repository
 git clone https://github.com/yichi2077/idea2product-agent-kit.git
 
-# Scaffold your target project directory
+# Install skills + scaffold the engine + wire your host adapter (auto-detected)
+python3 idea2product-agent-kit/scripts/install.py init /path/to/your-project
+```
+
+### Or step by step
+```bash
+# Scaffold the .pipeline engine + docs into your project
 python3 idea2product-agent-kit/scripts/install.py scaffold /path/to/your-project
 
-# Install agent instructions (e.g., Claude Code, Cursor)
+# Install the agent adapter (e.g. Claude Code)
 python3 idea2product-agent-kit/scripts/install.py adapters /path/to/your-project --agent claude-code
 ```
+*For Cursor, Codex, OpenCode, Hermes, OpenClaw, or a generic AGENTS.md agent, see the [Technical Deep Dive](docs/TECHNICAL-DEEP-DIVE.md#1-installation-details-per-agent).*
 
-*For other agents (Cursor, Codex, Hermes, OpenClaw, Generic), refer to the [Technical Deep Dive](docs/TECHNICAL-DEEP-DIVE.md#1-installation-details-per-agent).*
-
-### 2. Start a Project
-In your coding agent, navigate to your project directory and start the guided flow:
-
-```bash
-# Run the first phase
-python3 .pipeline/scripts/pipeline.py run p1
+### Start
+In your agent's chat, just say:
 ```
-*(Or simply tell your agent: `run p1` or `next` if you have linked the instructions).*
+run p1     (or: next)
+```
+The agent will ask for your idea and walk you through the pipeline. Everything runs in the conversation.
 
 ---
 
-## Core Mechanics
+## Core mechanics
 
-### Human-in-the-Loop Gates
-The state machine blocks phase progression until approval is recorded in `.pipeline/state/pipeline-state.yaml`.
-- **Light Mode (Default)**: Review documents in the agent's chat, then instruct the agent to approve (e.g., `"approve the strategy gate with rationale: economics validated"`). The agent runs `pipeline_gate.py` to record it.
-- **Strict Mode**: Prevent the agent from self-approving. The engine requires a challenge code entered manually in a separate, physical terminal. Switch mode using:
+### Human-in-the-loop gates
+Progression is blocked until approval is recorded in `.pipeline/state/pipeline-state.yaml`.
+- **Light mode (default):** review the documents in chat, then tell the agent to approve (e.g. *"approve the strategy gate — economics validated"*). The agent records it.
+- **Strict mode:** the agent cannot self-approve; the engine requires a challenge code typed in a separate terminal.
   ```bash
   python3 .pipeline/scripts/pipeline.py gate mode strict
   ```
 
-### Auto-Git Commits
-To keep a clean audit trail, the state machine automatically commits all documentation and state changes at the end of each phase with a standardized message:
-`[pipeline] complete P2: Strategy Research`
+### Confirmation-bias watch
+At `doctor` and at every gate, the engine surfaces non-blocking warnings when an assumption was closed **without user contact**, **without any disconfirming evidence**, or when the register skews toward supporting evidence — so you weigh real evidence, not wishful thinking, before committing.
 
-### Integrated Diagnostics
-Run the health check command to verify state consistency, detect missing deliverables, or audit unresolved assumptions:
+### Integrated diagnostics
 ```bash
-python3 .pipeline/scripts/pipeline.py doctor
+python3 .pipeline/scripts/pipeline.py doctor     # state consistency, missing deliverables, bias watch
+python3 .pipeline/scripts/pipeline.py status     # current phase, gates, blockers
+python3 .pipeline/scripts/pipeline.py handoff    # consolidated brief: decisions, open assumptions/risks
 ```
+
+### Git audit trail
+At the end of each phase the agent commits the docs + state with a standardized message (e.g. `idea2product: complete P2`), giving you a clean, reviewable history. Nothing is ever pushed automatically.
 
 ---
 
-## Documentation & Customization
+## Documentation & customization
 
-- **Advanced Options**: Custom adapters, project upgrades, and Spec Kit integration details are documented in the **[Technical Deep Dive & User Guide](docs/TECHNICAL-DEEP-DIVE.md)**.
-- **Templates & Recipes**: You can customize phase workflows in `.pipeline/recipes/p*.yaml` and change document templates in `.pipeline/templates/`.
+- **Methodology, mapping & audits:** [`docs/founder-playbook-review/`](docs/founder-playbook-review/) — how each playbook principle is landed, plus fidelity, UX, and end-to-end validation reports.
+- **Advanced setup, per-agent install, Spec Kit:** [Technical Deep Dive & User Guide](docs/TECHNICAL-DEEP-DIVE.md).
+- **Customize the flow:** edit phase recipes in `.pipeline/recipes/p*.yaml` and document templates in `.pipeline/templates/`.
+- **Changelog:** [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
 ## Contributing
 
-We welcome contributions from the community to improve the pipeline engine, adapters, and templates.
-
-1. **Fork** the repository.
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`).
-3. **Commit** your changes with clear description.
-4. **Push** to the branch and open a **Pull Request**.
-
-Before opening a PR, run the kit integrity checks: `python3 scripts/sync_bundled_copies.py --check` and `python3 scripts/check_skill_refs.py --check`.
-
-For major modifications, please open an issue first to discuss your proposed changes.
+1. **Fork** the repo and create a feature branch (`git checkout -b feature/amazing-feature`).
+2. Make your changes with a clear description.
+3. Before opening a PR, run the integrity checks:
+   ```bash
+   python3 scripts/sync_bundled_copies.py --check
+   python3 scripts/check_skill_refs.py
+   ```
+4. **Push** and open a **Pull Request**. For major changes, open an issue first to discuss.
 
 ---
 

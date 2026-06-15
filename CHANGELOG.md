@@ -2,7 +2,9 @@
 
 All notable changes to `idea2product-agent-kit`.
 
-## [Unreleased] — Founder's-Playbook validation increments
+## [2.0.0] — 2026-06-15 — Founder's-Playbook validation increments
+
+> **Major release.** The phase renumber (P6→P7, P7→P8, P8→P9, P9→P10) plus the new **P6 Validation Prototype** phase is a **breaking change** to public phase/skill identifiers — existing installs that reference `idea2product-p6..p9-*` by name must update.
 
 Brings Anthropic's *Founder's Playbook* validation methodology into the pipeline, applied under a first-principles / "如无必要勿增实体" filter. Full review, rationale, and decision log in [`docs/founder-playbook-review/`](docs/founder-playbook-review/).
 
