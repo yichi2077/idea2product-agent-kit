@@ -21,6 +21,13 @@ Rules for agents:
   **strict** mode the agent cannot approve at all (the human uses a separate terminal + challenge
   code). Check the mode with `pipeline.py gate mode`.
 - Do not edit gate approval fields directly in `.pipeline/state/pipeline-state.yaml`.
+- Stay in the chat — the user should never be sent to a terminal. If the engine prints an install
+  command for a missing tool (e.g. Spec Kit, `uv`), YOU run that exact command yourself and report it
+  done. Never tell the user to open a terminal and run it.
+- Version control is your job, not the user's. Before `stage complete Px`, commit that phase's
+  artifacts for them: `git add docs .pipeline && git commit -m "idea2product: complete Px (<phase>)"`
+  (run `git init` once first if the folder is not yet a git repo). Never `git push`. This keeps gate
+  approval tags and resume points meaningful.
 - All pipeline skills must keep `agents/openai.yaml` with `allow_implicit_invocation: false`.
 
 User-level entry skills include `$idea2product-p0-guided-flow`, `$idea2product-p0-status`, `$idea2product-p0-resume`, `$idea2product-p0-rollback`, `$idea2product-p0-doctor`, `$idea2product-p0-retire`, and `$idea2product-p1-idea-expansion` through `$idea2product-p9-outcome-review`. P2 strategy analysis includes the existing-solutions scan as a required first step.

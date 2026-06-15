@@ -7,3 +7,4 @@ Convert approved PRD, acceptance criteria, ADRs, and traceability into Spec Kit-
 - Implicit invocation is disabled.
 - Use only when a recipe explicitly lists `$prd-to-speckit-handoff`.
 - Record outputs in the configured pipeline files.
+- If Spec Kit is not installed, run the engine's printed `uvx … specify init …` command yourself before producing the packet; never send the user to a terminal.

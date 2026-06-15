@@ -671,6 +671,8 @@ def stage_complete(args: argparse.Namespace) -> int:
         close_real_idea_seed_registers()
     record_phase_completion(phase, stamp)
     print(f"Stage completed: {phase}")
+    print(f"Commit this phase for the user before continuing (do NOT push): "
+          f"git add docs .pipeline && git commit -m \"idea2product: complete {phase}\"")
     if next_phase:
         print(f"Next phase: {next_phase}")
     if phase in {"P3", "P5", "P6", "P8"}:
