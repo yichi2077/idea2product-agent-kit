@@ -365,7 +365,7 @@ def run_phase(args: argparse.Namespace) -> int:
     phase = args.phase.upper()
     recipe = recipe_path(phase)
     if not recipe:
-        print(f"Unknown phase: {phase}")
+        print(f"Unknown phase: {phase}. Valid phases are P1-P9.")
         return 2
     print(f"Recipe: {recipe.relative_to(ROOT)}")
     # Show the OS-correct interpreter (python3 on macOS/Linux, python on Windows) so the
@@ -450,7 +450,7 @@ def gate_mode_cmd(args: argparse.Namespace) -> int:
 def gate_request(args: argparse.Namespace) -> int:
     gate = args.gate.lower()
     if gate not in GATES:
-        print(f"Unknown gate: {gate}")
+        print(f"Unknown gate: {gate}. Valid gates: strategy, product, architecture, release.")
         return 2
     precondition_errors = gate_precondition_errors(gate)
     if precondition_errors:
@@ -655,7 +655,7 @@ def close_real_idea_seed_registers() -> None:
 def stage_complete(args: argparse.Namespace) -> int:
     phase = args.phase.upper()
     if phase not in PHASES:
-        print(f"Unknown phase: {phase}")
+        print(f"Unknown phase: {phase}. Valid phases are P1-P9.")
         return 2
     text = read(STATE)
     current_status = phase_status(text, phase)
@@ -704,7 +704,7 @@ def reopen(args: argparse.Namespace) -> int:
     phase = args.phase.upper()
     reason = (args.reason or "").strip()
     if phase not in PHASES:
-        print(f"Unknown phase: {phase}")
+        print(f"Unknown phase: {phase}. Valid phases are P1-P9.")
         return 2
     if not reason:
         print("Reopen requires a non-empty --reason.")
