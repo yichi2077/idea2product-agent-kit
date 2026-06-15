@@ -5,6 +5,7 @@ Works the same on Windows, macOS, and Linux. Python is the only requirement
 (the same Python the pipeline already needs) -- no PowerShell, no bash.
 
 Subcommands:
+  init [repo]         One-shot onboarding: skills + scaffold + adapters (auto-detects host).
   skills              Install the 15 entry skills into the user's agent skill dir(s).
   scaffold <repo>     Create the .pipeline engine + docs inside a target repository.
   adapters <repo>     Install host adapter files into a target repository.
@@ -20,10 +21,12 @@ Examples:
   python3 scripts/install.py upgrade /path/to/repo
   python3 scripts/install.py speckit                      # show Spec Kit status + install commands
   python3 scripts/install.py speckit --install            # run the per-project Spec Kit init (needs uv)
+  python3 scripts/install.py init /path/to/new-project    # one-shot onboarding (recommended)
 """
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
 import subprocess
 import sys
@@ -253,6 +256,34 @@ def cmd_upgrade(args: argparse.Namespace) -> int:
 
 # ---------------------------------------------------------------- main
 
+def detect_host() -> str:
+    """Best-effort host detection from environment so `init` needs no flag."""
+    env = os.environ
+    if env.get("CODEX") or env.get("CODEX_SANDBOX"):
+        return "codex"
+    if env.get("CLAUDE_CODE") or env.get("CLAUDECODE") or env.get("ANTHROPIC_AGENT"):
+        return "claude-code"
+    if env.get("CURSOR_TRACE_ID") or env.get("CURSOR"):
+        return "cursor"
+    return "claude-code"
+
+
+def cmd_init(args: argparse.Namespace) -> int:
+    """One-shot onboarding: install skills, scaffold the engine, wire the host adapter.
+
+    Designed to be run by the agent on the user's behalf so onboarding is a single
+    command (no git/python steps for the user to type)."""
+    repo = Path(args.repo).resolve()
+    host = args.agent or detect_host()
+    print(f"Initializing idea2product in {repo} (host: {host})\n")
+    cmd_skills(argparse.Namespace(target="both"))
+    cmd_scaffold(argparse.Namespace(repo=str(repo)))
+    cmd_adapters(argparse.Namespace(repo=str(repo), agent=host, install_user_skills=False))
+    print(f"\n✓ idea2product ready in {repo}.")
+    print("In your agent, say:  run p1   (or invoke $idea2product-p0-guided-flow)")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(prog="install.py", description="idea2product cross-platform installer")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -279,6 +310,13 @@ def main() -> int:
     sk.add_argument("--project", default=".", help="project dir to init Spec Kit in (default: current dir)")
     sk.add_argument("--install", action="store_true", help="run the per-project Spec Kit init (requires uv)")
     sk.set_defaults(func=cmd_speckit)
+
+    ini = sub.add_parser("init", help="one-shot onboarding: skills + scaffold + adapters (auto-detects host)")
+    ini.add_argument("repo", nargs="?", default=".")
+    ini.add_argument("--agent",
+                     choices=["all", "codex", "cursor", "claude-code", "opencode", "hermes", "openclaw", "generic"],
+                     default=None, help="host adapter to wire (default: auto-detect from environment)")
+    ini.set_defaults(func=cmd_init)
 
     args = parser.parse_args()
     return args.func(args)

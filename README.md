@@ -106,6 +106,21 @@ The pipeline follows three expand-contract funnels. Each phase expands evidence 
 - A coding agent (one or more from the list below)
 - **Spec Kit** — _optional_. Phase **P7** hands its Specify Packet off to [github/spec-kit](https://github.com/github/spec-kit)'s `speckit.*` commands for spec-driven delivery. The pipeline runs fine without it (P7 still produces the packet); installing it unlocks the full P7 → P8 flow. See [Spec Kit (optional)](#spec-kit-optional) below.
 
+### Zero-Terminal Onboarding (recommended)
+
+You don't have to run any commands yourself. Open your agent (Claude Code, Codex, Cursor…) in an **empty folder** and just say:
+
+> *Initialize an idea2product project here.*
+
+The agent clones the kit and runs the one-shot `init` for you — installing the skills, scaffolding the `.pipeline/` engine, and wiring the host adapter (auto-detected). One sentence, zero terminal typing. What the agent runs on your behalf:
+
+```bash
+git clone https://github.com/yichi2077/idea2product-agent-kit.git /tmp/idea2product-agent-kit
+python3 /tmp/idea2product-agent-kit/scripts/install.py init .
+```
+
+Then tell it `run p1` to start. Prefer to set things up by hand? Use the per-agent steps below.
+
 ### Install for Your Agent
 
 ```bash

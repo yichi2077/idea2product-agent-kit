@@ -98,6 +98,21 @@
 - 一个编程智能体（从下方列表中选择一个或多个）
 - **Spec Kit** — _可选_。阶段 **P7** 会把生成的 Specify Packet 交给 [github/spec-kit](https://github.com/github/spec-kit) 的 `speckit.*` 命令做规格驱动交付。不装也能跑（P7 仍会产出 packet），装上则解锁完整的 P7 → P8 流程。详见下方「Spec Kit（可选）」一节。
 
+### 零终端上手（推荐）
+
+你不需要自己敲任何命令。在一个**空文件夹**里打开你的智能体（Claude Code、Codex、Cursor……），直接对它说：
+
+> *帮我初始化一个 idea2product 项目。*
+
+智能体会替你克隆工具包并运行一键 `init`——安装技能、搭建 `.pipeline/` 引擎、并自动识别并接上对应的宿主适配器。一句话，零终端敲击。智能体替你执行的其实是：
+
+```bash
+git clone https://github.com/yichi2077/idea2product-agent-kit.git /tmp/idea2product-agent-kit
+python3 /tmp/idea2product-agent-kit/scripts/install.py init .
+```
+
+然后对它说 `run p1` 即可开始。想手动搭建？用下面的分智能体步骤。
+
 ### 为你的智能体安装
 
 ```bash
