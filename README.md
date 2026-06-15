@@ -497,9 +497,9 @@ Yes. Run `python3 scripts/install.py adapters /path/to/your-project` with differ
 
 Use `resume` to pick up where you left off. Pipeline state is saved to `.pipeline/state/` after every meaningful step. You can also run `doctor` to check for any inconsistencies.
 
-### Why must gate approval happen in a real terminal?
+### How do I approve a gate?
 
-Gates are irreversible decision points. The random challenge + note system prevents accidental approvals and ensures you're making a deliberate, documented choice — not just clicking through prompts.
+By default (**light** mode) you approve right in the agent chat — tell the agent "approve" with a one-line reason and it records your verdict. The agent can request a gate but can never *skip* it or approve without your explicit decision, and every approval is logged. If you want a harder guarantee that the agent *cannot* approve at all, switch to **strict** mode (`pipeline.py gate mode strict`): approval then happens only in a separate real terminal with a random challenge code.
 
 ### Can I customize the templates?
 
