@@ -8,5 +8,7 @@
 - `agent-adapters/` — host wiring for Claude Code, Codex, Cursor, OpenCode, Hermes,
   OpenClaw, and generic AGENTS.md agents. Hermes/OpenClaw embed a full mirror of
   `skills/`.
-- `scripts/` — `install.py` plus Windows wrappers for user skill install, adapter
-  install, and repo scaffolding.
+- `scripts/` — `install.py`, the cross-platform installer with `init` (one-shot
+  onboarding), `skills`, `scaffold`, `adapters`, `upgrade`, and `speckit` subcommands;
+  `sync_bundled_copies.py`, which keeps the bundled copies in sync; and optional
+  Windows `.ps1` convenience wrappers.
