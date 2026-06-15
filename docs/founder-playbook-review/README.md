@@ -14,5 +14,6 @@ A deep review of Anthropic's **[The Founder's Playbook](https://claude.com/blog/
 | [07-playbook-fidelity-audit.md](07-playbook-fidelity-audit.md) | Final audit: does the kit embody the playbook's full methodology + spirit? (closed loop) |
 | [08-ux-skills-invocation-audit.md](08-ux-skills-invocation-audit.md) | UX audit: every feature reachable in-chat via skill/NL, nothing forced to a terminal (2 fixes) |
 | [09-e2e-validation-report.md](09-e2e-validation-report.md) | Sandbox P1→P10 dry-run (no code): all phases/gates pass; 1 bug found + fixed (bias-watch false positive) |
+| [10-50-lens-audit-and-final-plan.md](10-50-lens-audit-and-final-plan.md) | Current 50-lens audit pass: article + official playbook + live repo, with final no-new-gate plan |
 
 **Headline:** the kit already encoded ~70% of the methodology; we landed the rest under a first-principles / Occam filter. Idea + MVP methodology is now **fully embodied** — and **exceeded** on the playbook's central warning: *"confirmation bias now has a research engine"* is turned into a guardrail the `doctor`/`gate` enforce over evidence provenance. Headline structural change: a new **P6 Validation Prototype** phase (pipeline now P1–P10). Launch/Scale ops are a deliberate scope boundary. See [07](07-playbook-fidelity-audit.md).

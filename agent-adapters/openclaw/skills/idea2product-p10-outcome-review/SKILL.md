@@ -1,11 +1,13 @@
 ---
 name: idea2product-p10-outcome-review
-description: "Review real outcomes after release, decide continue, scale, iterate, pivot, pause, or retire, and update assumptions, risks, decision log, PRD, or ADRs rather than only writing a retrospective. Use when the user explicitly asks for idea2product-P10-outcome-review, P10, phase 10, or this step of the idea-to-product pipeline."
+description: "Review real outcomes after release, distinguish product-market-fit signal from launch noise, decide continue, scale, iterate, pivot, pause, or retire, and update assumptions, risks, decision log, PRD, or ADRs rather than only writing a retrospective. Use when the user explicitly asks for idea2product-P10-outcome-review, P10, phase 10, or this step of the idea-to-product pipeline."
 ---
 
 # idea2product-P10-outcome-review
 
-Review real outcomes after release, decide continue, scale, iterate, pivot, pause, or retire, and update assumptions, risks, decision log, PRD, or ADRs rather than only writing a retrospective.
+Review real outcomes after release, distinguish product-market-fit signal from
+launch noise, decide continue, scale, iterate, pivot, pause, or retire, and update
+assumptions, risks, decision log, PRD, or ADRs rather than only writing a retrospective.
 
 ## Required Workspace
 
@@ -31,6 +33,13 @@ Then follow the printed recipe exactly. The recipe separates required skills, co
 ## Main Output
 
 `docs/40-delivery/outcome-review.md`
+
+## Founder's Playbook Focus
+
+Use the PMF instruments in the template: Sean Ellis "very disappointed" signal,
+effort/pull test, and the three R's (retention, revenue, referral). Treat friends,
+investor excitement, and launch spikes as weak evidence unless they predict
+weeks-6-to-12 retention or repeated pull from the target segment.
 
 ## Rules
 

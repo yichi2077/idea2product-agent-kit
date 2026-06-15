@@ -1,6 +1,13 @@
 # 04 — Incremental Development Plan
 
 > Derived from [03 decisions](03-gap-analysis-and-decisions.md). Grounded in the real engine: recipes' `outputs:` drive required-artifact checks (`phase_outputs`/`stage_complete`), `gate_precondition_errors()` enforces content preconditions (e.g. the P2 "User Decision: pending" block), and `doctor()` + `validate_state_invariants()` report consistency. Increments are template/recipe/register-first; only G8 touches the engine.
+>
+> Status note (2026-06-15): this is the pre-implementation plan that guided the
+> increment, not the current contract. The final implementation chose the Occam
+> path documented in [06](06-occam-dev-plan.md), [07](07-playbook-fidelity-audit.md),
+> and [09](09-e2e-validation-report.md): P6 exists; evidence provenance exists;
+> P9 security review is recommended and visible before Release Gate, not a hard
+> `security-review.md` precondition.
 
 ## Engine constraints to respect (discovered, not assumed)
 
@@ -92,11 +99,11 @@
 - **Accept:** `doctor` surfaces the three warnings on a register that has validated-but-unsupported or lopsided assumptions; clean on a balanced one.
 - **Effort:** M (engine).
 
-### T2.4 — Required pre-release security review  *(G7)*
+### T2.4 — Required pre-release security review  *(G7; superseded by lighter final implementation)*
 - **Files:** `recipes/p8-build-release.yaml` (+ `templates/launch-gtm-checklist.md` or a new `security-review.md`), optional wire to the host `security-review` skill.
-- **Change:** add a required `non_skill_process` + output: a **pre-release security review** covering auth/session, API response info-leakage, input validation/injection, dependencies with known CVEs. Gate it as a **Release Gate precondition** (`gate_precondition_errors('release')`).
+- **Planned change:** add a required `non_skill_process` + output: a **pre-release security review** covering auth/session, API response info-leakage, input validation/injection, dependencies with known CVEs. Gate it as a **Release Gate precondition** (`gate_precondition_errors('release')`).
 - **Why:** "agentic coding generates code that works, not code that's secure"; playbook calls a pre-user security review the *minimum responsible threshold*.
-- **Accept:** Release Gate cannot be requested without a completed `security-review.md`; the four checks each have a status.
+- **Final decision:** do not hard-block every solo project on a new `security-review.md` artifact. The shipped P9 recipe now surfaces this as the minimum responsible review before Release Gate, keeping the check visible while preserving the kit's low-friction default.
 - **Effort:** S–M.
 
 ---

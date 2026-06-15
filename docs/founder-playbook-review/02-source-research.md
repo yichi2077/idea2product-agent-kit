@@ -62,7 +62,7 @@ Chat (strategy, narrative, segmentation) ↔ Cowork (ops, logistics, GTM executi
 | # | Point (from MVP/Launch/Scale) | Maps to | Fit |
 |---|---|---|---|
 | C1 | **Scope-protection doc**: explicit non-goals + evidence-gated feature-add rule ("real user signal or founder enthusiasm?") | P5 PRD / P7 | **High** — cheap, fights scope creep, on-brand with shift-left |
-| C2 | **Pre-release security review** as a required threshold (auth, leakage, injection, vuln deps) | P8 (or P6/P7) | **High** — concrete, named, currently not a required gate step |
+| C2 | **Pre-release security review** as a responsible threshold (auth, leakage, injection, vuln deps) | P9 build/release | **High** — landed as a recommended P9 process before Release Gate, not as a hard gate artifact |
 | C3 | **PMF instruments**: Sean Ellis 40% test, Effort (push→pull) test, three R's as exit criteria | P9 / outcome-review + a pre-build validation step | **High** — turns "outcome review" into measurable go/no-go |
 | C4 | **Architectural-memory discipline**: a per-project memory doc updated each build session ("insurance against drift") | P6→P8 | **Medium-high** — aligns with source-of-truth; partly via ADRs already |
 | C5 | **"Skeptic check" on your own metrics** ("what would a skeptic say about these numbers?") | P5 instrumentation, P9 | **Medium-high** — a one-line disconfirmation guard |

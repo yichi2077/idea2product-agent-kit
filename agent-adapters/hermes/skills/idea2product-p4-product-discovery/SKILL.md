@@ -1,11 +1,13 @@
 ---
 name: idea2product-p4-product-discovery
-description: "Translate an approved strategy into product discovery: target user, problem statement, jobs-to-be-done, value proposition, business model, boundaries, product hypotheses, and stop conditions. Use when the user explicitly asks for idea2product-P4-product-discovery, P4, phase 4, or this step of the idea-to-product pipeline."
+description: "Translate an approved strategy into product discovery: target user, problem statement, JTBD, value proposition, business model, boundaries, product hypotheses, customer-discovery interview plan, and stop conditions. Use when the user explicitly asks for idea2product-P4-product-discovery, P4, phase 4, or this step of the idea-to-product pipeline."
 ---
 
 # idea2product-P4-product-discovery
 
-Translate an approved strategy into product discovery: target user, problem statement, jobs-to-be-done, value proposition, business model, boundaries, product hypotheses, and stop conditions.
+Translate an approved strategy into product discovery: target user, problem
+statement, jobs-to-be-done, value proposition, business model, boundaries,
+product hypotheses, customer-discovery interview plan, and stop conditions.
 
 ## Required Workspace
 
@@ -31,6 +33,14 @@ Then follow the printed recipe exactly. The recipe separates required skills, co
 ## Main Output
 
 `docs/20-product/product-thesis.md`
+
+## Founder's Playbook Focus
+
+When desirability risk is material, use `.pipeline/templates/interview-plan.md`.
+Define who to interview, where to find them, rewrite questions away from
+"would you use this?" toward past behavior, debrief each interview, and synthesize
+every ~5 conversations. If real users are skipped, record that as an explicit
+assumption/risk so the confirmation-bias watch can surface it.
 
 ## Rules
 

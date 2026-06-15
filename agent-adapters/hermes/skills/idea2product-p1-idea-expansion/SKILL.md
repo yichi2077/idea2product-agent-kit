@@ -1,11 +1,14 @@
 ---
 name: idea2product-p1-idea-expansion
-description: "Capture a real product or business idea, clarify the user, problem, urgency, do-nothing cost, time budget, risks, and stop conditions, then initialize assumptions and risks for downstream strategy work. Use when the user explicitly asks for idea2product-P1-idea-expansion, P1, phase 1, or this step of the idea-to-product pipeline."
+description: "Capture a real product or business idea as a falsifiable hypothesis, clarify the user, frequency, quantified loss, workaround, urgency, do-nothing cost, risks, and stop conditions, then initialize assumptions and risks for downstream strategy work. Use when the user explicitly asks for idea2product-P1-idea-expansion, P1, phase 1, or this step of the idea-to-product pipeline."
 ---
 
 # idea2product-P1-idea-expansion
 
-Capture a real product or business idea, clarify the user, problem, urgency, do-nothing cost, time budget, risks, and stop conditions, then initialize assumptions and risks for downstream strategy work.
+Capture a real product or business idea as a falsifiable hypothesis, clarify the
+specific user, scenario, frequency, quantified loss, current workaround, urgency,
+do-nothing cost, time budget, risks, and stop conditions, then initialize
+assumptions and risks for downstream strategy work.
 
 ## Required Workspace
 
@@ -31,6 +34,13 @@ Then follow the printed recipe exactly. The recipe separates required skills, co
 ## Main Output
 
 `docs/00-idea/idea-brief.md`
+
+## Founder's Playbook Focus
+
+The key deliverable is not a polished pitch. It is a testable sentence:
+`[persona] in [scenario] every [frequency] hits [problem] because [cause], costing them [quantified loss]`.
+If the persona, frequency, loss, or workaround is vague, ask the user to sharpen
+it before completing P1.
 
 ## Rules
 

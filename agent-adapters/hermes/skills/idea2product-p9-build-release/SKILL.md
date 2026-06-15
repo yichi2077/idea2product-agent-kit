@@ -1,11 +1,13 @@
 ---
 name: idea2product-p9-build-release
-description: "Drive engineering execution, verification, acceptance results, launch or GTM checklist, release decision, and Release Gate preparation using disciplined build and review practices. Use when the user explicitly asks for idea2product-P9-build-release, P9, phase 9, or this step of the idea-to-product pipeline."
+description: "Drive engineering execution, verification, acceptance results, launch or GTM checklist, release decision, pre-release security review, and Release Gate preparation using disciplined build and review practices. Use when the user explicitly asks for idea2product-P9-build-release, P9, phase 9, or this step of the idea-to-product pipeline."
 ---
 
 # idea2product-P9-build-release
 
-Drive engineering execution, verification, acceptance results, launch or GTM checklist, release decision, and Release Gate preparation using disciplined build and review practices.
+Drive engineering execution, verification, acceptance results, launch or GTM
+checklist, release decision, pre-release security review, and Release Gate
+preparation using disciplined build and review practices.
 
 ## Required Workspace
 
@@ -31,6 +33,13 @@ Then follow the printed recipe exactly. The recipe separates required skills, co
 ## Main Output
 
 `docs/40-delivery/acceptance-results.md`
+
+## Founder's Playbook Focus
+
+Before Release Gate, run the lightweight security review named in the P9 recipe:
+auth/session, API response information leakage, input validation/injection, and
+dependencies with known CVEs. Agentic coding can produce code that works without
+making it safe for real users.
 
 ## Rules
 

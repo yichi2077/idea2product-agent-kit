@@ -1,11 +1,13 @@
 ---
 name: idea2product-p5-product-definition
-description: "Turn product discovery into delivery-ready product artifacts: PRD, user stories, acceptance criteria, edge cases, instrumentation, and PM critique before Product Gate. Use when the user explicitly asks for idea2product-P5-product-definition, P5, phase 5, or this step of the idea-to-product pipeline."
+description: "Turn product discovery into delivery-ready product artifacts: PRD, user stories, acceptance criteria, edge cases, instrumentation, non-goals, evidence-gated scope, and PM critique before Product Gate. Use when the user explicitly asks for idea2product-P5-product-definition, P5, phase 5, or this step of the idea-to-product pipeline."
 ---
 
 # idea2product-P5-product-definition
 
-Turn product discovery into delivery-ready product artifacts: PRD, user stories, acceptance criteria, edge cases, instrumentation, and PM critique before Product Gate.
+Turn product discovery into delivery-ready product artifacts: PRD, user stories,
+acceptance criteria, edge cases, instrumentation, non-goals, evidence-gated
+scope, and PM critique before Product Gate.
 
 ## Required Workspace
 
@@ -31,6 +33,13 @@ Then follow the printed recipe exactly. The recipe separates required skills, co
 ## Main Output
 
 `docs/20-product/prd.md`
+
+## Founder's Playbook Focus
+
+The PRD must protect MVP scope. Include explicit non-goals and a feature-add
+bar: every P0/P1 requirement cites concrete user evidence. Before requesting the
+Product Gate, ask whether each requirement solves the problem validation revealed,
+or the problem assumed at P1.
 
 ## Rules
 
