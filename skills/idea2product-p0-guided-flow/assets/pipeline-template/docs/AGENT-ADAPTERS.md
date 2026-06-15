@@ -9,19 +9,19 @@ Every host should:
 1. Start with `python3 .pipeline/scripts/pipeline.py status` on macOS/Linux, or `python .pipeline/scripts/pipeline.py status` on Windows.
 2. Use `python3 .pipeline/scripts/pipeline.py resume` on macOS/Linux, or `python .pipeline/scripts/pipeline.py resume` on Windows, to determine the next action.
 3. Run exactly one phase command at a time: `run P1` through `run P9`.
-4. Never approve gates from the agent runtime.
+4. Never approve gates autonomously. In **light** mode (default) you may RECORD the user's explicit in-chat approval via `pipeline_gate.py approve <gate> --rationale "…"`; in **strict** mode you cannot approve at all (the user approves in a real terminal). Either way, never approve without the user's explicit decision in the conversation.
 5. Ask the user for a real idea when P1-P3 validation lacks `docs/00-idea/idea-brief.md`.
 6. Use `pipeline.py doctor` for read-only health checks when state or artifacts look inconsistent.
 7. Use `pipeline.py retire --reason "..."` only after explicit confirmation and a user-provided reason.
 8. Run `pipeline.py status` and `pipeline.py handoff` after changing pipeline state or artifacts.
 
-If `.pipeline/scripts/pipeline.py` is missing, the installed idea2product guided skill auto-initializes only empty directories or `.git`-only empty repos. For non-empty projects, initialize explicitly after confirming the target:
+If `.pipeline/scripts/pipeline.py` is missing, scaffold it first — the recommended cross-platform path is the one-shot initializer (the agent runs it for the user):
 
-```powershell
-python $env:USERPROFILE\.agents\skills\idea2product-p0-guided-flow\scripts\pipeline_entry.py init .
+```bash
+python3 scripts/install.py init /path/to/repo   # use `python` on Windows
 ```
 
-Package-based installs may alternatively run `scripts/scaffold_into_repo.ps1`. Initialization is non-destructive by default; use `--force` only when the user explicitly wants to overwrite existing scaffold files.
+Scaffolding is non-destructive: existing `.pipeline`, `docs/`, and state are preserved.
 
 ## Adapter Matrix
 
@@ -35,12 +35,12 @@ Package-based installs may alternatively run `scripts/scaffold_into_repo.ps1`. I
 | OpenClaw | `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `skills/` | OpenClaw can load workspace skills and bootstrap files. |
 | Generic | `AGENTS.md` | For agents that only support project instruction markdown. |
 
-## Install From Package
+## Install Adapters
 
-After scaffolding the pipeline into a target repository:
+Cross-platform (recommended):
 
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/install_agent_adapters.ps1 -TargetPath C:\path\to\repo -Agent all
+```bash
+python3 scripts/install.py adapters /path/to/repo --agent all   # use `python` on Windows
 ```
 
 Use `-Agent cursor`, `-Agent claude-code`, `-Agent opencode`, `-Agent hermes`, `-Agent openclaw`, or `-Agent generic` for one host.
