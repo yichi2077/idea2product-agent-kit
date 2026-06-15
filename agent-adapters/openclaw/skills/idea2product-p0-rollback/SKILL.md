@@ -91,4 +91,4 @@ for the user in plain language:
 
 - Never run `reopen` without the user's explicit target phase and confirmation.
 - Never invent the reason or the affected reports — they come from the user.
-- Never hand-edit state files, and never approve gates (the user does that in a real terminal).
+- Never hand-edit state files; never approve a gate without the user's explicit decision (light mode records their in-chat approval; strict mode is terminal-only).

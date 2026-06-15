@@ -9,7 +9,7 @@ Use this as the top-level guided entrypoint for the local `.pipeline` system in 
 
 ## Interaction model
 
-The user drives this kit by talking to you and invoking skills — not by typing pipeline commands. You run `pipeline.py` on their behalf via the shell and report back in plain language. `pipeline.py` is the deterministic engine you operate; it is not the user's interface. The single exception is gate approval: the user runs `pipeline_gate.py approve` themselves in a real terminal, because a human (not the agent) must be the approval anchor.
+The user drives this kit by talking to you and invoking skills — not by typing pipeline commands. You run `pipeline.py` on their behalf via the shell and report back in plain language. `pipeline.py` is the deterministic engine you operate; it is not the user's interface. The main exception is gate approval, which must be anchored on a human decision: in the default **light** mode you record the user's explicit in-chat approval; in **strict** mode the user runs `pipeline_gate.py approve` themselves in a real terminal.
 
 ## First Checks
 
@@ -135,27 +135,30 @@ python3 .pipeline/scripts/pipeline.py retire --reason "reason from the user"
 
 ## Gate Rules
 
-Agents may request gates but must not approve gates. When you request a gate, state your confidence in the decision context you prepared, grounded in the open assumptions and risks:
-
-Before requesting any gate, run:
+Gates are human-owned: you may REQUEST a gate and you can never *skip* one, but the human decides. Before requesting any gate, run:
 
 ```bash
 python3 .pipeline/scripts/pipeline.py assumptions due
 ```
 
-Surface any overdue assumptions or risks to the user and account for them in the confidence rationale.
+Surface any overdue assumptions or risks to the user, then request the gate with your confidence grounded in the open assumptions and risks:
 
 ```bash
 python3 .pipeline/scripts/pipeline.py gate request strategy --confidence high|medium|low --rationale "what drives that confidence"
 ```
 
-The user sees that confidence when they approve, so they can vary their scrutiny. Approval is done by the user in a real interactive terminal:
+Then STOP, present the decision, your confidence, and the open assumptions/risks, and ask the user to approve or reject. How you record the verdict depends on the gate mode (`pipeline.py gate mode`):
 
-```powershell
-python .pipeline/scripts/pipeline_gate.py approve strategy
-```
+- **light (default):** after the user explicitly approves in the conversation, record it yourself with their reason:
+  ```bash
+  python3 .pipeline/scripts/pipeline_gate.py approve strategy --rationale "<the user's reason>"
+  ```
+- **strict:** you cannot approve. Ask the user to run it in a real terminal and type the challenge code:
+  ```bash
+  python3 .pipeline/scripts/pipeline_gate.py approve strategy
+  ```
 
-Do not bypass with `--yes`, `--force`, CI, pipes, redirects, environment variables, or direct state edits.
+Never approve without the user's explicit decision in the conversation. Do not bypass with `--yes`, `--force`, CI, pipes, redirects, environment variables, or direct state edits.
 
 ## Verification
 
