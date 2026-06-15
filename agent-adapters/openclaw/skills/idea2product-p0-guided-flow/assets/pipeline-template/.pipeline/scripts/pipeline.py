@@ -37,6 +37,15 @@ SCAFFOLD_MARKER = "idea2product:scaffold-placeholder"
 def now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
+def is_git_repo() -> bool:
+    """True if the workspace is inside a git work tree (so the commit hint is runnable)."""
+    try:
+        out = subprocess.run(["git", "rev-parse", "--is-inside-work-tree"],
+                             cwd=ROOT, capture_output=True, text=True)
+    except (FileNotFoundError, OSError):
+        return False
+    return out.returncode == 0 and out.stdout.strip() == "true"
+
 def read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
@@ -597,11 +606,14 @@ def existing_solutions_scan_errors() -> list[str]:
     }
     errors = []
     if classification not in classifications:
-        errors.append("docs/10-strategy/existing-solutions-scan.md must include a valid Classification.")
+        errors.append("docs/10-strategy/existing-solutions-scan.md must include a valid Classification. "
+                      f"Use exactly one of: {', '.join(sorted(classifications))}.")
     if recommendation not in recommendations:
-        errors.append("docs/10-strategy/existing-solutions-scan.md must include a valid Recommendation.")
+        errors.append("docs/10-strategy/existing-solutions-scan.md must include a valid Recommendation. "
+                      f"Use exactly one of: {', '.join(sorted(recommendations))}.")
     if decision not in decisions:
-        errors.append("docs/10-strategy/existing-solutions-scan.md must include a valid User Decision.")
+        errors.append("docs/10-strategy/existing-solutions-scan.md must include a valid User Decision. "
+                      f"Use exactly one of: {', '.join(sorted(decisions))}.")
     if decision == "pending":
         errors.append("docs/10-strategy/existing-solutions-scan.md User Decision is pending; ask the user how to proceed before completing P2.")
     if decision in {"use_existing", "retire"}:
@@ -691,8 +703,12 @@ def stage_complete(args: argparse.Namespace) -> int:
         close_real_idea_seed_registers()
     record_phase_completion(phase, stamp)
     print(f"Stage completed: {phase}")
-    print(f"Commit this phase for the user before continuing (do NOT push): "
-          f"git add docs .pipeline && git commit -m \"idea2product: complete {phase}\"")
+    if is_git_repo():
+        print(f"Commit this phase for the user before continuing (do NOT push): "
+              f"git add docs .pipeline && git commit -m \"idea2product: complete {phase}\"")
+    else:
+        print(f"Tip: start version control so phase checkpoints and gate tags are saved (do NOT push): "
+              f"git init && git add -A && git commit -m \"idea2product: complete {phase}\"")
     if next_phase:
         print(f"Next phase: {next_phase}")
     if phase in {"P3", "P5", "P6", "P8"}:

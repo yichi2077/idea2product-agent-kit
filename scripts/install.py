@@ -305,6 +305,13 @@ def cmd_init(args: argparse.Namespace) -> int:
     cmd_skills(argparse.Namespace(target="both"))
     cmd_scaffold(argparse.Namespace(repo=str(repo)))
     cmd_adapters(argparse.Namespace(repo=str(repo), agent=host, install_user_skills=False))
+    # Start version control so the agent can checkpoint each phase and gate tags are meaningful.
+    if not (repo / ".git").exists():
+        try:
+            subprocess.run(["git", "init"], cwd=repo, capture_output=True)
+            print(f"Initialized a git repository in {repo} (phase checkpoints commit here; never pushed).")
+        except (FileNotFoundError, OSError):
+            print("Note: git was not found; install git so the agent can save phase checkpoints.")
     print(f"\n✓ idea2product ready in {repo}.")
     print("In your agent, say:  run p1   (or invoke $idea2product-p0-guided-flow)")
     return 0

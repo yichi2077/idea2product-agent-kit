@@ -85,7 +85,7 @@ Continuation skills:
 1. Run `python3 .pipeline/scripts/pipeline.py handoff` (use `python` on Windows). It is read-only and consolidates current phase, next step, gate states, recorded decisions, open assumptions/risks, and any stale outputs. Summarize it for the user — this is how you and the user re-orient at the start of any session.
 2. If a ready phase is shown, use the corresponding numbered `idea2product-Px-*` skill. When P2 is ready, use `$idea2product-p2-strategy-analysis`; its required first step is the existing-solutions scan before deeper strategy analysis.
 3. If a real idea is missing, ask the user for the real idea instead of inventing one.
-4. If a gate is awaiting approval, prepare the decision context and tell the user the manual approval command.
+4. If a gate is awaiting approval, present the decision context and ask the user to approve or reject. In light mode (default) record their explicit in-chat decision yourself; in strict mode tell them the terminal approval command (see the Gate Rules section).
 5. If the handoff reports a **stale** output (a completed phase's file changed after completion), confirm with the user whether the change is harmless or whether the affected phase must be reworked.
 6. Do not run `stage complete Px` until that phase is the current `ready` phase and its recipe outputs exist and no longer contain scaffold placeholders. The engine rejects skipped phases and placeholder outputs.
 

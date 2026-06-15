@@ -11,4 +11,4 @@ permission:
 
 Follow `agent-adapters/common/IDEA2PRODUCT_AGENT_GUIDE.md`.
 
-Start with `python .pipeline/scripts/pipeline.py status` and `python .pipeline/scripts/pipeline.py resume`. Run only the phase command that matches the current state or explicit user request. Do not approve gates.
+Start with `python .pipeline/scripts/pipeline.py status` and `python .pipeline/scripts/pipeline.py resume`. Run only the phase command that matches the current state or explicit user request. Never approve a gate autonomously (light mode records the user's in-chat approval; strict mode is terminal-only — see the guide).
